@@ -153,40 +153,8 @@ constexpr WeaponTypes convert_weapon_type_cop(int type)
     return WeaponTypes::Unknown;
 }
 
-constexpr WeaponTypes convert_weapon_type_soc_cs(int type)
-{
-    switch (type)
-    {
-    case 0:  return WeaponTypes::Item;
-    case 1:  return WeaponTypes::Melee;
-    case 2:  return WeaponTypes::Mutant1;
-    case 3:  return WeaponTypes::Mutant2;
-    case 4:  return WeaponTypes::Mutant3;
-    case 5:  return WeaponTypes::Pistol;
-    case 6:  return WeaponTypes::SubmashineGun;
-    case 7:  return WeaponTypes::Shotgun;
-    case 8:  return WeaponTypes::SniperRifle;
-    case 9:  return WeaponTypes::GrenadeLauncher;
-    case 10: return WeaponTypes::Grenade;
-    case 11: return WeaponTypes::PsyStrike;
-    case 12: return WeaponTypes::ThrowingItems;
-    case 13: return WeaponTypes::AnomalyMine;
-    case 14: return WeaponTypes::Mincer;
-    case 15: return WeaponTypes::AnomalyField;
-    //case 16: is not used in release gamedata
-    case 17: return WeaponTypes::Gravi;
-    case 18: return WeaponTypes::BurningFuzz;
-    case 19: return WeaponTypes::RustyHair;
-    }
-
-    return WeaponTypes::Unknown;
-}
-
 inline WeaponTypes convert_weapon_type(int type)
 {
-    if (ShadowOfChernobylMode || ClearSkyMode)
-        return convert_weapon_type_soc_cs(type);
-
     return convert_weapon_type_cop(type);
 }
 };

@@ -170,8 +170,7 @@ void CUIMotionIcon::SetLuminosity(float newPos)
 
 void CUIMotionIcon::Draw()
 {
-    if (!ClearSkyMode)
-        inherited::Draw();
+	inherited::Draw();
 }
 
 void CUIMotionIcon::Update()

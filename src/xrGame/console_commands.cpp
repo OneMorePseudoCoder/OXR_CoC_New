@@ -673,8 +673,7 @@ public:
 #ifdef DEBUG
         Msg("Game save overhead  : %f milliseconds", timer.GetElapsed_sec() * 1000.f);
 #endif
-        const bool compat = ClearSkyMode || ShadowOfChernobylMode;
-        StaticDrawableWrapper* _s = CurrentGameUI()->AddCustomStatic("game_saved", true, compat ? 3.0f : -1.0f);
+        StaticDrawableWrapper* _s = CurrentGameUI()->AddCustomStatic("game_saved", true, -1.0f);
 
         pstr save_name;
         STRCONCAT(save_name, StringTable().translate("st_game_saved").c_str(), ": ", S);
@@ -695,10 +694,7 @@ public:
 
     virtual void fill_tips(vecTips& tips, u32 mode)
     {
-        if (ShadowOfChernobylMode || ClearSkyMode)
-            get_files_list(tips, "$game_saves$", SAVE_EXTENSION_LEGACY);
-        else
-            get_files_list(tips, "$game_saves$", SAVE_EXTENSION);
+		get_files_list(tips, "$game_saves$", SAVE_EXTENSION);
     }
 }; // CCC_ALifeSave
 
@@ -741,22 +737,6 @@ public:
             return;
         }
 
-        /*     moved to level_network_messages.cpp
-                CSavedGameWrapper			wrapper(args);
-                if (wrapper.level_id() == ai().level_graph().level_id()) {
-                    if (Device.Paused())
-                        Device.Pause		(FALSE, TRUE, TRUE, "CCC_ALifeLoadFrom");
-
-                    Level().remove_objects	();
-
-                    game_sv_Single			*game = smart_cast<game_sv_Single*>(Level().Server->game);
-                    R_ASSERT				(game);
-                    game->restart_simulator	(saved_game);
-
-                    return;
-                }
-        */
-
         if (MainMenu()->IsActive())
             MainMenu()->Activate(false);
 
@@ -773,10 +753,7 @@ public:
 
     virtual void fill_tips(vecTips& tips, u32 mode)
     {
-        if (ShadowOfChernobylMode || ClearSkyMode)
-            get_files_list(tips, "$game_saves$", SAVE_EXTENSION_LEGACY);
-        else
-            get_files_list(tips, "$game_saves$", SAVE_EXTENSION);
+		get_files_list(tips, "$game_saves$", SAVE_EXTENSION);
     }
 }; // CCC_ALifeLoadFrom
 
@@ -892,8 +869,7 @@ protected:
     int* value_blin;
 
 public:
-    CCC_Net_CL_InputUpdateRate(LPCSTR N, int* V, int _min = 0, int _max = 999)
-        : CCC_Integer(N, V, _min, _max), value_blin(V){};
+    CCC_Net_CL_InputUpdateRate(LPCSTR N, int* V, int _min = 0, int _max = 999) : CCC_Integer(N, V, _min, _max), value_blin(V){};
 
     virtual void Execute(LPCSTR args)
     {
@@ -1170,18 +1146,7 @@ public:
         }
         ph_dbg_draw_mask1.set(ph_m1_DbgTrackObject, TRUE);
         PH_DBG_SetTrackObject();
-        // IGameObject* O= Level().Objects.FindObjectByName(args);
-        // if(O)
-        //{
-        //	PH_DBG_SetTrackObject(*(O->cName()));
-        //	ph_dbg_draw_mask1.set(ph_m1_DbgTrackObject,TRUE);
-        //}
     }
-
-    // virtual void	Info	(TInfo& I)
-    //{
-    //	xr_strcpy(I,"restart game fast");
-    //}
 };
 #endif
 
@@ -1192,7 +1157,6 @@ public:
     virtual void Execute(LPCSTR args)
     {
         CCC_Integer::Execute(args);
-        // dWorldSetQuickStepNumIterations(NULL,phIterations);
         if (physics_world())
             physics_world()->StepNumIterations(phIterations);
     }
@@ -2293,16 +2257,6 @@ void CCC_RegisterCommands()
     extern BOOL dbg_draw_doors;
     CMD4(CCC_Integer, "dbg_draw_doors", &dbg_draw_doors, FALSE, TRUE);
 
-    /*
-    extern int ik_allign_free_foot;
-    extern int ik_local_blending;
-    extern int ik_blend_free_foot;
-    extern int ik_collide_blend;
-        CMD4(CCC_Integer,	"ik_allign_free_foot"			,&ik_allign_free_foot,	0,	1);
-        CMD4(CCC_Integer,	"ik_local_blending"				,&ik_local_blending,	0,	1);
-        CMD4(CCC_Integer,	"ik_blend_free_foot"			,&ik_blend_free_foot,	0,	1);
-        CMD4(CCC_Integer,	"ik_collide_blend"				,&ik_collide_blend,	0,	1);
-    */
     extern BOOL dbg_draw_ragdoll_spawn;
     CMD4(CCC_Integer, "dbg_draw_ragdoll_spawn", &dbg_draw_ragdoll_spawn, FALSE, TRUE);
     extern BOOL debug_step_info;
@@ -2320,22 +2274,6 @@ void CCC_RegisterCommands()
     extern BOOL dbg_draw_animation_movement_controller;
     CMD4(CCC_Integer, "dbg_draw_animation_movement_controller", &dbg_draw_animation_movement_controller, FALSE, TRUE);
 
-    /*
-    enum
-    {
-        dbg_track_obj_blends_bp_0			= 1<< 0,
-        dbg_track_obj_blends_bp_1			= 1<< 1,
-        dbg_track_obj_blends_bp_2			= 1<< 2,
-        dbg_track_obj_blends_bp_3			= 1<< 3,
-        dbg_track_obj_blends_motion_name	= 1<< 4,
-        dbg_track_obj_blends_time			= 1<< 5,
-        dbg_track_obj_blends_ammount		= 1<< 6,
-        dbg_track_obj_blends_mix_params		= 1<< 7,
-        dbg_track_obj_blends_flags			= 1<< 8,
-        dbg_track_obj_blends_state			= 1<< 9,
-        dbg_track_obj_blends_dump			= 1<< 10
-    };
-    */
     extern Flags32 dbg_track_obj_flags;
     CMD3(CCC_Mask, "dbg_track_obj_blends_bp_0", &dbg_track_obj_flags, dbg_track_obj_blends_bp_0);
     CMD3(CCC_Mask, "dbg_track_obj_blends_bp_1", &dbg_track_obj_flags, dbg_track_obj_blends_bp_1);

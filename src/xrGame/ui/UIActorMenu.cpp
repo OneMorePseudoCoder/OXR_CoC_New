@@ -901,10 +901,6 @@ void CUIActorMenu::ShowMessage(pcstr text, pcstr staticMessage /*= nullptr*/, fl
 {
     if (m_message_box_ok)
         CallMessageBoxOK(text);
-    else if (staticMessage && ShadowOfChernobylMode)
-    {
-        m_message_static = CurrentGameUI()->AddCustomStatic(staticMessage, true, staticMsgTtl);
-    }
 }
 
 void CUIActorMenu::CallMessageBoxYesNo(LPCSTR text)
@@ -963,13 +959,13 @@ bool CUIActorMenu::CanSetItemToList(PIItem item, CUIDragDropListEx* l, u16& ret_
         return true;
     }
 
-    if (item_slot == INV_SLOT_3 && l == m_pLists[eInventoryPistolList] && CallOfPripyatMode)
+    if (item_slot == INV_SLOT_3 && l == m_pLists[eInventoryPistolList])
     {
         ret_slot = INV_SLOT_2;
         return true;
     }
 
-    if (item_slot == INV_SLOT_2 && l == m_pLists[eInventoryAutomaticList] && CallOfPripyatMode)
+    if (item_slot == INV_SLOT_2 && l == m_pLists[eInventoryAutomaticList])
     {
         ret_slot = INV_SLOT_3;
         return true;

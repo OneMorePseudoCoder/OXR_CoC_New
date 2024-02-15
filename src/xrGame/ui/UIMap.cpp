@@ -396,37 +396,15 @@ void CUILevelMap::Draw()
                 if (sp->m_bScale)
                 {
                     Fvector2 sz = sp->m_originSize;
-                    // XXX: try to remove if-else branches and use common code path
-                    if (ShadowOfChernobylMode)
-                    {
-                        sz.mul(gmz);
-                        sp->SetWndSize(sz);
-                    }
-                    else if (ClearSkyMode)
-                    {
-                        if (gmz > sp->m_scale_bounds.x && gmz < sp->m_scale_bounds.y)
-                        {
-                            float k = (gmz - sp->m_scale_bounds.x) / (sp->m_scale_bounds.y - sp->m_scale_bounds.x);
-                            sz.mul(k);
-                            sp->SetWndSize(sz);
-                        }
-                        else if (gmz > sp->m_scale_bounds.y)
-                        {
-                            sp->SetWndSize(sz);
-                        }
-                    }
-                    else // COP
-                    {
-                        float k = gmz;
+					float k = gmz;
 
-                        if (gmz > sp->m_scale_bounds.y)
-                            k = sp->m_scale_bounds.y;
-                        else if (gmz < sp->m_scale_bounds.x)
-                            k = sp->m_scale_bounds.x;
+					if (gmz > sp->m_scale_bounds.y)
+						k = sp->m_scale_bounds.y;
+					else if (gmz < sp->m_scale_bounds.x)
+						k = sp->m_scale_bounds.x;
 
-                        sz.mul(k);
-                        sp->SetWndSize(sz);
-                    }
+					sz.mul(k);
+					sp->SetWndSize(sz);
                 }
                 else if (sp->m_scale_bounds.x > 0.0f)
                     sp->SetVisible(sp->m_scale_bounds.x < gmz);
@@ -452,8 +430,7 @@ void CUILevelMap::Init_internal(const shared_str& name, const CInifile& pLtx, co
     if (FALSE == fsimilar(kw, kh, EPS_L))
     {
         Msg(" --incorrect global rect definition for map [%s]  kw=%f kh=%f", *MapName(), kw, kh);
-        Msg(" --try x2=%f or  y2=%f", m_GlobalRect.x1 + kh * BoundRect().width(),
-            m_GlobalRect.y1 + kw * BoundRect().height());
+        Msg(" --try x2=%f or  y2=%f", m_GlobalRect.x1 + kh * BoundRect().width(), m_GlobalRect.y1 + kw * BoundRect().height());
     }
 #endif
 }
@@ -461,8 +438,6 @@ void CUILevelMap::Init_internal(const shared_str& name, const CInifile& pLtx, co
 void CUILevelMap::UpdateSpots()
 {
     DetachAll();
-
-    //.	if( fsimilar(MapWnd()->GlobalMap()->GetCurrentZoom(),MapWnd()->GlobalMap()->GetMinZoom(),EPS_L ) ) return;
 
     Frect _r;
     GetAbsoluteRect(_r);

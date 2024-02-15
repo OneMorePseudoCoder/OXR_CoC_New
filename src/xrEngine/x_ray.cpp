@@ -53,9 +53,6 @@ constexpr discord::ClientId DISCORD_APP_ID = 421286728695939072;
 #endif
 
 ENGINE_API CInifile* pGameIni = nullptr;
-ENGINE_API bool CallOfPripyatMode = false;
-ENGINE_API bool ClearSkyMode = false;
-ENGINE_API bool ShadowOfChernobylMode = false;
 
 ENGINE_API string512 g_sLaunchOnExit_params;
 ENGINE_API string512 g_sLaunchOnExit_app;
@@ -81,46 +78,13 @@ public:
 }
 
 template <typename T>
-void InitConfig(T& config, pcstr name, bool fatal = true,
-    bool readOnly = true, bool loadAtStart = true, bool saveAtEnd = true,
-    u32 sectCount = 0, const CInifile::allow_include_func_t& allowIncludeFunc = nullptr)
+void InitConfig(T& config, pcstr name, bool fatal = true, bool readOnly = true, bool loadAtStart = true, bool saveAtEnd = true, u32 sectCount = 0, const CInifile::allow_include_func_t& allowIncludeFunc = nullptr)
 {
     string_path fname;
     FS.update_path(fname, "$game_config$", name);
     config = xr_new<CInifile>(fname, readOnly, loadAtStart, saveAtEnd, sectCount, allowIncludeFunc);
 
-    CHECK_OR_EXIT(config->section_count() || !fatal,
-        make_string("Cannot find file %s.\nReinstalling application may fix this problem.", fname));
-}
-
-// XXX: make it more fancy
-// некрасиво слишком
-void set_shoc_mode()
-{
-    CallOfPripyatMode = false;
-    ShadowOfChernobylMode = true;
-    ClearSkyMode = false;
-}
-
-void set_cs_mode()
-{
-    CallOfPripyatMode = false;
-    ShadowOfChernobylMode = false;
-    ClearSkyMode = true;
-}
-
-void set_cop_mode()
-{
-    CallOfPripyatMode = true;
-    ShadowOfChernobylMode = false;
-    ClearSkyMode = false;
-}
-
-void set_free_mode()
-{
-    CallOfPripyatMode = false;
-    ShadowOfChernobylMode = false;
-    ClearSkyMode = false;
+    CHECK_OR_EXIT(config->section_count() || !fatal, make_string("Cannot find file %s.\nReinstalling application may fix this problem.", fname));
 }
 
 void InitSettings()
@@ -135,27 +99,6 @@ void InitSettings()
     InitConfig(pSettingsAuth, "system.ltx", true, true, true, false, 0, includeFilter);
     InitConfig(pSettingsOpenXRay, "openxray.ltx", false, true, true, false);
     InitConfig(pGameIni, "game.ltx");
-
-    if (strstr(Core.Params, "-shoc") || strstr(Core.Params, "-soc"))
-        set_shoc_mode();
-    else if (strstr(Core.Params, "-cs"))
-        set_cs_mode();
-    else if (strstr(Core.Params, "-cop"))
-        set_cop_mode();
-    else if (strstr(Core.Params, "-unlock_game_mode"))
-        set_free_mode();
-    else
-    {
-        pcstr gameMode = READ_IF_EXISTS(pSettingsOpenXRay, r_string, "compatibility", "game_mode", "cop");
-        if (xr_strcmpi("cop", gameMode) == 0)
-            set_cop_mode();
-        else if (xr_strcmpi("cs", gameMode) == 0)
-            set_cs_mode();
-        else if (xr_strcmpi("shoc", gameMode) == 0 || xr_strcmpi("soc", gameMode) == 0)
-            set_shoc_mode();
-        else if (xr_strcmpi("unlock", gameMode) == 0)
-            set_free_mode();
-    }
 }
 
 void InitConsole()

@@ -581,10 +581,10 @@ bool CUIActorMenu::ToSlot(CUICellItem* itm, bool force_place, u16 slot_id)
         if (slot_id == KNIFE_SLOT && m_pActorInvOwner->inventory().CanPutInSlot(iitem, KNIFE_SLOT))
             return ToSlot(itm, force_place, KNIFE_SLOT);
 
-        if (slot_id == INV_SLOT_2 && m_pActorInvOwner->inventory().CanPutInSlot(iitem, INV_SLOT_3) && CallOfPripyatMode)
+        if (slot_id == INV_SLOT_2 && m_pActorInvOwner->inventory().CanPutInSlot(iitem, INV_SLOT_3))
             return ToSlot(itm, force_place, INV_SLOT_3);
 
-        if (slot_id == INV_SLOT_3 && m_pActorInvOwner->inventory().CanPutInSlot(iitem, INV_SLOT_2) && CallOfPripyatMode)
+        if (slot_id == INV_SLOT_3 && m_pActorInvOwner->inventory().CanPutInSlot(iitem, INV_SLOT_2))
             return ToSlot(itm, force_place, INV_SLOT_2);
 
         CUIDragDropListEx* slot_list = GetSlotList(slot_id);
@@ -1459,11 +1459,6 @@ void CUIActorMenu::UpdateOutfit()
             m_pLists[eInventoryHelmetList]->SetCellsCapacity(m_pLists[eInventoryHelmetList]->MaxCellsCapacity());
     }
 
-    if (ShadowOfChernobylMode)
-    {
-        m_pLists[eInventoryBeltList]->ResetCellsCapacity();
-        return;
-    }
     if (!outfit)
     {
         MoveArtefactsToBag();

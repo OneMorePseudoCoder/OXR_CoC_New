@@ -42,11 +42,7 @@ void CInfoPortion::load_shared(LPCSTR)
     const ITEM_DATA* item_data = GetById(m_InfoId, true);
 
     if (item_data == nullptr)
-    {
-        if (ShadowOfChernobylMode || ClearSkyMode)
-            Msg("! attempt to use non-existent INFOPORTION [%s]", m_InfoId.c_str());
         return;
-    }
 
     CUIXml* pXML = item_data->_xml;
     pXML->SetLocalRoot(pXML->GetRoot());

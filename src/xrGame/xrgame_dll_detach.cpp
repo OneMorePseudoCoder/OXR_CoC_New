@@ -38,8 +38,8 @@ void init_game_globals()
     InitHudSoundSettings();
     if (!GEnv.isDedicatedServer)
     {
-        CInfoPortion::InitInternal(ShadowOfChernobylMode || ClearSkyMode, true);
-        CEncyclopediaArticle::InitInternal(ShadowOfChernobylMode, true);
+        CInfoPortion::InitInternal(false, true);
+        CEncyclopediaArticle::InitInternal(false, true);
         CPhraseDialog::InitInternal();
     };
     CCharacterInfo::InitInternal();

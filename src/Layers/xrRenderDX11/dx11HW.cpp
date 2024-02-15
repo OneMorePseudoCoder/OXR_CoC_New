@@ -172,19 +172,9 @@ void CHW::CreateDevice(SDL_Window* sdlWnd)
         }
         else
         {
-            if (ClearSkyMode)
-            {
-                hD3DCompiler = XRay::LoadModule("d3dcompiler_37");
-                D3DCompile = static_cast<D3DCompileFunc>(hD3DCompiler->GetProcAddress("D3DCompileFromMemory"));
-            }
-            else
-            {
-                D3DCompile = &::D3DCompile;
-            }
-
+			D3DCompile = &::D3DCompile;
             D3D11_FEATURE_DATA_D3D10_X_HARDWARE_OPTIONS data;
-            pDevice->CheckFeatureSupport(D3D11_FEATURE_D3D10_X_HARDWARE_OPTIONS,
-                &data, sizeof(data));
+            pDevice->CheckFeatureSupport(D3D11_FEATURE_D3D10_X_HARDWARE_OPTIONS, &data, sizeof(data));
             ComputeShadersSupported = data.ComputeShaders_Plus_RawAndStructuredBuffers_Via_Shader_4_x;
         }
         D3D11_FEATURE_DATA_D3D11_OPTIONS options;
@@ -243,6 +233,7 @@ void CHW::CreateDevice(SDL_Window* sdlWnd)
         //DXGI_FORMAT_D32_FLOAT_S8X24_UINT,
         DXGI_FORMAT_D24_UNORM_S8_UINT,
     };
+
     const DXGI_FORMAT selectedFormat = SelectFormat(D3D_FORMAT_SUPPORT_DEPTH_STENCIL, formats);
     if (selectedFormat == DXGI_FORMAT_UNKNOWN)
     {

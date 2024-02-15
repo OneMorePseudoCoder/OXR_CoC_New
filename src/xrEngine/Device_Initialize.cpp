@@ -20,8 +20,7 @@ void CRenderDevice::Initialize()
     TimerMM.Start();
 
     {
-        Uint32 flags = SDL_WINDOW_BORDERLESS | SDL_WINDOW_HIDDEN |
-            SDL_WINDOW_RESIZABLE;
+        Uint32 flags = SDL_WINDOW_BORDERLESS | SDL_WINDOW_HIDDEN | SDL_WINDOW_RESIZABLE;
 
         SDL_SetHint(SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS, "0");
         GEnv.Render->ObtainRequiredWindowFlags(flags);
@@ -29,19 +28,7 @@ void CRenderDevice::Initialize()
         int icon = IDI_ICON_COP;
         pcstr title = "S.T.A.L.K.E.R.: Call of Pripyat";
 
-        if (ShadowOfChernobylMode)
-        {
-            icon = IDI_ICON_SOC;
-            title = "S.T.A.L.K.E.R.: Shadow of Chernobyl";
-        }
-        else if (ClearSkyMode)
-        {
-            icon = IDI_ICON_CS;
-            title = "S.T.A.L.K.E.R.: Clear Sky";
-        }
-
-        title = READ_IF_EXISTS(pSettingsOpenXRay, r_string_wb,
-            "window", "title", title).c_str();
+        title = READ_IF_EXISTS(pSettingsOpenXRay, r_string_wb, "window", "title", title).c_str();
 
         xr_strcpy(Core.ApplicationTitle, title);
 

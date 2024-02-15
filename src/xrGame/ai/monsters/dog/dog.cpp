@@ -26,11 +26,7 @@ CAI_Dog::CAI_Dog()
     m_smelling_count = Random.randI(3);
     CControlled::init_external(this);
 
-    if (!ShadowOfChernobylMode)
-        com_man().add_ability(ControlCom::eControlJump);
-    else
-        com_man().add_ability(ControlCom::eControlMeleeJump);
-
+	com_man().add_ability(ControlCom::eControlJump);
     com_man().add_ability(ControlCom::eControlRotationJump);
 }
 
@@ -166,11 +162,6 @@ void CAI_Dog::reinit()
 
     com_man().add_rotation_jump_data("1", "2", "3", "4", PI_DIV_2);
     com_man().add_rotation_jump_data("5", "6", "7", "8", deg(179));
-    if (ShadowOfChernobylMode)
-        com_man().add_melee_jump_data("5","jump_right_0");
-    // com_man().add_rotation_jump_data("stand_jump_left_0","stand_jump_left_0",
-    //	                             "stand_jump_right_0","stand_jump_right_0", deg(179));
-    // com_man().add_melee_jump_data("stand_jump_left_0", "stand_jump_right_0");
 
     b_anim_end = false;
     b_state_anim = false;
@@ -345,17 +336,12 @@ LPCSTR CAI_Dog::get_current_animation()
 void CAI_Dog::reload(LPCSTR section)
 {
     inherited::reload(section);
-    if (!ShadowOfChernobylMode)
-    {
-        com_man().load_jump_data(0, "jump_ataka_01", "jump_ataka_02", "jump_ataka_03",
-            MonsterMovement::eVelocityParameterRunNormal, MonsterMovement::eVelocityParameterRunNormal, 0);
-    }
+	com_man().load_jump_data(0, "jump_ataka_01", "jump_ataka_02", "jump_ataka_03", MonsterMovement::eVelocityParameterRunNormal, MonsterMovement::eVelocityParameterRunNormal, 0);
 }
 
 void CAI_Dog::HitEntityInJump(const CEntity* pEntity)
 {
     SAAParam& params = anim().AA_GetParams("jump_ataka_02");
-
     HitEntity(pEntity, params.hit_power, params.impulse, params.impulse_dir);
 }
 

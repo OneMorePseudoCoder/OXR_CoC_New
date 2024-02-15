@@ -582,15 +582,6 @@ u32 vertex_id(Fvector position)
     return (ai().level_graph().vertex_id(position));
 }
 
-u64 vertex_id_awful(Fvector position)
-{
-    // Original Clear Sky's LuaJIT or luabind converts
-    // 4294967295 (which is u32(-1)) to 4294967296
-    // for some reason :(
-    const u32 id = ai().level_graph().vertex_id(position);
-    return id == u32(-1) ? id + 1 : id; // reproduce Clear Sky behaviour
-}
-
 u32 render_get_dx_level() { return GEnv.Render->get_dx_level(); }
 CUISequencer* g_tutorial = NULL;
 CUISequencer* g_tutorial2 = NULL;
@@ -838,20 +829,10 @@ IC static void CLevel_Export(lua_State* luaState)
         def("ray_pick", &ray_pick)
     ];
 
-    if (ClearSkyMode)
-    {
-        module(luaState, "level")
-        [
-            def("vertex_id", &vertex_id_awful)
-        ];
-    }
-    else
-    {
-        module(luaState, "level")
-        [
-            def("vertex_id", &vertex_id)
-        ];
-    }
+	module(luaState, "level")
+	[
+		def("vertex_id", &vertex_id)
+	];
 
     module(luaState, "actor_stats")
     [

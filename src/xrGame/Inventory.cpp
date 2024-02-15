@@ -81,11 +81,11 @@ CInventory::CInventory()
         }
 
         const bool isPersistent = pSettings->r_bool("inventory", slot_persistent);
-        const bool isActive = pSettings->read_if_exists<bool>("inventory", slot_active,
-            ShadowOfChernobylMode ? defaultSlotActiveness[i] : false);
+        const bool isActive = pSettings->read_if_exists<bool>("inventory", slot_active, false);
 
         m_slots.emplace_back(CInventorySlot{ nullptr, isPersistent, isActive });
-    } while (true);
+    } 
+	while (true);
 
     m_iLastSlot = i;
 #ifndef MASTER_GOLD

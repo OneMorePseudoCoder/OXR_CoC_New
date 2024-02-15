@@ -489,65 +489,17 @@ void CUIHudStatesWnd::SetAmmoIcon(const shared_str& sect_name)
     m_ui_weapon_icon->SetStretchTexture(true);
 
     float w, h;
-    if (ShadowOfChernobylMode)
-    {
-        h = texture_rect.height() * 0.8f;
-        w = texture_rect.width() * (UI().is_widescreen() ? 0.7f : 0.8f);
-        float posx_16 = 30.0f;
-        float posx = 32.0f;
-        if (texture_rect.width() > 2.01f * INV_GRID_WIDTH)
-        {
-            w = INV_GRID_WIDTH * 1.6f;
-        }
-        if (texture_rect.width() < 1.01f * INV_GRID_WIDTH)
-        {
-            m_ui_weapon_icon->SetTextureOffset(UI().is_widescreen() ? posx_16 : posx, 5.0f);
-        }
-        else
-        {
-            posx_16 = 12.f;
-            posx = 14.f;
-            m_ui_weapon_icon->SetTextureOffset(UI().is_widescreen() ? posx_16 : posx, 5.0f);
-        }
-        m_ui_weapon_icon->SetWidth(w);
-    }
-    else if (ClearSkyMode)
-    {
-        h = texture_rect.height() * 0.65f;
-        w = texture_rect.width() * 0.65f;
-        float posx_16 = 8.33f;
-        float posx = 10.0f;
-        if (texture_rect.width() > 2.01f * INV_GRID_WIDTH)
-        {
-            w = INV_GRID_WIDTH * 1.5f;
-        }
-        if (texture_rect.width() < 1.01f * INV_GRID_WIDTH)
-        {
-            m_ui_weapon_icon->SetTextureOffset(UI().is_widescreen() ? posx_16 : posx, 0.0f);
-        }
-        else
-        {
-            m_ui_weapon_icon->SetTextureOffset(0.0f, 0.0f);
-        }
-        m_ui_weapon_icon->SetWidth(UI().is_widescreen() ? w * 0.833f : w);
-    }
-    else
-    {
-        h = texture_rect.height() * 0.8f;
-        w = texture_rect.width() * 0.8f;
-        // now perform only width scale for ammo, which (W)size >2
-        if (texture_rect.width() > 2.01f * INV_GRID_WIDTH)
-            w = INV_GRID_WIDTH * 1.5f;
-        m_ui_weapon_icon->SetWidth(w * UI().get_current_kx());
-    }
+	h = texture_rect.height() * 0.8f;
+	w = texture_rect.width() * 0.8f;
+	// now perform only width scale for ammo, which (W)size >2
+	if (texture_rect.width() > 2.01f * INV_GRID_WIDTH)
+		w = INV_GRID_WIDTH * 1.5f;
+	m_ui_weapon_icon->SetWidth(w * UI().get_current_kx());
     m_ui_weapon_icon->SetHeight(h);
 }
 // ------------------------------------------------------------------------------------------------
 void CUIHudStatesWnd::UpdateZones()
 {
-    // float actor_radia = m_actor->conditions().GetRadiation() * m_actor_radia_factor;
-    // m_radia_hit = _max( m_zone_cur_power[it_rad], actor_radia );
-
     CActor* actor = smart_cast<CActor*>(Level().CurrentViewEntity());
     if (!actor)
     {
@@ -577,25 +529,15 @@ void CUIHudStatesWnd::UpdateZones()
     {
         m_zone_cur_power[ALife::infl_rad] = power;
     }
-    m_radia_hit = m_zone_cur_power[ALife::infl_rad];
 
-    /*	if ( Device.dwFrame % 20 == 0 )
-        {
-            Msg(" self = %.2f   hit = %.2f", m_radia_self, m_radia_hit );
-        }*/
+    m_radia_hit = m_zone_cur_power[ALife::infl_rad];
 
     if (m_arrow)
         m_arrow->SetNewValue(m_radia_hit);
+
     if (m_arrow_shadow)
         m_arrow_shadow->SetPos(m_arrow->GetPos());
-    /*
-        power = actor->conditions().GetPsy();
-        clamp( power, 0.0f, 1.1f );
-        if ( m_zone_cur_power[ALife::infl_psi] < power )
-        {
-            m_zone_cur_power[ALife::infl_psi] = power;
-        }
-    */
+
     if (!Level().hud_zones_list)
     {
         return;
@@ -632,11 +574,6 @@ void CUIHudStatesWnd::UpdateZones()
 
         ALife::EHitType hit_type = pZone->GetHitType();
         ALife::EInfluenceType z_type = get_indik_type(hit_type);
-        /*		if ( z_type == indik_type_max )
-                {
-                    continue;
-                }
-        */
 
         Fvector P = Device.vCameraPosition;
         P.y -= 0.5f;
@@ -645,13 +582,11 @@ void CUIHudStatesWnd::UpdateZones()
         pZone->CalcDistanceTo(P, dist_to_zone, rad_zone);
         clamp(dist_to_zone, 0.0f, flt_max * 0.5f);
 
-        float fRelPow =
-            (dist_to_zone / (rad_zone + (z_type == ALife::infl_max_count) ? 5.0f : m_zone_feel_radius[z_type] + 0.1f)) -
-            0.1f;
+        float fRelPow = (dist_to_zone / (rad_zone + (z_type == ALife::infl_max_count) ? 5.0f : m_zone_feel_radius[z_type] + 0.1f)) - 0.1f;
 
         zone_max_power = actor->conditions().GetZoneMaxPower(z_type);
         power = pZone->Power(dist_to_zone, rad_zone);
-        // power = power / zone_max_power;
+
         clamp(power, 0.0f, 1.1f);
 
         if ((z_type != ALife::infl_max_count) && (m_zone_cur_power[z_type] < power)) // max
@@ -673,9 +608,6 @@ void CUIHudStatesWnd::UpdateZones()
         //определить текущую частоту срабатывания сигнала
         zone_info.cur_period = zone_type->freq.x + (zone_type->freq.y - zone_type->freq.x) * (fRelPow * fRelPow);
 
-        // string256	buff_z;
-        // xr_sprintf( buff_z, "zone %2.2f\n", zone_info.cur_period );
-        // xr_strcat( buff, buff_z );
         if (zone_info.snd_time > zone_info.cur_period)
         {
             zone_info.snd_time = 0.0f;
@@ -693,7 +625,7 @@ void CUIHudStatesWnd::UpdateIndicators(CActor* actor)
     if (m_fake_indicators_update)
         return;
 
-    for (int i = 0; i < it_max; ++i) // it_max = ALife::infl_max_count-1
+    for (int i = 0; i < it_max; ++i)
     {
         UpdateIndicatorType(actor, (ALife::EInfluenceType)i);
     }
@@ -752,8 +684,6 @@ void CUIHudStatesWnd::UpdateIndicatorType(CActor* actor, ALife::EInfluenceType t
             protect += it->second.fBoostValue;
     }
 
-    //	float max_power = actor->conditions().GetZoneMaxPower( hit_type );
-    //	protect = protect / max_power; // = 0..1
     m_indik[type]->Show(true);
 
     if (hit_power < EPS)
@@ -820,6 +750,7 @@ void CUIHudStatesWnd::UpdateIndicatorType(CActor* actor, ALife::EInfluenceType t
     VERIFY(actor->conditions().GetZoneMaxPower(hit_type));
     actor->conditions().SetZoneDanger((hit_power - protect) / actor->conditions().GetZoneMaxPower(hit_type), type);
 }
+
 void CUIHudStatesWnd::SwitchLA(bool state, ALife::EInfluenceType type)
 {
     if (state == m_cur_state_LA[type])
