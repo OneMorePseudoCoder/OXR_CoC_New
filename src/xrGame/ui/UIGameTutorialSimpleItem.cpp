@@ -133,16 +133,10 @@ void CUISequenceSimpleItem::Load(CUIXml* xml, int idx)
 
         _si->m_wnd->TextItemControl()->SetTextComplexMode(true);
         _si->m_wnd->Show(false);
-        if (!ShadowOfChernobylMode)
-        {
-            if (!ClearSkyMode)
-                _si->m_wnd->SetWidth(_si->m_wnd->GetWidth() * UI().get_current_kx());
-            else if (UI().is_widescreen())
-                _si->m_wnd->SetWidth(_si->m_wnd->GetWidth() / 1.2f); // XXX: move 1.2f to UICore as a constant
-        }
 
         if (UI().is_widescreen())
         {
+			_si->m_wnd->SetWidth(_si->m_wnd->GetWidth() / 1.2f); // XXX: move 1.2f to UICore as a constant
             XML_NODE autostatic_node = xml->NavigateToNode("auto_static", i);
             XML_NODE ws_rect = xml->NavigateToNode(autostatic_node, "widescreen_rect", 0);
             if (ws_rect)
@@ -218,9 +212,7 @@ void CUISequenceSimpleItem::Update()
 
         if (ui_game_sp)
         {
-            if (ui_game_sp->GetPdaMenu().IsShown() || ui_game_sp->GetActorMenu().IsShown() ||
-                ui_game_sp->TalkMenu->IsShown() || ui_game_sp->UIChangeLevelWnd->IsShown() ||
-                (MainMenu()->IsActive() && !m_owner->m_flags.test(CUISequencer::etsOverMainMenu)))
+            if (ui_game_sp->GetPdaMenu().IsShown() || ui_game_sp->GetActorMenu().IsShown() || ui_game_sp->TalkMenu->IsShown() || ui_game_sp->UIChangeLevelWnd->IsShown() || (MainMenu()->IsActive() && !m_owner->m_flags.test(CUISequencer::etsOverMainMenu)))
                 m_UIWindow->Show(false);
             else
                 m_UIWindow->Show(true);

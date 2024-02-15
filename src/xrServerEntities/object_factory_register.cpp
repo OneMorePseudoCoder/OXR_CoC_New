@@ -214,17 +214,13 @@ void CObjectFactory::register_classes()
 #endif // NO_XR_GAME
 
 #ifndef NO_XR_GAME
-    if (!ShadowOfChernobylMode)
-        ADD_MP(CActor, CActorMP, CSE_ALifeCreatureActor, CSE_ActorMP, CLSID_OBJECT_ACTOR, "actor");
-    else
+//	ADD_MP(CActor, CActorMP, CSE_ALifeCreatureActor, CSE_ActorMP, CLSID_OBJECT_ACTOR, "actor");
 #endif
-    {
-        ADD(CActor, CSE_ALifeCreatureActor, CLSID_OBJECT_ACTOR, "actor");
-    }
+
+	ADD(CActor, CSE_ALifeCreatureActor, CLSID_OBJECT_ACTOR, "actor");
 
     // server entities
     add<CSE_ALifeGroupTemplate<CSE_ALifeMonsterBase>>(CLSID_AI_FLESH_GROUP, "flesh_group");
-    //	add<CSE_SpawnGroup>											(CLSID_AI_SPAWN_GROUP			,"spawn_group");
     add<CSE_ALifeGraphPoint>(CLSID_AI_GRAPH, "graph_point");
     add<CSE_ALifeOnlineOfflineGroup>(CLSID_ONLINE_OFFLINE_GROUP, "online_offline_group");
     // client and server entities
@@ -355,18 +351,7 @@ void CObjectFactory::register_classes()
     ADD(CHairsZone, CSE_ALifeZoneVisual, CLSID_Z_BFUZZ, "zone_bfuzz");
     ADD(CHairsZone, CSE_ALifeZoneVisual, CLSID_Z_RUSTYH, "zone_rusty_hair");
     ADD(CMosquitoBald, CSE_ALifeAnomalousZone, CLSID_Z_DEAD, "zone_dead");
-    // We can't register both, since CLSID_LEVEL_CHANGER_S is created in COP scripts as "level_changer_s"
-    // But in SOC scripts CLSID_LEVEL_CHANGER_S may be used as "level_changer"
-#ifndef NO_XR_GAME
-    if (ShadowOfChernobylMode)
-    {
-        ADD(CLevelChanger, CSE_ALifeLevelChanger, CLSID_LEVEL_CHANGER_S, "level_changer");
-    }
-    else
-#endif // NO_XR_GAME
-    {
-        ADD(CLevelChanger, CSE_ALifeLevelChanger, CLSID_LEVEL_CHANGER, "level_changer");
-    }
+	ADD(CLevelChanger, CSE_ALifeLevelChanger, CLSID_LEVEL_CHANGER, "level_changer");
     ADD(CScriptZone, CSE_ALifeSpaceRestrictor, CLSID_SCRIPT_ZONE, "script_zone");
     ADD(CSmartZone, CSE_ALifeSmartZone, CLSID_SMART_ZONE, "smart_zone");
     ADD(CTeamBaseZone, CSE_ALifeTeamBaseZone, CLSID_Z_TEAM_BASE, "team_base_zone");

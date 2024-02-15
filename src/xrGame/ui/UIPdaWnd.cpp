@@ -131,10 +131,6 @@ void CUIPdaWnd::Init()
     UINoice->SetAutoDelete(true);
     if (!CUIXmlInit::InitStatic(uiXml, "noice_static", 0, UINoice, false))
         xr_delete(UINoice);
-
-    // XXX: dynamically determine if we need to rearrange the tabs
-    if (ClearSkyMode)
-        RearrangeTabButtons(UITabControl);
 }
 
 void CUIPdaWnd::SendMessage(CUIWindow* pWnd, s16 msg, void* pData)

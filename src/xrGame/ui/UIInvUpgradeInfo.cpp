@@ -84,26 +84,18 @@ bool UIInvUpgradeInfo::init_upgrade(Upgrade_type* upgr, CInventoryItem* inv_item
         }
 
         m_prereq->SetText(nullptr);
-        if (!ClearSkyMode)
-            m_prereq->SetTextColor(color_rgba(255, 90, 90, 255));
+		m_prereq->SetTextColor(color_rgba(255, 90, 90, 255));
 
         string512 str_res{};
         auto set_result_string = [&](pcstr desc, bool add = false)
         {
-            if (ClearSkyMode)
+			if (add)
             {
-                xr_strcpy(str_res, StringTable().translate(desc).c_str());
-            }
-            else if (add)
-            {
-                xr_sprintf(str_res, "%s\\n - %s", str_res,
-                    StringTable().translate(desc).c_str());
+                xr_sprintf(str_res, "%s\\n - %s", str_res, StringTable().translate(desc).c_str());
             }
             else
             {
-                xr_sprintf(str_res, "%s:\\n - %s",
-                    StringTable().translate("st_upgr_disable").c_str(),
-                    StringTable().translate(desc).c_str());
+                xr_sprintf(str_res, "%s:\\n - %s", StringTable().translate("st_upgr_disable").c_str(), StringTable().translate(desc).c_str());
             }
         };
 
@@ -111,8 +103,7 @@ bool UIInvUpgradeInfo::init_upgrade(Upgrade_type* upgr, CInventoryItem* inv_item
         switch (upg_res)
         {
         case inventory::upgrade::result_e_installed:
-            if (!ClearSkyMode)
-                m_prereq->SetTextColor(color_rgba(117, 255, 123, 255));
+			m_prereq->SetTextColor(color_rgba(117, 255, 123, 255));
             m_prereq->SetTextST("st_upgr_installed");
             break;
 
@@ -137,12 +128,6 @@ bool UIInvUpgradeInfo::init_upgrade(Upgrade_type* upgr, CInventoryItem* inv_item
             case inventory::upgrade::result_ok:
             case inventory::upgrade::result_e_precondition_money:
             case inventory::upgrade::result_e_precondition_quest:
-                if (ClearSkyMode)
-                {
-                    m_prereq->SetText(m_upgrade->get_prerequisites());
-                    break;
-                }
-
                 if (upg_res != inventory::upgrade::result_e_precondition_quest)
                     break;
                 [[fallthrough]];

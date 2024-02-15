@@ -100,35 +100,11 @@ void CUIActorMenu::Construct()
     m_ActorStateInfo = xr_new<ui_actor_state_wnd>();
     m_ActorStateInfo->SetAutoDelete(true);
 
-    if (ShadowOfChernobylMode)
-    {
-        CUIXml inventoryXml, tradeXml, carbodyXml;
-        inventoryXml.Load(CONFIG_PATH, UI_PATH, UI_PATH_DEFAULT, INVENTORY_XML);
-        tradeXml.Load(CONFIG_PATH, UI_PATH, UI_PATH_DEFAULT, TRADE_XML);
-        carbodyXml.Load(CONFIG_PATH, UI_PATH, UI_PATH_DEFAULT, CAR_BODY_XML);
+	CUIXml actorMenuXml;
+	actorMenuXml.Load(CONFIG_PATH, UI_PATH, UI_PATH_DEFAULT, ACTOR_MENU_XML);
+	InitializeUniversal(actorMenuXml);
+	InitSounds(actorMenuXml);
 
-        InitializeInventoryMode(inventoryXml);
-        InitializeTradeMode(tradeXml);
-        InitializeSearchLootMode(carbodyXml);
-        { // hack that is needed if we want events to work correctly
-            Fvector2 size = m_pInventoryWnd->GetWndSize();
-            size.max(m_pTradeWnd->GetWndSize());
-            size.max(m_pSearchLootWnd->GetWndSize());
-            SetWndSize(size);
-            Fvector2 pos = m_pInventoryWnd->GetWndPos();
-            size.min(m_pTradeWnd->GetWndPos());
-            size.min(m_pSearchLootWnd->GetWndPos());
-            SetWndPos(pos);
-        }
-        InitSounds(inventoryXml);
-    }
-    else
-    {
-        CUIXml actorMenuXml;
-        actorMenuXml.Load(CONFIG_PATH, UI_PATH, UI_PATH_DEFAULT, ACTOR_MENU_XML);
-        InitializeUniversal(actorMenuXml);
-        InitSounds(actorMenuXml);
-    }
     InitCallbacks();
     InitAllowedDrops();
 

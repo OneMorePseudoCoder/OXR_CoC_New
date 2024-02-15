@@ -36,12 +36,7 @@ void SBoneProtections::reload(const shared_str& bone_sect, IKinematics* kinemati
     VERIFY(kinematics);
     m_bones_koeff.clear();
 
-    float defaultHitFraction = 0.1f;
-    if (ShadowOfChernobylMode || ClearSkyMode)
-    {
-        defaultHitFraction = pSettings->read_if_exists<float>(bone_sect, "hit_fraction", defaultHitFraction);
-    }
-    m_fHitFracNpc = pSettings->read_if_exists<float>(bone_sect, "hit_fraction_npc", defaultHitFraction);
+    m_fHitFracNpc = pSettings->read_if_exists<float>(bone_sect, "hit_fraction_npc", 0.1f);
 
     m_default.koeff = 1.0f;
     m_default.armor = 0.0f;
@@ -83,12 +78,7 @@ void SBoneProtections::add(const shared_str& bone_sect, IKinematics* kinematics)
 
     VERIFY(kinematics);
 
-    float defaultHitFraction = 0.0f;
-    if (ShadowOfChernobylMode || ClearSkyMode)
-    {
-        defaultHitFraction = READ_IF_EXISTS(pSettings, r_float, bone_sect, "hit_fraction", defaultHitFraction);
-    }
-    m_fHitFracNpc += READ_IF_EXISTS(pSettings, r_float, bone_sect.c_str(), "hit_fraction_npc", defaultHitFraction);
+    m_fHitFracNpc += READ_IF_EXISTS(pSettings, r_float, bone_sect.c_str(), "hit_fraction_npc", 0.0f);
 
     CInifile::Sect& protections = pSettings->r_section(bone_sect);
     for (auto i = protections.Data.cbegin(); protections.Data.cend() != i; ++i)

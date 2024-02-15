@@ -51,23 +51,19 @@ void CUITalkDialogWnd::InitTalkDialogWnd()
 
     pcstr ourTag = "right_character_icon";
     pcstr othersTag = "left_character_icon";
-    if (ShadowOfChernobylMode)
-        std::swap(ourTag, othersTag);
 
     UIOurIcon = UIHelper::CreateStatic(*m_uiXml, ourTag, this, false);
     if (UIOurIcon)
     {
         UIOurIcon->AttachChild(&UICharacterInfoLeft);
-        UICharacterInfoLeft.InitCharacterInfo(Fvector2().set(0, 0), UIOurIcon->GetWndSize(),
-            TALK_CHARACTER_XML, TRADE_CHARACTER_XML);
+        UICharacterInfoLeft.InitCharacterInfo(Fvector2().set(0, 0), UIOurIcon->GetWndSize(), TALK_CHARACTER_XML, TRADE_CHARACTER_XML);
     }
 
     UIOthersIcon = UIHelper::CreateStatic(*m_uiXml, othersTag, this, false);
     if (UIOthersIcon)
     {
         UIOthersIcon->AttachChild(&UICharacterInfoRight);
-        UICharacterInfoRight.InitCharacterInfo(Fvector2().set(0, 0), UIOthersIcon->GetWndSize(),
-            TALK_CHARACTER_XML, TRADE_CHARACTER_XML);
+        UICharacterInfoRight.InitCharacterInfo(Fvector2().set(0, 0), UIOthersIcon->GetWndSize(), TALK_CHARACTER_XML, TRADE_CHARACTER_XML);
     }
 
     CUIWindow* answersParent = this;
@@ -138,8 +134,6 @@ void CUITalkDialogWnd::InitTalkDialogWnd()
     AddCallbackStr("question_item", LIST_ITEM_CLICKED, CUIWndCallback::void_function(this, &CUITalkDialogWnd::OnQuestionClicked));
 
     AddCallback(&UIToTradeButton, BUTTON_CLICKED, CUIWndCallback::void_function(this, &CUITalkDialogWnd::OnTradeClicked));
-
-    //AddCallbackStr("upgrade_btn", BUTTON_CLICKED, CUIWndCallback::void_function(this, &CUITalkDialogWnd::OnUpgradeClicked));
 
     if (UIToExitButton)
     {

@@ -214,8 +214,7 @@ void CShootingObject::Light_Render(const Fvector& P)
 // Particles
 //////////////////////////////////////////////////////////////////////////
 
-void CShootingObject::StartParticles(
-    CParticlesObject*& pParticles, LPCSTR particles_name, const Fvector& pos, const Fvector& vel, bool auto_remove_flag)
+void CShootingObject::StartParticles(CParticlesObject*& pParticles, LPCSTR particles_name, const Fvector& pos, const Fvector& vel, bool auto_remove_flag)
 {
     if (!particles_name)
         return;
@@ -235,15 +234,10 @@ void CShootingObject::StartParticles(
     {
         in_hud_mode = false;
     }
-    // XXX: Particle positions in Shoc configs were made for disabled hud mode
-    // Need to add checks here to use ShadowOfChernobylMode + CoP hud weapon
-    if (ShadowOfChernobylMode)
-    {
-        in_hud_mode = false;
-    }
 
     pParticles->Play(in_hud_mode);
 }
+
 void CShootingObject::StopParticles(CParticlesObject*& pParticles)
 {
     if (pParticles == NULL)
@@ -326,12 +320,7 @@ void CShootingObject::OnShellDrop(const Fvector& play_pos, const Fvector& parent
     {
         in_hud_mode = false;
     }
-    // XXX: Particle positions in Shoc configs were made for disabled hud mode
-    // Need to add checks here to use ShadowOfChernobylMode + CoP hud weapon
-    if (ShadowOfChernobylMode)
-    {
-        in_hud_mode = false;
-    }
+
     pShellParticles->Play(in_hud_mode);
 }
 
@@ -364,14 +353,10 @@ void CShootingObject::StartFlameParticles()
     {
         in_hud_mode = false;
     }
-    // XXX: Particle positions in Shoc configs were made for disabled hud mode
-    // Need to add checks here to use ShadowOfChernobylMode + CoP hud weapon
-    if (ShadowOfChernobylMode)
-    {
-        in_hud_mode = false;
-    }
+
     m_pFlameParticles->Play(in_hud_mode);
 }
+
 void CShootingObject::StopFlameParticles()
 {
     if (0 == m_sFlameParticlesCurrent.size())

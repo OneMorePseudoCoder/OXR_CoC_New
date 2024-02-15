@@ -236,28 +236,7 @@ void CAI_Stalker::Hit(SHit* pHDS)
         float BoneArmor = m_boneHitProtection->getBoneArmor(HDS.bone());
         float ap = HDS.armor_piercing;
 
-        if (ShadowOfChernobylMode || ClearSkyMode)
-        {
-            if (ap > EPS && ap > BoneArmor)
-            {
-                const float d_ap = ap - BoneArmor;
-                hit_power *= (d_ap / ap);
-
-                if (hit_power < m_boneHitProtection->m_fHitFracNpc)
-                {
-                    hit_power = m_boneHitProtection->m_fHitFracNpc;
-                }
-                if (hit_power < 0.0f) {
-                    hit_power = 0.0f;
-                }
-            }
-            else
-            {
-                hit_power *= m_boneHitProtection->m_fHitFracNpc;
-                HDS.add_wound = false;
-            }
-        }
-        else if (!fis_zero(BoneArmor, EPS))
+		if (!fis_zero(BoneArmor, EPS))
         {
             if (ap > BoneArmor)
             {
@@ -280,6 +259,7 @@ void CAI_Stalker::Hit(SHit* pHDS)
             hit_power = 1000.f;
         }
     }
+
     HDS.power = hit_power;
 
     if (g_Alive())
@@ -292,8 +272,7 @@ void CAI_Stalker::Hit(SHit* pHDS)
             if (!invulnerable() && cover && HDS.initiator() && (HDS.initiator()->ID() != ID()) &&
                 !fis_zero(HDS.damage()) && brain().affect_cover())
             {
-                agent_manager().location().add(
-                    xr_new<CDangerCoverLocation>(cover, Device.dwTimeGlobal, DANGER_INTERVAL, DANGER_DISTANCE));
+                agent_manager().location().add(xr_new<CDangerCoverLocation>(cover, Device.dwTimeGlobal, DANGER_INTERVAL, DANGER_DISTANCE));
             }
         }
 
@@ -305,10 +284,6 @@ void CAI_Stalker::Hit(SHit* pHDS)
             //			else
             //				sound().play		(eStalkerSoundInjuringByFriend);
         }
-
-//        int weapon_type = -1;
-//        if (best_weapon())
-//            weapon_type = best_weapon()->object().ef_weapon_type();
 
         if (!wounded() && !already_critically_wounded)
         {
@@ -322,8 +297,6 @@ void CAI_Stalker::Hit(SHit* pHDS)
 #pragma todo("Dima to Dima : forward-back bone impulse direction has been determined incorrectly!")
                 float power_factor = m_power_fx_factor * HDS.damage() / 100.f;
                 clamp(power_factor, 0.f, 1.f);
-
-                // IKinematicsAnimated		*tpKinematics = smart_cast<IKinematicsAnimated*>(Visual());
 #ifdef DEBUG
                 IKinematics* tpKinematics = smart_cast<IKinematics*>(Visual());
                 tpKinematics->LL_GetBoneInstance(HDS.bone());
@@ -333,12 +306,6 @@ void CAI_Stalker::Hit(SHit* pHDS)
                     HDS._dump();
                 }
 #endif
-                //				int						fx_index =
-                //iFloor(tpKinematics->LL_GetBoneInstance(HDS.bone()).get_param(1)
-                //+
-                //(angle_difference(movement().m_body.current.yaw,-yaw) <= PI_DIV_2 ? 0 : 1));
-                //				if (fx_index != -1)
-                //					animation().play_fx	(power_factor,fx_index);
             }
             else
             {

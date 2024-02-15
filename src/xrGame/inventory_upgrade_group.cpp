@@ -85,24 +85,16 @@ UpgradeStateResult Group::can_install(CInventoryItem& item, UpgradeBase& test_up
         {
             continue;
         }
+
         bool cant_install; // XXX Clear Sky upgrades: find a dynamic, universal solution
-        if (ClearSkyMode)
-            cant_install = !item.has_upgrade((*ib)->id());
-        else
-        {
-            Upgrade* U = smart_cast<Upgrade*>(*ib);
-            cant_install = !item.has_upgrade_group(U->parent_group_id());;
-        }
+
+		cant_install = !item.has_upgrade_group(smart_cast<Upgrade*>(*ib)->parent_group_id());;
 
         if (cant_install)
         {
             if (loading)
             {
-                FATAL(make_string(
-                    "Loading item: Upgrade <%s> of inventory item [%s] (id = %d) can`t be installed! Error = "
-                    "result_e_parents",
-                    test_upgrade.id_str(), item.m_section_id.c_str(), item.object_id())
-                          .c_str());
+                FATAL(make_string("Loading item: Upgrade <%s> of inventory item [%s] (id = %d) can`t be installed! Error = result_e_parents", test_upgrade.id_str(), item.m_section_id.c_str(), item.object_id()).c_str());
             }
             return result_e_parents;
         }
