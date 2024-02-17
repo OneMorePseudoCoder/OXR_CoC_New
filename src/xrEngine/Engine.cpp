@@ -13,7 +13,6 @@ struct _SoundProcessor final : public pureFrame
 {
     void OnFrame() override
     {
-        // Msg ("------------- sound: %d [%3.2f,%3.2f,%3.2f]",u32(Device.dwFrame),VPUSH(Device.vCameraPosition));
         GEnv.Sound->update(Device.vCameraPosition, Device.vCameraDirection, Device.vCameraTop);
     }
 } SoundProcessor;
@@ -25,12 +24,6 @@ CEngine::~CEngine() {}
 
 void CheckAndSetupRenderer()
 {
-    if (GEnv.isDedicatedServer)
-    {
-        Console->Execute("renderer renderer_r1");
-        return;
-    }
-
     if (strstr(Core.Params, "-rgl"))
         Console->Execute("renderer renderer_rgl");
     else if (strstr(Core.Params, "-r4"))

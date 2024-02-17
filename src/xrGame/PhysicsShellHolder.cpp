@@ -31,9 +31,6 @@ CPhysicsShellHolder::CPhysicsShellHolder()
 CPhysicsShellHolder::~CPhysicsShellHolder()
 {
     VERIFY(!m_pPhysicsShell);
-    //#ifndef MASTER_GOLD
-    // R_ASSERT( !m_pPhysicsShell );
-    //#endif
     xr_delete(m_phSoundPlayer);
     destroy_physics_shell(m_pPhysicsShell);
 }
@@ -212,19 +209,16 @@ void CPhysicsShellHolder::activate_physic_shell()
     l_p2.c.add(l_fw);
 
     m_pPhysicsShell->Activate(l_p1, 0, l_p2);
+
     if (H_Parent() && H_Parent()->Visual())
     {
         smart_cast<IKinematics*>(H_Parent()->Visual())->CalculateBones_Invalidate();
         smart_cast<IKinematics*>(H_Parent()->Visual())->CalculateBones(TRUE);
     }
+
     smart_cast<IKinematics*>(Visual())->CalculateBones_Invalidate();
     smart_cast<IKinematics*>(Visual())->CalculateBones(TRUE);
-    if (!IsGameTypeSingle())
-    {
-        if (!smart_cast<CCustomRocket*>(this) && !smart_cast<CGrenade*>(this))
-            PPhysicsShell()->SetIgnoreDynamic();
-    }
-    //	XFORM().set					(l_p1);
+
     correct_spawn_pos();
 
     Fvector overriden_vel;
@@ -236,6 +230,7 @@ void CPhysicsShellHolder::activate_physic_shell()
     {
         m_pPhysicsShell->set_LinearVel(l_fw);
     }
+
     m_pPhysicsShell->GetGlobalTransformDynamic(&XFORM());
 
     if (H_Parent() && H_Parent()->Visual())
@@ -428,9 +423,7 @@ void CPhysicsShellHolder::PHSaveState(NET_Packet& P)
 }
 void CPhysicsShellHolder::PHLoadState(IReader& P)
 {
-    //	Flags8 lflags;
     IKinematics* K = smart_cast<IKinematics*>(Visual());
-    //	P.r_u8 (lflags.flags);
     if (K)
     {
         K->LL_SetBonesVisible(P.r_u64());
@@ -454,12 +447,7 @@ void CPhysicsShellHolder::PHLoadState(IReader& P)
 bool CPhysicsShellHolder::register_schedule() const { return (b_sheduled); }
 void CPhysicsShellHolder::on_physics_disable()
 {
-    if (IsGameTypeSingle())
-        return;
-
-    /*NET_Packet			net_packet;
-    u_EventGen			(net_packet,GE_FREEZE_OBJECT,ID());
-    Level().Send		(net_packet,net_flags(TRUE,TRUE));*/
+    return;
 }
 
 Fmatrix& CPhysicsShellHolder::ObjectXFORM() { return XFORM(); }

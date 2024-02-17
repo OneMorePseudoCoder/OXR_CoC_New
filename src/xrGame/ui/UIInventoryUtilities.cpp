@@ -26,16 +26,13 @@ const LPCSTR ratingField = "rating_names";
 const LPCSTR reputationgField = "reputation_names";
 const LPCSTR goodwillField = "goodwill_names";
 
-const LPCSTR st_months[12] = // StringTable for GetDateAsString()
-    {"month_january", "month_february", "month_march", "month_april", "month_may", "month_june", "month_july",
-        "month_august", "month_september", "month_october", "month_november", "month_december"};
+const LPCSTR st_months[12] = {"month_january", "month_february", "month_march", "month_april", "month_may", "month_june", "month_july", "month_august", "month_september", "month_october", "month_november", "month_december"};
 
 ui_shader* g_BuyMenuShader = NULL;
 ui_shader* g_EquipmentIconsShader = NULL;
 ui_shader* g_MPCharIconsShader = NULL;
 ui_shader* g_OutfitUpgradeIconsShader = NULL;
 ui_shader* g_WeaponUpgradeIconsShader = NULL;
-//static CUIStatic* GetUIStatic();
 
 typedef std::pair<CHARACTER_RANK_VALUE, shared_str> CharInfoStringID;
 using CharInfoStrings = xr_map<CHARACTER_RANK_VALUE, shared_str>;
@@ -243,8 +240,7 @@ const shared_str InventoryUtilities::Get_GameTimeAndDate_AsString()
 
 //////////////////////////////////////////////////////////////////////////
 
-const shared_str InventoryUtilities::GetTimeAsString(
-    ALife::_TIME_ID time, ETimePrecision timePrec, char timeSeparator, bool full_mode)
+const shared_str InventoryUtilities::GetTimeAsString(ALife::_TIME_ID time, ETimePrecision timePrec, char timeSeparator, bool full_mode)
 {
     string32 bufTime;
 
@@ -332,15 +328,13 @@ LPCSTR InventoryUtilities::GetTimePeriodAsString(pstr _buff, u32 buff_sz, ALife:
     _buff[0] = 0;
 
     if (month1 != month2)
-        cnt = xr_sprintf(
-            _buff + cnt, buff_sz - cnt, "%d %s ", month2 - month1, *StringTable().translate("ui_st_months"));
+        cnt = xr_sprintf(_buff + cnt, buff_sz - cnt, "%d %s ", month2 - month1, *StringTable().translate("ui_st_months"));
 
     if (!cnt && day1 != day2)
         cnt = xr_sprintf(_buff + cnt, buff_sz - cnt, "%d %s", day2 - day1, *StringTable().translate("ui_st_days"));
 
     if (!cnt && hours1 != hours2)
-        cnt =
-            xr_sprintf(_buff + cnt, buff_sz - cnt, "%d %s", hours2 - hours1, *StringTable().translate("ui_st_hours"));
+        cnt = xr_sprintf(_buff + cnt, buff_sz - cnt, "%d %s", hours2 - hours1, *StringTable().translate("ui_st_hours"));
 
     if (!cnt && mins1 != mins2)
         cnt = xr_sprintf(_buff + cnt, buff_sz - cnt, "%d %s", mins2 - mins1, *StringTable().translate("ui_st_mins"));
@@ -509,20 +503,13 @@ LPCSTR InventoryUtilities::GetGoodwillAsText(CHARACTER_GOODWILL goodwill)
 // (для tutorial)
 void InventoryUtilities::SendInfoToActor(LPCSTR info_id)
 {
-    if (GameID() != eGameIDSingle)
-        return;
-
     CActor* actor = smart_cast<CActor*>(Level().CurrentEntity());
     if (actor)
-    {
         actor->TransferInfo(info_id, true);
-    }
 }
 
 void InventoryUtilities::SendInfoToLuaScripts(shared_str info)
 {
-    if (GameID() != eGameIDSingle)
-        return;
     if (info == shared_str("ui_talk_show"))
     {
         int mode = 10; // now Menu is Talk Dialog (show)
@@ -538,6 +525,7 @@ void InventoryUtilities::SendInfoToLuaScripts(shared_str info)
             funct(mode);
     }
 }
+
 // XXX: interpolate color (enemy..neutral..friend)<->(red..gray..lime)
 u32 InventoryUtilities::GetGoodwillColor(CHARACTER_GOODWILL gw)
 {

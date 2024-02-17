@@ -123,13 +123,7 @@ void CMissile::OnActiveItem()
 
 void CMissile::OnHiddenItem()
 {
-    //. -Hide
-    if (IsGameTypeSingle())
-        SwitchState(eHiding);
-    else
-        SwitchState(eHidden);
-    //-
-
+    SwitchState(eHiding);
     inherited::OnHiddenItem();
     SetState(eHidden);
     SetNextState(eHidden);
@@ -142,8 +136,7 @@ void CMissile::spawn_fake_missile()
 
     if (!getDestroy())
     {
-        CSE_Abstract* object = Level().spawn_item(
-            *cNameSect(), Position(), (GEnv.isDedicatedServer) ? u32(-1) : ai_location().level_vertex_id(), ID(), true);
+        CSE_Abstract* object = Level().spawn_item(*cNameSect(), Position(), ai_location().level_vertex_id(), ID(), true);
 
         CSE_ALifeObject* alife_object = smart_cast<CSE_ALifeObject*>(object);
         VERIFY(alife_object);
@@ -159,9 +152,6 @@ void CMissile::spawn_fake_missile()
 void CMissile::OnH_A_Chield()
 {
     inherited::OnH_A_Chield();
-
-    //	if(!m_fake_missile && !smart_cast<CMissile*>(H_Parent()))
-    //		spawn_fake_missile	();
 }
 
 void CMissile::OnH_B_Independent(bool just_before_destroy)
@@ -175,10 +165,7 @@ void CMissile::OnH_B_Independent(bool just_before_destroy)
         PPhysicsShell()->set_DynamicScales(1.f, 1.f);
 
         if (GetState() == eThrow)
-        {
-            Msg("Throw on reject");
             Throw();
-        }
     }
 
     if (!m_dwDestroyTime && Local())
@@ -268,11 +255,7 @@ void CMissile::State(u32 state, u32 oldState)
     break;
     case eHidden:
     {
-        if (1 /*GetHUD()*/)
-        {
-            StopCurrentAnimWithoutCallback();
-        };
-
+        StopCurrentAnimWithoutCallback();
         if (H_Parent())
         {
             setVisible(FALSE);
@@ -593,16 +576,6 @@ void CMissile::UpdateFireDependencies_internal()
         if (GetHUDmode() && !IsHidden())
         {
             R_ASSERT(0); // implement this!!!
-            /*
-                        // 1st person view - skeletoned
-                        CKinematics* V			= smart_cast<CKinematics*>(GetHUD()->Visual());
-                        VERIFY					(V);
-                        V->CalculateBones		();
-
-                        // fire point&direction
-                        Fmatrix& parent			= GetHUD()->Transform	();
-                        m_throw_direction.set	(parent.k);
-            */
         }
         else
         {
@@ -619,11 +592,6 @@ void CMissile::activate_physic_shell()
     if (!smart_cast<CMissile*>(H_Parent()))
     {
         inherited::activate_physic_shell();
-        if (m_pPhysicsShell && m_pPhysicsShell->isActive() && !IsGameTypeSingle())
-        {
-            m_pPhysicsShell->add_ObjectContactCallback(ExitContactCallback);
-            m_pPhysicsShell->set_CallbackData(smart_cast<CPhysicsShellHolder*>(H_Root()));
-        }
         return;
     }
 

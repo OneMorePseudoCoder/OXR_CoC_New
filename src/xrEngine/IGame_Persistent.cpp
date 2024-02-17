@@ -503,6 +503,7 @@ void IGame_Persistent::LoadStage(bool draw /*= true*/)
 
     if (draw)
         LoadDraw();
+
     ++load_stage;
 }
 
@@ -516,10 +517,7 @@ void IGame_Persistent::LoadDraw() const
     if (!Device.RenderBegin())
         return;
 
-    if (GEnv.isDedicatedServer)
-        Console->OnRender();
-    else
-        load_draw_internal();
+    load_draw_internal();
 
     Device.RenderEnd();
 }

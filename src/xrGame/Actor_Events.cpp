@@ -36,7 +36,6 @@ void CActor::OnEvent(NET_Packet& P, u16 type)
         P.r_u16(id);
         IGameObject* Obj = Level().Objects.net_Find(id);
 
-        //			R_ASSERT2( Obj, make_string("GE_OWNERSHIP_TAKE: Object not found. object_id = [%d]", id).c_str() );
         VERIFY2(Obj, make_string("GE_OWNERSHIP_TAKE: Object not found. object_id = [%d]", id).c_str());
         if (!Obj)
         {
@@ -45,13 +44,6 @@ void CActor::OnEvent(NET_Packet& P, u16 type)
         }
 
         CGameObject* _GO = smart_cast<CGameObject*>(Obj);
-        if (!IsGameTypeSingle() && !g_Alive())
-        {
-            Msg("! WARNING: dead player [%d][%s] can't take items [%d][%s]", ID(), Name(), _GO->ID(),
-                _GO->cNameSect().c_str());
-            break;
-        }
-
         if (inventory().CanTakeItem(smart_cast<CInventoryItem*>(_GO)))
         {
             Obj->H_SetParent(smart_cast<IGameObject*>(this));
@@ -68,18 +60,10 @@ void CActor::OnEvent(NET_Packet& P, u16 type)
         }
         else
         {
-            if (IsGameTypeSingle())
-            {
-                NET_Packet P2;
-                u_EventGen(P2, GE_OWNERSHIP_REJECT, ID());
-                P2.w_u16(u16(Obj->ID()));
-                u_EventSend(P2);
-            }
-            else
-            {
-                Msg("! ERROR: Actor [%d][%s]  tries to drop on take [%d][%s]", ID(), Name(), _GO->ID(),
-                    _GO->cNameSect().c_str());
-            }
+            NET_Packet P2;
+            u_EventGen(P2, GE_OWNERSHIP_REJECT, ID());
+            P2.w_u16(u16(Obj->ID()));
+            u_EventSend(P2);
         }
     }
     break;
@@ -89,7 +73,6 @@ void CActor::OnEvent(NET_Packet& P, u16 type)
         P.r_u16(id);
         IGameObject* Obj = Level().Objects.net_Find(id);
 
-        //			R_ASSERT2( Obj, make_string("GE_OWNERSHIP_REJECT: Object not found, id = %d", id).c_str() );
         VERIFY2(Obj, make_string("GE_OWNERSHIP_REJECT: Object not found, id = %d", id).c_str());
         if (!Obj)
         {
@@ -112,27 +95,21 @@ void CActor::OnEvent(NET_Packet& P, u16 type)
         VERIFY(GO->H_Parent());
         if (!GO->H_Parent())
         {
-            Msg("! ERROR: Actor [%d][%s] tries to reject item [%d][%s] that has no parent", ID(), Name(), GO->ID(),
-                GO->cNameSect().c_str());
+            Msg("! ERROR: Actor [%d][%s] tries to reject item [%d][%s] that has no parent", ID(), Name(), GO->ID(), GO->cNameSect().c_str());
             break;
         }
 
-        VERIFY2(GO->H_Parent()->ID() == ID(), make_string("actor [%d][%s] tries to drop not own object [%d][%s]", ID(),
-                                                  Name(), GO->ID(), GO->cNameSect().c_str())
-                                                  .c_str());
+        VERIFY2(GO->H_Parent()->ID() == ID(), make_string("actor [%d][%s] tries to drop not own object [%d][%s]", ID(), Name(), GO->ID(), GO->cNameSect().c_str()).c_str());
 
         if (GO->H_Parent()->ID() != ID())
         {
             CActor* real_parent = smart_cast<CActor*>(GO->H_Parent());
-            Msg("! ERROR: Actor [%d][%s] tries to drop not own item [%d][%s], his parent is [%d][%s]", ID(), Name(),
-                GO->ID(), GO->cNameSect().c_str(), real_parent->ID(), real_parent->Name());
+            Msg("! ERROR: Actor [%d][%s] tries to drop not own item [%d][%s], his parent is [%d][%s]", ID(), Name(), GO->ID(), GO->cNameSect().c_str(), real_parent->ID(), real_parent->Name());
             break;
         }
 
         if (!Obj->getDestroy() && inventory().DropItem(GO, just_before_destroy, dont_create_shell))
         {
-            // O->H_SetParent(0,just_before_destroy);//moved to DropItem
-            // feel_touch_deny(O,2000);
             Level().m_feel_deny.feel_touch_deny(Obj, 1000);
 
             // [12.11.07] Alexander Maniluk: extended GE_OWNERSHIP_REJECT packet for drop item to selected position
@@ -141,13 +118,6 @@ void CActor::OnEvent(NET_Packet& P, u16 type)
             {
                 P.r_vec3(dropPosition);
                 GO->MoveTo(dropPosition);
-                // Other variant :)
-                /*NET_Packet MovePacket;
-                MovePacket.w_begin(M_MOVE_ARTEFACTS);
-                MovePacket.w_u8(1);
-                MovePacket.w_u16(id);
-                MovePacket.w_vec3(dropPosition);
-                u_EventSend(MovePacket);*/
             }
         }
 
@@ -163,11 +133,6 @@ void CActor::OnEvent(NET_Packet& P, u16 type)
         P.r_u32(flags);
         s32 ZoomRndSeed = P.r_s32();
         s32 ShotRndSeed = P.r_s32();
-        if (!IsGameTypeSingle() && !g_Alive())
-        {
-            //				Msg("! WARNING: dead player tries to rize inventory action");
-            break;
-        }
 
         if (flags & CMD_START)
         {
@@ -190,45 +155,22 @@ void CActor::OnEvent(NET_Packet& P, u16 type)
         P.r_u16(id);
         IGameObject* Obj = Level().Objects.net_Find(id);
 
-        //			R_ASSERT2( Obj, make_string("GEG_PLAYER_ITEM_EAT(use): Object not found. object_id = [%d]",
-        //id).c_str()
-        //);
         VERIFY2(Obj, make_string("GEG_PLAYER_ITEM_EAT(use): Object not found. object_id = [%d]", id).c_str());
         if (!Obj)
         {
-            //				Msg                 ( "! GEG_PLAYER_ITEM_EAT(use): Object not found. object_id = [%d]", id
-            //);
             break;
         }
 
-        //			R_ASSERT2( !Obj->getDestroy(), make_string("GEG_PLAYER_ITEM_EAT(use): Object is destroying. object_id
-        //=
-        //[%d]", id).c_str() );
-        VERIFY2(!Obj->getDestroy(),
-            make_string("GEG_PLAYER_ITEM_EAT(use): Object is destroying. object_id = [%d]", id).c_str());
+        VERIFY2(!Obj->getDestroy(), make_string("GEG_PLAYER_ITEM_EAT(use): Object is destroying. object_id = [%d]", id).c_str());
         if (Obj->getDestroy())
         {
-            //				Msg                                ( "! GEG_PLAYER_ITEM_EAT(use): Object is destroying.
-            //object_id
-            //= [%d]", id );
-            break;
-        }
-
-        if (!IsGameTypeSingle() && !g_Alive())
-        {
-            Msg("! WARNING: dead player [%d][%s] can't use items [%d][%s]", ID(), Name(), Obj->ID(),
-                Obj->cNameSect().c_str());
             break;
         }
 
         if (type == GEG_PLAYER_ACTIVATEARTEFACT)
         {
             CArtefact* pArtefact = smart_cast<CArtefact*>(Obj);
-            //			R_ASSERT2( pArtefact, make_string("GEG_PLAYER_ACTIVATEARTEFACT: Artefact not found. artefact_id
-            //=
-            //[%d]", id).c_str() );
-            VERIFY2(pArtefact,
-                make_string("GEG_PLAYER_ACTIVATEARTEFACT: Artefact not found. artefact_id = [%d]", id).c_str());
+            VERIFY2(pArtefact, make_string("GEG_PLAYER_ACTIVATEARTEFACT: Artefact not found. artefact_id = [%d]", id).c_str());
             if (!pArtefact)
             {
                 Msg("! GEG_PLAYER_ACTIVATEARTEFACT: Artefact not found. artefact_id = [%d]", id);

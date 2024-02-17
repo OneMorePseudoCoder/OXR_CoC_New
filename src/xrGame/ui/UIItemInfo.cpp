@@ -212,7 +212,8 @@ void CUIItemInfo::InitItem(CUICellItem* pCellItem, CInventoryItem* pCompareItem,
             UIWeight->SetWndPos(pos);
         }
     }
-    if (UICost && IsGameTypeSingle())
+
+    if (UICost)
     {
         if (item_price != u32(-1))
         {
@@ -229,14 +230,7 @@ void CUIItemInfo::InitItem(CUICellItem* pCellItem, CInventoryItem* pCompareItem,
             UICost->Show(false);
     }
 
-    //	CActor* actor = smart_cast<CActor*>( Level().CurrentViewEntity() );
-    //	if ( g_pGameLevel && Level().game && actor )
-    //	{
-    //		game_cl_Deathmatch* gs_mp = smart_cast<game_cl_Deathmatch*>( Game() );
-    //		IBuyWnd* buy_menu = gs_mp->pCurBuyMenu->GetItemPrice();
-    //		GetItemPrice();
-    //	}
-    if (UITradeTip && IsGameTypeSingle())
+    if (UITradeTip)
     {
         pos.y = UITradeTip->GetWndPos().y;
         if (UIWeight && m_complex_desc)

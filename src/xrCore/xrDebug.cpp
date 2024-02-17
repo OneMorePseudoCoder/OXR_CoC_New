@@ -666,7 +666,7 @@ void xrDebug::SetupExceptionHandler()
     SetErrorMode(prevMode | SEM_NOGPFAULTERRORBOX);
     BT_InstallSehFilter();
 
-    if (!GEnv.isDedicatedServer && !strstr(commandLine, "-silent_error_mode"))
+    if (!strstr(commandLine, "-silent_error_mode"))
         BT_SetActivityType(BTA_SHOWUI);
     else
         BT_SetActivityType(BTA_SAVEREPORT);

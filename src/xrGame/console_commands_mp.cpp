@@ -40,7 +40,6 @@ extern string64 gsCDKey;
 extern u32 g_dwMaxCorpses;
 extern float g_fTimeFactor;
 extern BOOL g_b_COD_PickUpMode;
-extern int g_iWeaponRemove;
 extern int g_iCorpseRemove;
 extern BOOL g_bCollectStatisticData;
 // extern	BOOL	g_bStatisticSaveAuto	;
@@ -167,7 +166,7 @@ public:
     CCC_Kill(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; };
     virtual void Execute(LPCSTR args)
     {
-        if (IsGameTypeSingle())
+        if (true)
         {
 #ifndef MASTER_GOLD
             IGameObject* l_pObj = Level().CurrentControlEntity();
@@ -1234,8 +1233,7 @@ public:
     virtual void GetStatus(TStatus& S)
     {
         S[0] = 0;
-        if (IsGameTypeSingle())
-            return;
+		return;
         if (!(&Level()))
             return;
         if (!(&Game()))
@@ -1249,8 +1247,7 @@ public:
     virtual void Save(IWriter* F) {}
     virtual void Execute(LPCSTR args)
     {
-        if (IsGameTypeSingle())
-            return;
+		return;
         if (!(&Level()))
             return;
         if (!(&Game()))
@@ -1540,12 +1537,8 @@ public:
     CCC_Vote_Start(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = false; };
     virtual void Execute(LPCSTR args)
     {
-        if (IsGameTypeSingle())
-        {
-            Msg("! Only for multiplayer games!");
-            return;
-        }
-
+        Msg("! Only for multiplayer games!");
+        return;
         if (!Game().IsVotingEnabled())
         {
             Msg("! Voting is disabled by server!");
@@ -1579,7 +1572,6 @@ public:
         if (!OnServer())
             return;
 
-        if (IsGameTypeSingle())
         {
             Msg("! Only for multiplayer games!");
             return;
@@ -1615,7 +1607,7 @@ public:
     CCC_Vote_Yes(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; };
     virtual void Execute(LPCSTR args)
     {
-        if (IsGameTypeSingle())
+ 
         {
             Msg("! Only for multiplayer games!");
             return;
@@ -1651,7 +1643,6 @@ public:
     CCC_Vote_No(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; };
     virtual void Execute(LPCSTR args)
     {
-        if (IsGameTypeSingle())
         {
             Msg("! Only for multiplayer games!");
             return;
@@ -1886,7 +1877,7 @@ public:
     CCC_RadminCmd(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = false; };
     virtual void Execute(LPCSTR arguments)
     {
-        if (IsGameTypeSingle() || xr_strlen(arguments) >= 512)
+        if (true)
         {
             return;
         }
@@ -2138,7 +2129,6 @@ void register_mp_console_commands()
 
     CMD4(CCC_Integer, "cl_cod_pickup_mode", &g_b_COD_PickUpMode, 0, 1);
 
-    CMD4(CCC_Integer, "sv_remove_weapon", &g_iWeaponRemove, -1, 1);
     CMD4(CCC_Integer, "sv_remove_corpse", &g_iCorpseRemove, -1, 1);
 
     CMD4(CCC_Integer, "sv_statistic_collect", &g_bCollectStatisticData, 0, 1);

@@ -105,8 +105,6 @@ void CStats::Show()
     else
         fMem_calls = 0.9f * fMem_calls + 0.1f * memCalls;
     Memory.stat_calls = 0;
-    if (GEnv.isDedicatedServer)
-        return;
     auto& font = *statsFont;
     auto engineTotal = Device.GetStats().EngineTotal.result;
     PerformanceAlert alertInstance(font.GetHeight(), {300, 300});
@@ -194,20 +192,17 @@ void CStats::OnDeviceCreate()
 {
     g_bDisableRedText = !!strstr(Core.Params, "-xclsx");
 
-    if (!GEnv.isDedicatedServer)
-    {
-        statsFont = xr_new<CGameFont>("stat_font", CGameFont::fsDeviceIndependent);
-        fpsFont = xr_new<CGameFont>("hud_font_di", CGameFont::fsDeviceIndependent);
-        fpsFont->SetHeightI(0.025f);
-        fpsFont->SetColor(color_rgba(250, 250, 15, 180));
+    statsFont = xr_new<CGameFont>("stat_font", CGameFont::fsDeviceIndependent);
+    fpsFont = xr_new<CGameFont>("hud_font_di", CGameFont::fsDeviceIndependent);
+    fpsFont->SetHeightI(0.025f);
+    fpsFont->SetColor(color_rgba(250, 250, 15, 180));
 
-        fpsGraph = xr_make_unique<CStatGraph>(false);
-        fpsGraph->SetStyle(CStatGraph::EStyle::stBarLine);
-        fpsGraph->SetRect(Device.dwWidth - 390, 10 - Device.dwHeight, 300, 68, color_xrgb(255, 255, 255) , color_xrgb(50, 50, 50));
-        fpsGraph->AddMarker(CStatGraph::EStyle::stHor, 60, color_xrgb(128, 128, 128)); // Max
-        fpsGraph->AddMarker(CStatGraph::EStyle::stHor, 30, color_xrgb(70, 70, 70)); // Mid
-        fpsGraph->SetMinMax(0.0f, 100.0f, 500);
-    }
+    fpsGraph = xr_make_unique<CStatGraph>(false);
+    fpsGraph->SetStyle(CStatGraph::EStyle::stBarLine);
+    fpsGraph->SetRect(Device.dwWidth - 390, 10 - Device.dwHeight, 300, 68, color_xrgb(255, 255, 255) , color_xrgb(50, 50, 50));
+    fpsGraph->AddMarker(CStatGraph::EStyle::stHor, 60, color_xrgb(128, 128, 128)); // Max
+    fpsGraph->AddMarker(CStatGraph::EStyle::stHor, 30, color_xrgb(70, 70, 70)); // Mid
+    fpsGraph->SetMinMax(0.0f, 100.0f, 500);
 
 #ifdef DEBUG
     if (!g_bDisableRedText)

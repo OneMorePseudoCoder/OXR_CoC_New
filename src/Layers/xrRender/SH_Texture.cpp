@@ -176,7 +176,7 @@ void CTexture::Load()
     }
 
     Preload();
-    if (!GEnv.isDedicatedServer)
+
     {
         // Check for OGM
         string_path fn;
@@ -304,8 +304,6 @@ void CTexture::Unload()
     xr_sprintf(msg_buff, "* Unloading texture [%s] pSurface RefCount =", cName.c_str());
     _SHOW_REF(msg_buff, pSurface);
 #endif // DEBUG
-
-    //.	if (flags.bLoaded)		Msg		("* Unloaded: %s",cName.c_str());
 
     flags.bLoaded = FALSE;
     if (!seqDATA.empty())

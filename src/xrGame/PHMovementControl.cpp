@@ -36,19 +36,14 @@
 #define def_Y_SIZE_2 0.8f
 #define def_Z_SIZE_2 0.35f
 
-//const u64 after_creation_collision_hit_block_steps_number = 100;
-
 CPHMovementControl::CPHMovementControl(IGameObject* parent)
 {
     pObject = parent;
 
 #ifdef DEBUG
-    if (debug_output().ph_dbg_draw_mask1().test(ph_m1_DbgTrackObject) && (!!pObject->cName()) &&
-        xr_stricmp(debug_output().PH_DBG_ObjectTrackName(), *pObject->cName()) == 0)
+    if (debug_output().ph_dbg_draw_mask1().test(ph_m1_DbgTrackObject) && (!!pObject->cName()) && xr_stricmp(debug_output().PH_DBG_ObjectTrackName(), *pObject->cName()) == 0)
     {
-        Msg("CPHMovementControl::CPHMovementControl %s (constructor) %f,%f,%pObjectf",
-            debug_output().PH_DBG_ObjectTrackName(), pObject->Position().x, pObject->Position().y,
-            pObject->Position().z);
+        Msg("CPHMovementControl::CPHMovementControl %s (constructor) %f,%f,%pObjectf", debug_output().PH_DBG_ObjectTrackName(), pObject->Position().x, pObject->Position().y, pObject->Position().z);
     }
 
 #endif
@@ -69,10 +64,6 @@ CPHMovementControl::CPHMovementControl(IGameObject* parent)
     bExernalImpulse = false;
     fLastMotionMag = 1.f;
     SetPathDir(Fvector().set(0, 0, 1));
-    // fAirFriction		= AIR_FRICTION;
-    // fWallFriction		= WALL_FRICTION;
-    // fGroundFriction		= GROUND_FRICTION;
-    // fFriction			= fAirFriction;
     bIsAffectedByGravity = TRUE;
     fActualVelocity = 0;
     m_fGroundDelayFactor = 1.f;
@@ -98,11 +89,8 @@ CPHMovementControl::~CPHMovementControl(void)
 
 static ALife::EHitType DefineCollisionHitType(u16 material_idx)
 {
-    if (IsGameTypeSingle())
-    {
-        if (GMLib.GetMaterialByIdx(material_idx)->Flags.test(SGameMtl::flInjurious))
-            return ALife::eHitTypeRadiation;
-    }
+    if (GMLib.GetMaterialByIdx(material_idx)->Flags.test(SGameMtl::flInjurious))
+        return ALife::eHitTypeRadiation;
 
     return ALife::eHitTypeStrike;
 }
@@ -173,13 +161,11 @@ void CPHMovementControl::Calculate(Fvector& vAccel, const Fvector& camDir, float
     fActualVelocity = vVelocity.magnitude();
     gcontact_Was = m_character->ContactWas();
 
-
     UpdateCollisionDamage();
 
     ICollisionDamageInfo* cdi = CollisionDamageInfo();
     if (cdi->HitCallback())
-        cdi->HitCallback()->call((m_character->PhysicsRefObject()), fMinCrashSpeed, fMaxCrashSpeed, fContactSpeed,
-            gcontact_HealthLost, CollisionDamageInfo());
+        cdi->HitCallback()->call((m_character->PhysicsRefObject()), fMinCrashSpeed, fMaxCrashSpeed, fContactSpeed, gcontact_HealthLost, CollisionDamageInfo());
 
     TraceBorder(previous_position);
     CheckEnvironment(vPosition);
@@ -253,8 +239,7 @@ bool CPHMovementControl::MakeJumpPath(xr_vector<DetailPathManager::STravelPathPo
         return false;
 
     Fvector const self_vel_normalized = normalize(self_vel);
-    Fvector const self_to_enemy_projection_on_self_vel =
-        self_vel_normalized * dotproduct(self_to_enemy, self_vel_normalized);
+    Fvector const self_to_enemy_projection_on_self_vel = self_vel_normalized * dotproduct(self_to_enemy, self_vel_normalized);
     Fvector const deviation = self_to_enemy - self_to_enemy_projection_on_self_vel;
 
     float const factor = jump_control->relative_time();
@@ -913,7 +898,7 @@ void CPHMovementControl::AllocateCharacterObject(CharacterType type)
     switch (type)
     {
     case actor:
-        m_character = create_actor_character(IsGameTypeSingle());
+        m_character = create_actor_character(true);
         break;
     case ai:
 		m_character = create_ai_character(); 

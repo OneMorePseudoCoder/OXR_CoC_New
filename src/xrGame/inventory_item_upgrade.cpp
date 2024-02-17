@@ -151,7 +151,7 @@ void CInventoryItem::log_upgrades()
 
 void CInventoryItem::net_Spawn_install_upgrades(CSE_Abstract* DC) // net_Spawn
 {
-    if (!IsGameTypeSingle() || !ai().get_alife())
+    if (!ai().get_alife())
     {
         return;
     }

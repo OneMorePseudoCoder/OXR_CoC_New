@@ -30,6 +30,7 @@ CTelekineticObject* CTeleWhirlwind::activate(
     else
         return 0;
 }
+
 void CTeleWhirlwind::clear_impacts() { m_saved_impacts.clear(); }
 void CTeleWhirlwind::clear() { inherited::clear(); }
 void CTeleWhirlwind::add_impact(const Fvector& dir, float val)
@@ -40,6 +41,7 @@ void CTeleWhirlwind::add_impact(const Fvector& dir, float val)
     point.set(0.f, 0.f, 0.f);
     m_saved_impacts.push_back(SPHImpact(force, point, 0));
 }
+
 void CTeleWhirlwind::reserve_impact(const size_t count) { m_saved_impacts.reserve(count); }
 void CTeleWhirlwind::set_throw_power(float throw_pow) { m_throw_power = throw_pow; }
 void CTeleWhirlwind::draw_out_impact(Fvector& dir, float& val)
@@ -53,8 +55,6 @@ void CTeleWhirlwind::draw_out_impact(Fvector& dir, float& val)
     val = dir.magnitude();
 
     // Swartz
-    //if (!fis_zero(val))
-    //    dir.mul(1.f / val);
     m_saved_impacts.erase(m_saved_impacts.begin());
 }
 
@@ -149,21 +149,15 @@ bool CTeleWhirlwindObject::destroy_object(const Fvector dir, float val)
         D->PhysicallyRemoveSelf();
         D->Destroy(m_telekinesis->OwnerObject()->ID());
 
-        //.		m_telekinesis->add_impact(dir,val*10.f);
-
-        if (IsGameTypeSingle())
-        {
-            m_telekinesis->reserve_impact(D->m_destroyed_obj_visual_names.size());
-            for ([[maybe_unused]] const auto& i : D->m_destroyed_obj_visual_names)
-                m_telekinesis->add_impact(dir, val * 10.f);
-        };
+        m_telekinesis->reserve_impact(D->m_destroyed_obj_visual_names.size());
+        for ([[maybe_unused]] const auto& i : D->m_destroyed_obj_visual_names)
+            m_telekinesis->add_impact(dir, val * 10.f);
 
         CParticlesPlayer* PP = smart_cast<CParticlesPlayer*>(object);
         if (PP)
         {
             u16 root = (smart_cast<IKinematics*>(object->Visual()))->LL_GetBoneRoot();
-            PP->StartParticles(
-                m_telekinesis->destroing_particles(), root, Fvector().set(0, 1, 0), m_telekinesis->OwnerObject()->ID());
+            PP->StartParticles(m_telekinesis->destroing_particles(), root, Fvector().set(0, 1, 0), m_telekinesis->OwnerObject()->ID());
         }
         return true;
     }

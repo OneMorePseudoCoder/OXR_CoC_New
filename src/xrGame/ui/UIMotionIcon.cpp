@@ -8,8 +8,7 @@ constexpr pcstr MOTION_ICON_XML = "motion_icon.xml";
 
 CUIMotionIcon* g_pMotionIcon = nullptr;
 
-CUIMotionIcon::CUIMotionIcon()
-    : CUIStatic("Motion Icon")
+CUIMotionIcon::CUIMotionIcon() : CUIStatic("Motion Icon")
 {
     m_current_state = stLast;
     g_pMotionIcon = this;
@@ -137,9 +136,6 @@ void CUIMotionIcon::SetPower(float newPos)
 
 void CUIMotionIcon::SetNoise(float newPos)
 {
-    if (!IsGameTypeSingle())
-        return;
-
     if (m_noise_progress_shape)
     {
         float pos = newPos;
@@ -156,9 +152,6 @@ void CUIMotionIcon::SetNoise(float newPos)
 
 void CUIMotionIcon::SetLuminosity(float newPos)
 {
-    if (!IsGameTypeSingle())
-        return;
-
     if (m_luminosity_progress_shape)
         m_luminosity = newPos;
     else if (m_luminosity_progress_bar)
@@ -175,11 +168,6 @@ void CUIMotionIcon::Draw()
 
 void CUIMotionIcon::Update()
 {
-    if (!IsGameTypeSingle())
-    {
-        inherited::Update();
-        return;
-    }
     if (m_bchanged)
     {
         m_bchanged = false;
@@ -234,9 +222,6 @@ void CUIMotionIcon::Update()
 
 void SetActorVisibility(u16 who_id, float value)
 {
-    if (!IsGameTypeSingle())
-        return;
-
     if (g_pMotionIcon)
         g_pMotionIcon->SetActorVisibility(who_id, value);
 }

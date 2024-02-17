@@ -31,8 +31,6 @@ public:
     AISpaceBase* AISpace;
     ISoundManager* Sound;
     UICore* UI;
-
-    bool isDedicatedServer;
 };
 
 extern XRAPI_API EngineGlobalEnvironment GEnv;

@@ -14,8 +14,7 @@ void CRender::addShaderOption(const char* name, const char* value)
 }
 
 template <typename T>
-static GLuint create_shader(pcstr* buffer, size_t const buffer_size, cpcstr filename,
-    T*& result, const GLenum* format)
+static GLuint create_shader(pcstr* buffer, size_t const buffer_size, cpcstr filename, T*& result, const GLenum* format)
 {
     auto [type, output] = ShaderTypeTraits<T>::CreateHWShader(buffer, buffer_size, result->sh, format, filename);
 
@@ -29,8 +28,7 @@ static GLuint create_shader(pcstr* buffer, size_t const buffer_size, cpcstr file
     return output;
 }
 
-static GLuint create_shader(cpcstr pTarget, pcstr* buffer, size_t const buffer_size,
-    cpcstr filename, void*& result, const GLenum* format)
+static GLuint create_shader(cpcstr pTarget, pcstr* buffer, size_t const buffer_size, cpcstr filename, void*& result, const GLenum* format)
 {
     switch (pTarget[0])
     {
@@ -210,8 +208,7 @@ private:
     }
 };
 
-HRESULT CRender::shader_compile(pcstr name, IReader* fs, pcstr pFunctionName,
-    pcstr pTarget, u32 Flags, void*& result)
+HRESULT CRender::shader_compile(pcstr name, IReader* fs, pcstr pFunctionName, pcstr pTarget, u32 Flags, void*& result)
 {
     shader_options_holder options;
     shader_name_holder sh_name;

@@ -81,7 +81,7 @@ void __cdecl callback_serverkey(int keyid, qr2_buffer_t outbuf, void* userdata)
     case G_BATTLEYE_KEY: break;
     case HOSTPORT_KEY: pQR2->BufferAdd_Int(outbuf, pServer->GetPort()); break;
 
-    case DEDICATED_KEY: pQR2->BufferAdd_Int(outbuf, pServer->IsDedicated()); break;
+    case DEDICATED_KEY: pQR2->BufferAdd_Int(outbuf, false); break;
     case GAMETYPE_NAME_KEY:
         ADD_KEY_VAL(gameState, pQR2, BufferAdd_Int, outbuf, Type());
         break; // pQR2->BufferAdd_Int(outbuf, gameState->Type()); break;
@@ -224,18 +224,9 @@ void __cdecl callback_playerkey(int keyid, int index, qr2_buffer_t outbuf, void*
         }
     };
 
-    if (pServer->IsDedicated())
-    {
-        index_searcher tmp_predicate(index + 1);
-        if (u32(index + 1) >= pServer->GetClientsCount())
-            return;
-        pCD = static_cast<xrGameSpyClientData*>(pServer->FindClient(tmp_predicate));
-    }
-    else
-    {
-        index_searcher tmp_predicate(index);
-        pCD = static_cast<xrGameSpyClientData*>(pServer->FindClient(tmp_predicate));
-    }
+    index_searcher tmp_predicate(index);
+    pCD = static_cast<xrGameSpyClientData*>(pServer->FindClient(tmp_predicate));
+
     if (!pCD || !pCD->ps)
         return;
 

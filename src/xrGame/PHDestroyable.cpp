@@ -21,26 +21,7 @@
 #endif
 
 #include "Include/xrRender/Kinematics.h"
-/*
-[impulse_transition_to_parts]
-random_min              =1       ; х массу объекта = величина случайно направленного импульса
-; с случайн				о выбранной точкой приложения в пределах нового обекта
-random_hit_imp         =0.1     ; х величена хит - импульса =............
 
-;ref_bone                       ; кость из по которой определяется скорость для частей у который связь не задана по
-умолчанию рут
-imp_transition_factor  =0.1     ; фактор с которым прикладывается хит по исходному объекту ко всем частям
-lv_transition_factor   =1       ; коэффициент передачи линейной скорости
-av_transition_factor   =1       ; коэффициент передачи угловой скорости
-
-
-[impulse_transition_from_source_bone]
-source_bone            =0       ; ref_bone
-imp_transition_factor  =1       ; коэффициент передачи импульса
-lv_transition_factor   =1       ; коэффициент передачи линейной скорости
-av_transition_factor   =1       ; коэффициент передачи угловой скорости
-
-*/
 CPHDestroyable::CPHDestroyable()
 {
     m_flags.flags = 0;
@@ -61,7 +42,7 @@ void CPHDestroyable::GenSpawnReplace(u16 ref_id, LPCSTR section, shared_str visu
     // init
 
     // Send
-    D->s_name = section; //*cNameSect()
+    D->s_name = section;
     D->ID_Parent = u16(-1);
     InitServerObject(D);
     if (OnServer())
@@ -132,7 +113,7 @@ void CPHDestroyable::PhysicallyRemovePart(CPHDestroyableNotificate* dn)
     s->DisableCollision();
 }
 
-void CPHDestroyable::Destroy(u16 source_id /*=u16(-1)*/, LPCSTR section /*="ph_skeleton_object"*/)
+void CPHDestroyable::Destroy(u16 source_id, LPCSTR section)
 {
     if (!CanDestroy())
         return;
@@ -141,20 +122,20 @@ void CPHDestroyable::Destroy(u16 source_id /*=u16(-1)*/, LPCSTR section /*="ph_s
     CPHSkeleton* phs = obj->PHSkeleton();
     if (phs)
         phs->SetNotNeedSave();
+
     if (obj->PPhysicsShell())
         obj->PPhysicsShell()->Enable();
+
     obj->processing_activate();
+
     if (source_id == obj->ID())
-    {
         m_flags.set(fl_released, false);
-    }
+
     xr_vector<shared_str>::iterator i = m_destroyed_obj_visual_names.begin(), e = m_destroyed_obj_visual_names.end();
 
-    if (IsGameTypeSingle())
-    {
-        for (; e != i; ++i)
-            GenSpawnReplace(source_id, section, *i);
-    };
+    for (; e != i; ++i)
+        GenSpawnReplace(source_id, section, *i);
+
     ///////////////////////////////////////////////////////////////////////////
     m_flags.set(fl_destroyed, true);
 }

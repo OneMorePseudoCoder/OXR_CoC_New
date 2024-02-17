@@ -456,7 +456,7 @@ void LevelGraphDebugRender::DrawGameGraph()
             }
         }
     }
-    if (GameID() == eGameIDSingle && ai().get_alife())
+    if (ai().get_alife())
     {
         {
             GameGraph::_LEVEL_ID J = ai().game_graph().vertex(ai().alife().graph().actor()->m_tGraphID)->level_id();
@@ -469,11 +469,9 @@ void LevelGraphDebugRender::DrawGameGraph()
                 t2.y += .6f;
                 NORMALIZE_VECTOR(t2);
                 Level().debug_renderer().draw_aabb(t1, .5f, .5f, .5f, color_xrgb(255, 255, 255));
-                //Level().debug_renderer().draw_line(Fidentity,t1,t2,color_xrgb(255,255,255));
                 Fvector T;
                 Fvector4 S;
                 T.set(t1);
-                //T.y+= 1.5f;
                 T.y += 1.5f;
                 Device.mFullTransform.transform(S, T);
                 //out of screen
@@ -608,15 +606,13 @@ void LevelGraphDebugRender::DrawNodes()
     CLevelGraph::const_vertex_iterator it, end;
     if (levelGraph->valid_vertex_position(minPos))
     {
-        it = std::lower_bound(levelGraph->begin(), levelGraph->end(), levelGraph->vertex_position(minPos).xz(),
-            CLevelGraph::vertex::predicate2);
+        it = std::lower_bound(levelGraph->begin(), levelGraph->end(), levelGraph->vertex_position(minPos).xz(), CLevelGraph::vertex::predicate2);
     }
     else
         it = levelGraph->begin();
     if (levelGraph->valid_vertex_position(maxPos))
     {
-        end = std::upper_bound(levelGraph->begin(), levelGraph->end(), levelGraph->vertex_position(maxPos).xz(),
-            CLevelGraph::vertex::predicate);
+        end = std::upper_bound(levelGraph->begin(), levelGraph->end(), levelGraph->vertex_position(maxPos).xz(), CLevelGraph::vertex::predicate);
         if (end != levelGraph->end())
             end++;
     }

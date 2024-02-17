@@ -9,8 +9,6 @@ u64 g_qwStartGameTime = 12 * 60 * 60 * 1000;
 float g_fTimeFactor = 10;
 u64 g_qwEStartGameTime = 12 * 60 * 60 * 1000;
 
-EGameIDs ParseStringToGameType(LPCSTR str);
-
 game_PlayerState::game_PlayerState(NET_Packet* account_info)
 {
     skin = 0;
@@ -31,20 +29,9 @@ game_PlayerState::game_PlayerState(NET_Packet* account_info)
     clear();
 
     if (account_info)
-    {
         net_Import(*account_info);
-    }
     else
-    {
-        if (GEnv.isDedicatedServer)
-        {
-            setFlag(GAME_PLAYER_FLAG_SKIP);
-        }
-        else
-        {
-            m_account.load_account();
-        }
-    }
+        m_account.load_account();
 }
 
 void game_PlayerState::clear()
@@ -200,42 +187,7 @@ game_GameState::game_GameState()
 
 CLASS_ID game_GameState::getCLASS_ID(LPCSTR game_type_name, bool isServer)
 {
-    /*	if (!GEnv.isDedicatedServer)
-        {
-            string_path		S;
-            FS.update_path	(S,"$game_config$","script.ltx");
-            CInifile		*l_tpIniFile = xr_new<CInifile>(S);
-            R_ASSERT		(l_tpIniFile);
-
-            string256				I;
-            xr_strcpy(I,l_tpIniFile->r_string("common","game_type_clsid_factory"));
-
-            luabind::functor<LPCSTR>	result;
-            R_ASSERT					(GEnv.ScriptEngine->functor(I,result));
-            shared_str clsid = result		(game_type_name, isServer);
-
-            xr_delete			(l_tpIniFile);
-            if(clsid.size()==0)
-                xrDebug::Fatal		(DEBUG_INFO,"Unknown game type: %s",game_type_name);
-
-            return				(TEXT2CLSID(*clsid));
-        }*/
-
-    EGameIDs gameID = ParseStringToGameType(game_type_name);
-    switch (gameID)
-    {
-    case eGameIDSingle: return (isServer) ? TEXT2CLSID("SV_SINGL") : TEXT2CLSID("CL_SINGL"); break;
-
-    case eGameIDDeathmatch: return (isServer) ? TEXT2CLSID("SV_DM") : TEXT2CLSID("CL_DM"); break;
-
-    case eGameIDTeamDeathmatch: return (isServer) ? TEXT2CLSID("SV_TDM") : TEXT2CLSID("CL_TDM"); break;
-
-    case eGameIDArtefactHunt: return (isServer) ? TEXT2CLSID("SV_AHUNT") : TEXT2CLSID("CL_AHUNT"); break;
-
-    case eGameIDCaptureTheArtefact: return (isServer) ? TEXT2CLSID("SV_CTA") : TEXT2CLSID("CL_CTA"); break;
-
-    default: return (TEXT2CLSID("")); break;
-    }
+    return (isServer) ? TEXT2CLSID("SV_SINGL") : TEXT2CLSID("CL_SINGL");
 }
 
 void game_GameState::switch_Phase(u32 new_phase)
@@ -249,8 +201,7 @@ void game_GameState::switch_Phase(u32 new_phase)
 ALife::_TIME_ID game_GameState::GetStartGameTime() { return (m_qwStartGameTime); }
 ALife::_TIME_ID game_GameState::GetGameTime()
 {
-    return (m_qwStartGameTime +
-        ALife::_TIME_ID(m_fTimeFactor * float(Level().timeServer_Async() - m_qwStartProcessorTime)));
+    return (m_qwStartGameTime + ALife::_TIME_ID(m_fTimeFactor * float(Level().timeServer_Async() - m_qwStartProcessorTime)));
 }
 
 float game_GameState::GetGameTimeFactor() { return (m_fTimeFactor); }
@@ -270,8 +221,7 @@ void game_GameState::SetGameTimeFactor(ALife::_TIME_ID GameTime, const float fTi
 
 ALife::_TIME_ID game_GameState::GetEnvironmentGameTime()
 {
-    return (m_qwEStartGameTime +
-        ALife::_TIME_ID(m_fETimeFactor * float(Level().timeServer_Async() - m_qwEStartProcessorTime)));
+    return (m_qwEStartGameTime + ALife::_TIME_ID(m_fETimeFactor * float(Level().timeServer_Async() - m_qwEStartProcessorTime)));
 }
 
 float game_GameState::GetEnvironmentGameTimeFactor() { return (m_fETimeFactor); }

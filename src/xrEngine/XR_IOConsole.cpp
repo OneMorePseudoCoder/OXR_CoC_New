@@ -235,6 +235,7 @@ void CConsole::OnRender()
         pFont = xr_new<CGameFont>("hud_font_di", CGameFont::fsDeviceIndependent);
         pFont->SetHeightI(0.025f);
     }
+
     if (!pFont2)
     {
         pcstr fontSection = "hud_font_di2";
@@ -245,21 +246,16 @@ void CConsole::OnRender()
     }
 
     bool bGame = false;
-    if ((g_pGameLevel && g_pGameLevel->bReady) ||
-        (g_pGamePersistent && g_pGamePersistent->m_pMainMenu && g_pGamePersistent->m_pMainMenu->IsActive()))
+    if ((g_pGameLevel && g_pGameLevel->bReady) || (g_pGamePersistent && g_pGamePersistent->m_pMainMenu && g_pGamePersistent->m_pMainMenu->IsActive()))
     {
         bGame = true;
-    }
-    if (GEnv.isDedicatedServer)
-    {
-        bGame = false;
     }
 
     DrawBackgrounds(bGame);
 
     float fMaxY;
     float dwMaxY = (float)Device.dwHeight;
-    // float dwMaxX=float(Device.dwWidth/2);
+
     if (bGame)
     {
         fMaxY = 0.0f;
@@ -283,7 +279,6 @@ void CConsole::OnRender()
     pcstr s_mark = ec().str_mark();
     pcstr s_mark_a = ec().str_after_mark();
 
-    // strncpy_s( buf1, cur_pos, editor, MAX_LEN );
     float str_length = ioc_d + pFont->SizeOf_(s_cursor);
     float out_pos = 0.0f;
     if (str_length > scr_width)
@@ -331,8 +326,6 @@ void CConsole::OnRender()
     out_pos += pFont2->SizeOf_(s_mark);
     pFont->OutI(-1.0f + out_pos * scr_x, ypos, "%s", s_mark_a);
 
-    // pFont2->OutI( -1.0f + ioc_d * scr_x, ypos, "%s", editor=all );
-
     if (ec().cursor_view())
     {
         pFont->SetColor(cursor_font_color);
@@ -357,8 +350,6 @@ void CConsole::OnRender()
         }
         Console_mark cm = (Console_mark)ls[0];
         pFont->SetColor(get_mark_color(cm));
-        // u8 b = (is_mark( cm ))? 2 : 0;
-        // OutFont( ls + b, ypos );
         OutFont(ls, ypos);
     }
 
@@ -639,11 +630,8 @@ extern CInput* pInput;
 
 void CConsole::Hide()
 {
-    if (!bVisible || (g_pGamePersistent && GEnv.isDedicatedServer))
+    if (!bVisible)
         return;
-
-    // if ( g_pGameLevel ||
-    // ( g_pGamePersistent && g_pGamePersistent->m_pMainMenu && g_pGamePersistent->m_pMainMenu->IsActive() ))
 
     if (pInput->IsExclusiveMode())
     {

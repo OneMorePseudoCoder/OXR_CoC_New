@@ -52,8 +52,7 @@ IC CSObjectItemClientServerSingleMp::CObjectItemClientServerSingleMp(const CLASS
 TEMPLATE_SPECIALIZATION
 ObjectFactory::ClientObjectBaseClass* CSObjectItemClientServerSingleMp::client_object() const
 {
-    ObjectFactory::ClientObjectBaseClass* result =
-        IsGameTypeSingle() ? xr_new<_client_type_single>() : xr_new<_client_type_mp>();
+    ObjectFactory::ClientObjectBaseClass* result = xr_new<_client_type_single>();
 
     return (result->_construct());
 }
@@ -61,8 +60,7 @@ ObjectFactory::ClientObjectBaseClass* CSObjectItemClientServerSingleMp::client_o
 TEMPLATE_SPECIALIZATION
 ObjectFactory::ServerObjectBaseClass* CSObjectItemClientServerSingleMp::server_object(LPCSTR section) const
 {
-    ObjectFactory::ServerObjectBaseClass* result =
-        IsGameTypeSingle() ? xr_new<_server_type_single>(section) : xr_new<_server_type_mp>(section);
+    ObjectFactory::ServerObjectBaseClass* result = xr_new<_server_type_single>(section);
 
     result = result->init();
     R_ASSERT(result);

@@ -4,7 +4,6 @@
 #include "CustomOutfit.h"
 #include "Actor.h"
 #include "Level.h"
-//#include "UIInventoryUtilities.h"
 
 CUIOutfitDragDropList::CUIOutfitDragDropList()
 {
@@ -16,21 +15,12 @@ CUIOutfitDragDropList::CUIOutfitDragDropList()
 
 void CUIOutfitDragDropList::SetOutfit(CUICellItem* itm)
 {
-    /*
-    static Fvector2 fNoOutfit			= pSettings->r_fvector2(m_default_outfit, "full_scale_icon");
-    Frect								r;
-    r.x1								= fNoOutfit.x*ICON_GRID_WIDTH;
-    r.y1								= fNoOutfit.y*ICON_GRID_HEIGHT;
-    r.x2								= r.x1+CHAR_ICON_FULL_WIDTH*ICON_GRID_WIDTH;
-    r.y2								= r.y1+CHAR_ICON_FULL_HEIGHT*ICON_GRID_HEIGHT;
-    */
     m_background->SetWndPos({ 0, 0 });
     m_background->SetWndSize({ GetWidth(), GetHeight() });
 
     m_background->SetStretchTexture(true);
 
-
-    if (IsGameTypeSingle() && !itm)
+    if (!itm)
     {
         IGameObject* pActor = smart_cast<CActor*>(Level().CurrentEntity());
 
@@ -59,28 +49,15 @@ void CUIOutfitDragDropList::SetOutfit(CUICellItem* itm)
             PIItem _iitem = (PIItem)itm->m_pData;
             CCustomOutfit* pOutfit = smart_cast<CCustomOutfit*>(_iitem);
             VERIFY(pOutfit);
-            /*
-            r.lt			= pOutfit->GetIconPos();
-            r.x1			*= ICON_GRID_WIDTH;
-            r.y1			*= ICON_GRID_HEIGHT;
-            */
             m_background->InitTexture(pOutfit->GetFullIconName().c_str());
         }
         else
         {
             m_background->InitTexture("npc_icon_without_outfit");
         }
-        /*
-        r.x2			= r.x1+CHAR_ICON_FULL_WIDTH*ICON_GRID_WIDTH;
-        r.y2			= r.y1+CHAR_ICON_FULL_HEIGHT*ICON_GRID_HEIGHT;
-
-        m_background->SetShader				(InventoryUtilities::GetCharIconsShader());
-        m_background->SetOriginalRect		(r);
-        */
     }
 
     m_background->TextureOn();
-    //	m_background->RescaleRelative2Rect	(r);
 }
 
 void CUIOutfitDragDropList::SetDefaultOutfit(pcstr default_outfit)
@@ -120,5 +97,4 @@ CUICellItem* CUIOutfitDragDropList::RemoveItem(CUICellItem* itm, bool force_root
 void CUIOutfitDragDropList::Draw()
 {
     m_background->Draw();
-    // inherited::Draw();
 }

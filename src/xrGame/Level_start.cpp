@@ -121,8 +121,7 @@ bool CLevel::net_start1()
 
             map_data.m_name = game_sv_GameState::parse_level_name(m_caServerOptions);
 
-            if (!GEnv.isDedicatedServer)
-                g_pGamePersistent->LoadTitle(nullptr, true, map_data.m_name);
+            g_pGamePersistent->LoadTitle(nullptr, true, map_data.m_name);
 
             const int id = g_pGamePersistent->Level_ID(map_data.m_name.c_str(), l_ver.c_str(), true);
 
@@ -151,8 +150,7 @@ bool CLevel::net_start2()
         }
         Server->SLS_Default();
         map_data.m_name = Server->level_name(m_caServerOptions);
-        if (!GEnv.isDedicatedServer)
-            g_pGamePersistent->LoadTitle(nullptr, true, map_data.m_name);
+        g_pGamePersistent->LoadTitle(nullptr, true, map_data.m_name);
     }
     return true;
 }
@@ -265,15 +263,14 @@ bool CLevel::net_start6()
     {
         Msg("! Failed to start client. Check the connection or level existance.");
 
-        if (m_connect_server_err == xrServer::ErrConnect && !psNET_direct_connect && !GEnv.isDedicatedServer)
+        if (m_connect_server_err == xrServer::ErrConnect && !psNET_direct_connect)
         {
             DEL_INSTANCE(g_pGameLevel);
             Console->Execute("main_menu on");
 
             MainMenu()->SwitchToMultiplayerMenu();
         }
-        else if (!map_data.m_map_loaded && map_data.m_name.size() &&
-            m_bConnectResult) // if (map_data.m_name == "") - level not loaded, see CLevel::net_start_client3
+        else if (!map_data.m_map_loaded && map_data.m_name.size() && m_bConnectResult)
         {
             LPCSTR level_id_string = NULL;
             LPCSTR dialog_string = NULL;
@@ -286,11 +283,8 @@ bool CLevel::net_start6()
             DEL_INSTANCE(g_pGameLevel);
             Console->Execute("main_menu on");
 
-            if (!GEnv.isDedicatedServer)
-            {
-                MainMenu()->SwitchToMultiplayerMenu();
-                MainMenu()->Show_DownloadMPMap(dialog_string, download_url);
-            }
+            MainMenu()->SwitchToMultiplayerMenu();
+            MainMenu()->Show_DownloadMPMap(dialog_string, download_url);
         }
         else if (map_data.IsInvalidClientChecksum())
         {
@@ -305,11 +299,9 @@ bool CLevel::net_start6()
             g_pGameLevel->net_Stop();
             DEL_INSTANCE(g_pGameLevel);
             Console->Execute("main_menu on");
-            if (!GEnv.isDedicatedServer)
-            {
-                MainMenu()->SwitchToMultiplayerMenu();
-                MainMenu()->Show_DownloadMPMap(dialog_string, download_url);
-            }
+
+            MainMenu()->SwitchToMultiplayerMenu();
+            MainMenu()->Show_DownloadMPMap(dialog_string, download_url);
         }
         else
         {
@@ -320,11 +312,8 @@ bool CLevel::net_start6()
         return true;
     }
 
-    if (!GEnv.isDedicatedServer)
-    {
-        if (CurrentGameUI())
-            CurrentGameUI()->OnConnected();
-    }
+    if (CurrentGameUI())
+        CurrentGameUI()->OnConnected();
 
     return true;
 }
@@ -345,11 +334,6 @@ void CLevel::InitializeClientGame(NET_Packet& P)
     game->set_type_name(game_type_name);
     game->Init();
     m_bGameConfigStarted = TRUE;
-
-    if (!IsGameTypeSingle())
-    {
-        init_compression();
-    }
 
     R_ASSERT(Load_GameSpecific_After());
 }

@@ -54,17 +54,11 @@ void CUIActorMenu::InitActorInfo()
 {
     if (!GetModeSpecificActorInfo())
         return;
-    if (IsGameTypeSingle())
-    {
-        if (m_pActorInvOwner)
-            GetModeSpecificActorInfo()->InitCharacter(m_pActorInvOwner->object_id());
-        else
-            GetModeSpecificActorInfo()->ClearInfo();
-    }
+
+    if (m_pActorInvOwner)
+        GetModeSpecificActorInfo()->InitCharacter(m_pActorInvOwner->object_id());
     else
-    {
-        UpdateActorMP();
-    }
+        GetModeSpecificActorInfo()->ClearInfo();
 }
 
 void CUIActorMenu::InitPartnerInfo()
@@ -934,20 +928,9 @@ void CUIActorMenu::ResetMode()
 
 void CUIActorMenu::UpdateActorMP()
 {
-    if (!&Level() || !Level().game || !Game().local_player || !m_pActorInvOwner || IsGameTypeSingle())
-    {
-        GetModeSpecificActorInfo()->ClearInfo();
-        m_ActorMoney->SetText("");
-        return;
-    }
-
-    int money = Game().local_player->money_for_round;
-
-    string64 buf;
-    xr_sprintf(buf, "%d RU", money);
-    m_ActorMoney->SetText(buf);
-
-    GetModeSpecificActorInfo()->InitCharacterMP(Game().local_player->getName(), "ui_npc_u_nebo_1");
+    GetModeSpecificActorInfo()->ClearInfo();
+    m_ActorMoney->SetText("");
+    return;
 }
 
 bool CUIActorMenu::CanSetItemToList(PIItem item, CUIDragDropListEx* l, u16& ret_slot)

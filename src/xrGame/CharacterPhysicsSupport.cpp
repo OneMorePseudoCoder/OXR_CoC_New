@@ -32,7 +32,6 @@
 #include "ActivatingCharCollisionDelay.h"
 #include "stalker_movement_manager_smart_cover.h"
 
-// const float default_hinge_friction = 5.f;//gray_wolf comment
 #ifdef DEBUG
 #include "PHDebug.h"
 extern BOOL death_anim_debug;
@@ -42,17 +41,6 @@ extern BOOL death_anim_debug;
 
 #define USE_SMART_HITS
 #define USE_IK
-
-// void  NodynamicsCollide( bool& do_colide, bool bo1, dContact& c, SGameMtl * /*material_1*/, SGameMtl * /*material_2*/
-// )
-//{
-//	dBodyID body1=dGeomGetBody( c.geom.g1 );
-//	dBodyID body2=dGeomGetBody( c.geom.g2 );
-//	if( !body1 || !body2 || ( dGeomUserDataHasCallback( c.geom.g1,NodynamicsCollide )&& dGeomUserDataHasCallback(
-// c.geom.g2, NodynamicsCollide ) ) )
-//		return;
-//	do_colide = false;
-//}
 
 IC bool is_imotion(interactive_motion* im) { return im && im->is_enabled(); }
 
@@ -1094,7 +1082,6 @@ void CCharacterPhysicsSupport::CreateShell(IGameObject* who, Fvector& dp, Fvecto
     m_pPhysicsShell->RunSimulation();
     m_pPhysicsShell->mXFORM.set(mXFORM);
     m_pPhysicsShell->SetCallbacks();
-    //
 
     if (anim_mov_ctrl) // we do not whant to move by long animation in root
         BR.set_callback_overwrite(TRUE);
@@ -1110,26 +1097,21 @@ void CCharacterPhysicsSupport::CreateShell(IGameObject* who, Fvector& dp, Fvecto
 
     if (m_eType != etBitting)
         K->LL_SetBoneRoot(physics_root);
-    // reset_root_bone_start_pose( *m_pPhysicsShell );
 
     m_flags.set(fl_death_anim_on, FALSE);
     m_eState = esDead;
     m_flags.set(fl_skeleton_in_shell, TRUE);
 
-    if (IsGameTypeSingle())
-    {
-        m_pPhysicsShell->SetPrefereExactIntegration(); // use exact integration for ragdolls in single
+    m_pPhysicsShell->SetPrefereExactIntegration(); // use exact integration for ragdolls in single
 #ifndef DEAD_BODY_COLLISION
-        m_pPhysicsShell->SetRemoveCharacterCollLADisable();
+    m_pPhysicsShell->SetRemoveCharacterCollLADisable();
 #endif
-    }
-    else
-        m_pPhysicsShell->SetIgnoreDynamic();
+
     m_pPhysicsShell->SetIgnoreSmall();
     AddActiveWeaponCollision();
 }
-void CCharacterPhysicsSupport::EndActivateFreeShell(
-    IGameObject* who, const Fvector& inital_entity_position, const Fvector& dp, const Fvector& velocity)
+
+void CCharacterPhysicsSupport::EndActivateFreeShell(IGameObject* who, const Fvector& inital_entity_position, const Fvector& dp, const Fvector& velocity)
 {
     VERIFY(m_pPhysicsShell);
     VERIFY(m_eState == esDead);

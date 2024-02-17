@@ -18,6 +18,7 @@ void S2DVert::rotate_pt(const Fvector2& pivot, const float cosA, const float sin
     pt.x *= kx;
     pt.add(pivot);
 }
+
 void C2DFrustum::CreateFromRect(const Frect& rect)
 {
     m_rect.set(float(rect.x1), float(rect.y1), float(rect.x2), float(rect.y2));
@@ -204,16 +205,9 @@ void UICore::PopScissor()
 
 UICore::UICore()
 {
-    if (!GEnv.isDedicatedServer)
-    {
-        m_pUICursor = xr_new<CUICursor>();
-        m_pFontManager = xr_new<CFontManager>();
-    }
-    else
-    {
-        m_pUICursor = nullptr;
-        m_pFontManager = nullptr;
-    }
+    m_pUICursor = xr_new<CUICursor>();
+    m_pFontManager = xr_new<CFontManager>();
+
     m_bPostprocess = false;
 
     OnDeviceReset();

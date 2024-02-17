@@ -398,36 +398,13 @@ void CLevel::ClientReceive()
                 P->r_stringZ(LevelVersion);
                 P->r_stringZ(GameType);
 
-                /*
-                u32 str_start = P->r_tell();
-                P->skip_stringZ();
-                u32 str_end = P->r_tell();
-
-                u32 temp_str_size = str_end - str_start;
-                R_ASSERT2(temp_str_size < 256, "level name too big");
-                LevelName = static_cast<char*>(xr_alloca(temp_str_size + 1));
-                P->r_seek(str_start);
-                P->r_stringZ(LevelName);
-
-
-                str_start = P->r_tell();
-                P->skip_stringZ();
-                str_end = P->r_tell();
-                temp_str_size = str_end - str_start;
-                R_ASSERT2(temp_str_size < 256, "incorect game type");
-                GameType = static_cast<char*>(xr_alloca(temp_str_size + 1));
-                P->r_seek(str_start);
-                P->r_stringZ(GameType);*/
-
                 string4096 NewServerOptions = "";
-                xr_sprintf(NewServerOptions, "%s/%s/%s%s", LevelName.c_str(), GameType.c_str(), map_ver_string,
-                    LevelVersion.c_str());
+                xr_sprintf(NewServerOptions, "%s/%s/%s%s", LevelName.c_str(), GameType.c_str(), map_ver_string, LevelVersion.c_str());
 
                 if (m_SO)
                 {
                     string4096 additional_options;
-                    xr_strcat(NewServerOptions, sizeof(NewServerOptions),
-                        remove_version_option(m_SO, additional_options, sizeof(additional_options)));
+                    xr_strcat(NewServerOptions, sizeof(NewServerOptions), remove_version_option(m_SO, additional_options, sizeof(additional_options)));
                 }
                 m_caServerOptions = NewServerOptions;
                 MakeReconnect();
@@ -441,8 +418,6 @@ void CLevel::ClientReceive()
         {
             if (!game)
                 break;
-            if (GameID() != eGameIDSingle)
-                Game().m_WeaponUsageStatistic->On_Check_Respond(P);
         }
         break;
         case M_STATISTIC_UPDATE:
@@ -457,10 +432,6 @@ void CLevel::ClientReceive()
         break;
         case M_STATISTIC_UPDATE_RESPOND: // deprecated, see  xrServer::OnMessage
         {
-            /*Msg("--- CL: On Update Respond");
-            if (!game) break;
-            if (GameID() != eGameIDSingle)
-                Game().m_WeaponUsageStatistic->OnUpdateRespond(P);*/
         }
         break;
         case M_FILE_TRANSFER:

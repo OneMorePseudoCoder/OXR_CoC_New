@@ -462,9 +462,6 @@ public:
     CCC_Screenshot(LPCSTR N) : IConsole_Command(N){};
     virtual void Execute(LPCSTR args)
     {
-        if (GEnv.isDedicatedServer)
-            return;
-
         string_path name;
         name[0] = 0;
         sscanf(args, "%s", name);

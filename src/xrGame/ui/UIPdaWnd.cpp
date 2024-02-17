@@ -94,32 +94,29 @@ void CUIPdaWnd::Init()
     m_btn_close = UIHelper::Create3tButton(uiXml, "close_button", this);
     m_hint_wnd = UIHelper::CreateHint(uiXml, "hint_wnd");
 
-    if (IsGameTypeSingle())
-    {
-        pUIMapWnd = xr_new<CUIMapWnd>(m_hint_wnd);
-        if (!pUIMapWnd->Init("pda_map.xml", "map_wnd", false))
-            xr_delete(pUIMapWnd);
+    pUIMapWnd = xr_new<CUIMapWnd>(m_hint_wnd);
+    if (!pUIMapWnd->Init("pda_map.xml", "map_wnd", false))
+        xr_delete(pUIMapWnd);
 
-        pUITaskWnd = xr_new<CUITaskWnd>(m_hint_wnd);
-        if (!pUITaskWnd->Init())
-            xr_delete(pUITaskWnd);
+    pUITaskWnd = xr_new<CUITaskWnd>(m_hint_wnd);
+    if (!pUITaskWnd->Init())
+        xr_delete(pUITaskWnd);
 
-        pUIFactionWarWnd = xr_new<CUIFactionWarWnd>(m_hint_wnd);
-        if (!pUIFactionWarWnd->Init())
-            xr_delete(pUIFactionWarWnd);
+    pUIFactionWarWnd = xr_new<CUIFactionWarWnd>(m_hint_wnd);
+    if (!pUIFactionWarWnd->Init())
+        xr_delete(pUIFactionWarWnd);
 
-        pUIActorInfo = xr_new<CUIActorInfoWnd>();
-        if (!pUIActorInfo->Init())
-            xr_delete(pUIActorInfo);
+    pUIActorInfo = xr_new<CUIActorInfoWnd>();
+    if (!pUIActorInfo->Init())
+        xr_delete(pUIActorInfo);
 
-        pUIRankingWnd = xr_new<CUIRankingWnd>();
-        if (!pUIRankingWnd->Init())
-            xr_delete(pUIRankingWnd);
+    pUIRankingWnd = xr_new<CUIRankingWnd>();
+    if (!pUIRankingWnd->Init())
+        xr_delete(pUIRankingWnd);
 
-        pUILogsWnd = xr_new<CUILogsWnd>();
-        if (!pUILogsWnd->Init())
-            xr_delete(pUILogsWnd);
-    }
+    pUILogsWnd = xr_new<CUILogsWnd>();
+    if (!pUILogsWnd->Init())
+        xr_delete(pUILogsWnd);
 
     UITabControl = xr_new<CUITabControl>();
     UITabControl->SetAutoDelete(true);

@@ -228,11 +228,9 @@ void IPureServer::_Recieve(const void* data, u32 data_size, u32 param)
 
 //==============================================================================
 #ifdef CONFIG_PROFILE_LOCKS
-IPureServer::IPureServer(CTimer* timer, bool Dedicated) : m_bDedicated(Dedicated),
-                                                          csPlayers(MUTEX_PROFILE_ID(IPureServer::csPlayers)),
-                                                          csMessage(MUTEX_PROFILE_ID(csMessage))
+IPureServer::IPureServer(CTimer* timer, bool Dedicated) : csPlayers(MUTEX_PROFILE_ID(IPureServer::csPlayers)), csMessage(MUTEX_PROFILE_ID(csMessage))
 #else
-IPureServer::IPureServer(CTimer* timer, bool Dedicated) : m_bDedicated(Dedicated)
+IPureServer::IPureServer(CTimer* timer)
 #endif
 {
     device_timer = timer;
@@ -391,7 +389,7 @@ IPureServer::EConnect IPureServer::Connect(pcstr options, GameDescriptionData& g
         dpAppDesc.dwFlags = DPNSESSION_CLIENT_SERVER | DPNSESSION_NODPNSVR;
         dpAppDesc.guidApplication = NET_GUID;
         dpAppDesc.pwszSessionName = SessionNameUNICODE;
-        dpAppDesc.dwMaxPlayers = (m_bDedicated) ? (dwMaxPlayers + 2) : (dwMaxPlayers + 1);
+        dpAppDesc.dwMaxPlayers = dwMaxPlayers + 1;
         dpAppDesc.pvApplicationReservedData = &game_descr;
         dpAppDesc.dwApplicationReservedDataSize = sizeof(game_descr);
 

@@ -89,7 +89,7 @@ bool AnselManager::Init() const
             Device.seqFrame.Add(mutable_this, REG_PRIORITY_CAPTURE);
 
             CCameraBase* C = NULL;
-            if (IsGameTypeSingle() && Actor())
+            if (Actor())
             {
                 if (!Actor()->Holder())
                     C = Actor()->cam_Active();

@@ -1946,9 +1946,6 @@ void game_sv_mp::DumpOnlineStatistic()
             if (!l_pC->ps)
                 return;
 
-            if (m_server->GetServerClient() == l_pC && GEnv.isDedicatedServer)
-                return;
-
             if (!l_pC->net_Ready)
                 return;
 
@@ -2138,8 +2135,6 @@ void game_sv_mp::DumpRoundStatistics()
         {
             xrClientData* l_pC = static_cast<xrClientData*>(client);
 
-            if (m_server->GetServerClient() == l_pC && GEnv.isDedicatedServer)
-                return;
             if (!l_pC->m_cdkey_digest.size())
                 return;
             if (!l_pC->ps)

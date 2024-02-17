@@ -24,7 +24,6 @@ CShootingObject::CShootingObject(void)
 {
     fShotTimeCounter = 0;
     fOneShotTime = 0;
-    // fHitPower						= 0.0f;
     fvHitPower.set(0.0f, 0.0f, 0.0f, 0.0f);
     fvHitPowerCritical.set(0.0f, 0.0f, 0.0f, 0.0f);
     m_fStartBulletSpeed = 1000.f;
@@ -48,8 +47,11 @@ CShootingObject::CShootingObject(void)
 
     reinit();
 }
+
 CShootingObject::~CShootingObject(void) {}
+
 void CShootingObject::reinit() { m_pFlameParticles = NULL; }
+
 void CShootingObject::Load(LPCSTR section)
 {
     if (pSettings->line_exist(section, "light_disabled"))
@@ -492,26 +494,10 @@ void CShootingObject::FireBullet(const Fvector& pos, const Fvector& shot_dir, fl
     m_fPredBulletTime = Device.fTimeGlobal;
 
     float l_fHitPower = 0.0f;
-    if (ParentIsActor()) //если из оружия стреляет актёр(игрок)
-    {
-        if (GameID() == eGameIDSingle)
-        {
-            l_fHitPower = fvHitPower[g_SingleGameDifficulty];
-        }
-        else
-        {
-            l_fHitPower = fvHitPower[egdMaster];
-        }
-    }
-    else
-    {
-        l_fHitPower = fvHitPower[egdMaster];
-    }
-
-    Level().BulletManager().AddBullet(pos, dir, m_fStartBulletSpeed * cur_silencer_koef.bullet_speed,
-        l_fHitPower * cur_silencer_koef.hit_power, fHitImpulse * cur_silencer_koef.hit_impulse, parent_id, weapon_id,
-        ALife::eHitTypeFireWound, fireDistance, cartridge, m_air_resistance_factor, send_hit, aim_bullet);
+	l_fHitPower = ParentIsActor() ? fvHitPower[g_SingleGameDifficulty] : fvHitPower[egdMaster];
+    Level().BulletManager().AddBullet(pos, dir, m_fStartBulletSpeed * cur_silencer_koef.bullet_speed, l_fHitPower * cur_silencer_koef.hit_power, fHitImpulse * cur_silencer_koef.hit_impulse, parent_id, weapon_id, ALife::eHitTypeFireWound, fireDistance, cartridge, m_air_resistance_factor, send_hit, aim_bullet);
 }
+
 void CShootingObject::FireStart() { bWorking = true; }
 void CShootingObject::FireEnd() { bWorking = false; }
 void CShootingObject::StartShotParticles()

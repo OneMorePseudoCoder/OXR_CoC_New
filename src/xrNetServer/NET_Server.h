@@ -185,7 +185,6 @@ protected:
     // Statistic
     IServerStatistic stats;
     CTimer* device_timer;
-    bool m_bDedicated;
 
     IClient* ID_to_client(ClientID ID, bool ScanAll = false);
 
@@ -202,7 +201,7 @@ protected:
     void UpdateBannedList();
 
 public:
-    IPureServer(CTimer* timer, bool Dedicated = false);
+    IPureServer(CTimer* timer);
     virtual ~IPureServer();
     HRESULT net_Handler(u32 dwMessageType, PVOID pMessage);
 

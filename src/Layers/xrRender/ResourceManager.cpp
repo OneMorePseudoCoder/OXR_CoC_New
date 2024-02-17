@@ -14,18 +14,6 @@
 
 //	Already defined in Texture.cpp
 void fix_texture_name(pstr fn);
-/*
-void fix_texture_name(LPSTR fn)
-{
-    LPSTR _ext = strext(fn);
-    if (_ext &&
-        (0==xr_stricmp(_ext, ".tga") ||
-        0==xr_stricmp(_ext, ".dds") ||
-        0==xr_stricmp(_ext, ".bmp") ||
-        0==xr_stricmp(_ext, ".ogm")))
-        *_ext = 0;
-}
-*/
 
 //--------------------------------------------------------------------------------------------------------------
 IBlender* CResourceManager::_GetBlender(LPCSTR Name)
@@ -246,14 +234,10 @@ Shader* CResourceManager::_cpp_Create(
 
 Shader* CResourceManager::_cpp_Create(LPCSTR s_shader, LPCSTR s_textures, LPCSTR s_constants, LPCSTR s_matrices)
 {
-    if (!GEnv.isDedicatedServer)
-    {
-        IBlender* pBlender = _GetBlender(s_shader ? s_shader : "null");
-        if (!pBlender)
-            return nullptr;
-        return _cpp_Create(pBlender, s_shader, s_textures, s_constants, s_matrices);
-    }
-    return nullptr;
+    IBlender* pBlender = _GetBlender(s_shader ? s_shader : "null");
+    if (!pBlender)
+        return nullptr;
+    return _cpp_Create(pBlender, s_shader, s_textures, s_constants, s_matrices);
 }
 
 IReader* open_shader(pcstr shader)
@@ -311,15 +295,11 @@ void CResourceManager::CompatibilityCheck()
 
 Shader* CResourceManager::Create(IBlender* B, LPCSTR s_shader, LPCSTR s_textures, LPCSTR s_constants, LPCSTR s_matrices)
 {
-    if (GEnv.isDedicatedServer)
-        return nullptr;
-
     return _cpp_Create(B, s_shader, s_textures, s_constants, s_matrices);
 }
 
 Shader* CResourceManager::Create(LPCSTR s_shader, LPCSTR s_textures, LPCSTR s_constants, LPCSTR s_matrices)
 {
-    if (!GEnv.isDedicatedServer)
     {
 #if defined(USE_DX9)
         const bool useCppBlender = RImplementation.o.ffp && _GetBlender(s_shader);

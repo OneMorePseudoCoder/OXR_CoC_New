@@ -36,12 +36,9 @@ extern void InitHudSoundSettings();
 void init_game_globals()
 {
     InitHudSoundSettings();
-    if (!GEnv.isDedicatedServer)
-    {
-        CInfoPortion::InitInternal(false, true);
-        CEncyclopediaArticle::InitInternal(false, true);
-        CPhraseDialog::InitInternal();
-    };
+    CInfoPortion::InitInternal(false, true);
+    CEncyclopediaArticle::InitInternal(false, true);
+    CPhraseDialog::InitInternal();
     CCharacterInfo::InitInternal();
     CSpecificCharacter::InitInternal();
     CHARACTER_COMMUNITY::InitInternal();
@@ -62,17 +59,14 @@ void clean_game_globals()
     story_ids.clear();
     spawn_story_ids.clear();
 
-    if (!GEnv.isDedicatedServer)
-    {
-        CInfoPortion::DeleteSharedData();
-        CInfoPortion::DeleteIdToIndexData();
+    CInfoPortion::DeleteSharedData();
+    CInfoPortion::DeleteIdToIndexData();
 
-        CEncyclopediaArticle::DeleteSharedData();
-        CEncyclopediaArticle::DeleteIdToIndexData();
+    CEncyclopediaArticle::DeleteSharedData();
+    CEncyclopediaArticle::DeleteIdToIndexData();
 
-        CPhraseDialog::DeleteSharedData();
-        CPhraseDialog::DeleteIdToIndexData();
-    }
+    CPhraseDialog::DeleteSharedData();
+    CPhraseDialog::DeleteIdToIndexData();
     CCharacterInfo::DeleteSharedData();
     CCharacterInfo::DeleteIdToIndexData();
 

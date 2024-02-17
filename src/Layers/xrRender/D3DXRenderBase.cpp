@@ -39,7 +39,6 @@ void D3DXRenderBase::updateGamma()
 
 void D3DXRenderBase::OnDeviceDestroy(bool bKeepTextures)
 {
-    if (!GEnv.isDedicatedServer)
     {
         UIRenderImpl.DestroyUIGeom();
         DUImpl.OnDeviceDestroy();
@@ -144,7 +143,7 @@ void D3DXRenderBase::OnDeviceCreate(const char* shName)
     Resources->OnDeviceCreate(shName);
     Resources->CompatibilityCheck();
     create();
-    if (!GEnv.isDedicatedServer)
+
     {
         m_WireShader.create("editor" DELIMITER "wire");
         m_SelectionShader.create("editor" DELIMITER "selection");

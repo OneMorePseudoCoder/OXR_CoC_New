@@ -23,7 +23,6 @@ bool CLevel::net_start_client1()
     g_pGamePersistent->LoadBegin();
     // name_of_server
     string64 name_of_server = "";
-    //	xr_strcpy						(name_of_server,*m_caClientOptions);
     if (strchr(*m_caClientOptions, '/'))
         strncpy_s(name_of_server, *m_caClientOptions, strchr(*m_caClientOptions, '/') - *m_caClientOptions);
 
@@ -32,9 +31,7 @@ bool CLevel::net_start_client1()
 
     // Startup client
     string256 temp;
-    xr_sprintf(temp, "%s %s",
-               StringTable().translate("st_client_connecting_to").c_str(),
-               name_of_server);
+    xr_sprintf(temp, "%s %s", StringTable().translate("st_client_connecting_to").c_str(), name_of_server);
 
     g_pGamePersistent->LoadTitle(temp);
     return true;
@@ -114,8 +111,6 @@ bool CLevel::net_start_client3()
         // Load level
         R_ASSERT2(Load(level_id), "Loading failed.");
         map_data.m_level_geom_crc32 = 0;
-        if (!IsGameTypeSingle())
-            CalculateLevelCrc32();
     }
     return true;
 }
@@ -128,7 +123,6 @@ bool CLevel::net_start_client4()
         g_pGamePersistent->LoadTitle("st_client_spawning");
 
         // Send physics to single or multithreaded mode
-
         create_physics_world(!!psDeviceFlags.test(mtPhysics), &ObjectSpace, &Objects);
 
         R_ASSERT(physics_world());
@@ -165,23 +159,6 @@ bool CLevel::net_start_client4()
                 Sleep(5);
             }
         }
-        /*
-                if(psNET_direct_connect)
-                {
-                    ClientReceive();
-                    if(Server)
-                            Server->Update()	;
-                    Sleep(5);
-                }else
-
-                    while(!game_configured)
-                    {
-                        ClientReceive();
-                        if(Server)
-                            Server->Update()	;
-                        Sleep(5);
-                    }
-        */
     }
     return true;
 }
@@ -202,16 +179,10 @@ bool CLevel::net_start_client5()
 {
     if (connected_to_server)
     {
-        // HUD
-
-        // Textures
-        if (!GEnv.isDedicatedServer)
-        {
-            g_pGamePersistent->LoadTitle("st_loading_textures");
-            GEnv.Render->DeferredLoad(FALSE);
-            GEnv.Render->ResourcesDeferredUpload();
-            LL_CheckTextures();
-        }
+        g_pGamePersistent->LoadTitle("st_loading_textures");
+        GEnv.Render->DeferredLoad(FALSE);
+        GEnv.Render->ResourcesDeferredUpload();
+        LL_CheckTextures();
         sended_request_connection_data = FALSE;
         deny_m_spawn = TRUE;
     }
@@ -231,24 +202,16 @@ bool CLevel::net_start_client6()
             g_pGamePersistent->LoadEnd();
             return true;
         }
-        if (!GEnv.isDedicatedServer)
-        {
-            pHUD->Load();
-            pHUD->OnConnected();
-        }
+
+        pHUD->Load();
+        pHUD->OnConnected();
 
 #ifdef DEBUG
         Msg("--- net_start_client6");
 #endif // #ifdef DEBUG
 
         if (game)
-        {
             game->OnConnected();
-            if (game->Type() != eGameIDSingle)
-            {
-                m_file_transfer = xr_new<file_transfer::client_site>();
-            }
-        }
 
         g_pGamePersistent->LoadTitle("st_client_synchronising");
         Device.PreCache(60, true);

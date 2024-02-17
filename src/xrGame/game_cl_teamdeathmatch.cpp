@@ -150,9 +150,7 @@ void game_cl_TeamDeathmatch::TranslateGameMessage(u32 msg, NET_Packet& P)
         if (!pPlayer)
             break;
 
-        xr_sprintf(Text, "%s%s %s%s %s%s", CTeamInfo::GetTeam_color_tag(int(OldTeam)), pPlayer->getName(), Color_Main,
-            *StringTable().translate("mp_switched_to"), CTeamInfo::GetTeam_color_tag(int(NewTeam)),
-            CTeamInfo::GetTeam_name(int(NewTeam)));
+        xr_sprintf(Text, "%s%s %s%s %s%s", CTeamInfo::GetTeam_color_tag(int(OldTeam)), pPlayer->getName(), Color_Main, *StringTable().translate("mp_switched_to"), CTeamInfo::GetTeam_color_tag(int(NewTeam)), CTeamInfo::GetTeam_name(int(NewTeam)));
         if (CurrentGameUI())
             CurrentGameUI()->CommonMessageOut(Text);
         //---------------------------------------
@@ -173,9 +171,6 @@ void game_cl_TeamDeathmatch::SetGameUI(CUIGameCustom* uigame)
 
 CUIGameCustom* game_cl_TeamDeathmatch::createGameUI()
 {
-    if (GEnv.isDedicatedServer)
-        return NULL;
-
     CLASS_ID clsid = CLSID_GAME_UI_TEAMDEATHMATCH;
     m_game_ui = smart_cast<CUIGameTDM*>(NEW_INSTANCE(clsid));
     R_ASSERT(m_game_ui);
@@ -293,19 +288,14 @@ void game_cl_TeamDeathmatch::OnTeamSelect(int Team)
     //-----------------------------------------------------------------
     m_bTeamSelected = TRUE;
     //---------------------------
-    //	if (m_bMenuCalledFromReady)
-    //	{
-    //		OnKeyboardPress(kJUMP);
-    //	}
 };
+
 //-----------------------------------------------------------------
 void game_cl_TeamDeathmatch::SetCurrentBuyMenu()
 {
     if (!local_player)
         return;
     if (!local_player->team || local_player->skin == -1)
-        return;
-    if (GEnv.isDedicatedServer)
         return;
 
     if (!pCurBuyMenu)

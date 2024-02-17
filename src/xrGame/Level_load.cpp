@@ -17,11 +17,10 @@ bool CLevel::Load_GameSpecific_Before()
     g_pGamePersistent->LoadTitle("st_loading_ai_objects");
     string_path fn_game;
 
-    if (GamePersistent().GameType() == eGameIDSingle && !ai().get_alife() && FS.exist(fn_game, "$level$", "level.ai") &&
-        !net_Hosts.empty())
+    if (!ai().get_alife() && FS.exist(fn_game, "$level$", "level.ai") && !net_Hosts.empty())
         ai().load(net_SessionName());
 
-    if (!GEnv.isDedicatedServer && !ai().get_alife() && ai().get_game_graph() && FS.exist(fn_game, "$level$", "level.game"))
+    if (!ai().get_alife() && ai().get_game_graph() && FS.exist(fn_game, "$level$", "level.game"))
     {
         IReader* stream = FS.r_open(fn_game);
         ai().patrol_path_storage_raw(*stream);
@@ -78,7 +77,6 @@ bool CLevel::Load_GameSpecific_After()
         FS.r_close(F);
     }
 
-    if (!GEnv.isDedicatedServer)
     {
         // loading static sounds
         VERIFY(m_level_sound_manager);
@@ -136,18 +134,15 @@ bool CLevel::Load_GameSpecific_After()
         }
     }
 
-    if (!GEnv.isDedicatedServer)
-    {
-        // loading scripts
-        auto& scriptEngine = *GEnv.ScriptEngine;
-        scriptEngine.remove_script_process(ScriptProcessor::Level);
-        shared_str scripts;
-        if (pLevel->section_exist("level_scripts") && pLevel->line_exist("level_scripts", "script"))
-            scripts = pLevel->r_string("level_scripts", "script");
-        else
-            scripts = "";
-        scriptEngine.add_script_process(ScriptProcessor::Level, scriptEngine.CreateScriptProcess("level", scripts));
-    }
+    // loading scripts
+    auto& scriptEngine = *GEnv.ScriptEngine;
+    scriptEngine.remove_script_process(ScriptProcessor::Level);
+    shared_str scripts;
+    if (pLevel->section_exist("level_scripts") && pLevel->line_exist("level_scripts", "script"))
+        scripts = pLevel->r_string("level_scripts", "script");
+    else
+        scripts = "";
+    scriptEngine.add_script_process(ScriptProcessor::Level, scriptEngine.CreateScriptProcess("level", scripts));
 
     BlockCheatLoad();
 
@@ -254,8 +249,4 @@ void CLevel::Load_GameSpecific_CFORM(CDB::TRI* tris, u32 count)
 
 void CLevel::BlockCheatLoad()
 {
-#ifndef DEBUG
-    if (game && (GameID() != eGameIDSingle))
-        phTimefactor = 1.f;
-#endif
 }

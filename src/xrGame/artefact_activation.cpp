@@ -33,7 +33,9 @@ SArtefactActivation::SArtefactActivation(CArtefact* af, u32 owner_id)
     m_owner_id = owner_id;
     m_in_process = false;
 }
+
 SArtefactActivation::~SArtefactActivation() { m_light.destroy(); }
+
 void SArtefactActivation::Load()
 {
     for (int i = 0; i < (int)eMax; ++i)
@@ -174,7 +176,7 @@ void SArtefactActivation::SpawnAnomaly()
 
     Fvector pos;
     m_af->Center(pos);
-    CSE_Abstract* object = Level().spawn_item(zone_sect, pos, (GEnv.isDedicatedServer) ? u32(-1) : m_af->ai_location().level_vertex_id(), 0xffff, true);
+    CSE_Abstract* object = Level().spawn_item(zone_sect, pos, m_af->ai_location().level_vertex_id(), 0xffff, true);
     CSE_ALifeAnomalousZone* AlifeZone = smart_cast<CSE_ALifeAnomalousZone*>(object);
     VERIFY(AlifeZone);
     CShapeData::shape_def _shape;
@@ -182,8 +184,7 @@ void SArtefactActivation::SpawnAnomaly()
     _shape.data.sphere.R = zone_radius;
     _shape.type = CShapeData::cfSphere;
     AlifeZone->assign_shapes(&_shape, 1);
-    if (IsGameTypeSingle())
-        AlifeZone->m_maxPower = zone_power;
+    AlifeZone->m_maxPower = zone_power;
     AlifeZone->m_owner_id = m_owner_id;
     AlifeZone->m_space_restrictor_type = RestrictionSpace::eRestrictorTypeNone;
 

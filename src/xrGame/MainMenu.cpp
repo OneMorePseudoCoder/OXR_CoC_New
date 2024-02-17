@@ -123,47 +123,40 @@ CMainMenu::CMainMenu()
     GetCDKeyFromRegistry();
     m_demo_info_loader = NULL;
 
-    if (!GEnv.isDedicatedServer)
-    {
-        g_btnHint = xr_new<CUIButtonHint>();
-        g_statHint = xr_new<CUIButtonHint>();
-        m_pGameSpyFull = xr_new<CGameSpy_Full>();
+    g_btnHint = xr_new<CUIButtonHint>();
+    g_statHint = xr_new<CUIButtonHint>(); 
+	m_pGameSpyFull = xr_new<CGameSpy_Full>();
 
 #ifdef XR_PLATFORM_WINDOWS
-        for (cpcstr name : ErrMsgBoxTemplate)
+    for (cpcstr name : ErrMsgBoxTemplate)
+	{
+        CUIMessageBoxEx* msgBox = m_pMB_ErrDlgs.emplace_back(xr_new<CUIMessageBoxEx>());
+        if (!msgBox->InitMessageBox(name))
         {
-            CUIMessageBoxEx* msgBox = m_pMB_ErrDlgs.emplace_back(xr_new<CUIMessageBoxEx>());
-            if (!msgBox->InitMessageBox(name))
-            {
-                m_pMB_ErrDlgs.pop_back();
-                xr_delete(msgBox);
-            }
+            m_pMB_ErrDlgs.pop_back();
+            xr_delete(msgBox);
         }
-
-        m_pMB_ErrDlgs[PatchDownloadSuccess]->AddCallbackStr("button_yes", MESSAGE_BOX_YES_CLICKED,
-            CUIWndCallback::void_function(this, &CMainMenu::OnRunDownloadedPatch));
-        m_pMB_ErrDlgs[PatchDownloadSuccess]->AddCallbackStr("button_yes", MESSAGE_BOX_OK_CLICKED,
-            CUIWndCallback::void_function(this, &CMainMenu::OnConnectToMasterServerOkClicked));
-
-        CUIMessageBoxEx* downloadMsg = m_pMB_ErrDlgs[DownloadMPMap];
-        if (downloadMsg)
-        {
-            downloadMsg->AddCallbackStr("button_copy", MESSAGE_BOX_COPY_CLICKED,
-                CUIWndCallback::void_function(this, &CMainMenu::OnDownloadMPMap_CopyURL));
-            downloadMsg->AddCallbackStr(
-                "button_yes", MESSAGE_BOX_YES_CLICKED, CUIWndCallback::void_function(this, &CMainMenu::OnDownloadMPMap));
-        }
-
-#endif
-
-        m_account_mngr = xr_new<gamespy_gp::account_manager>(m_pGameSpyFull->GetGameSpyGP());
-        m_login_mngr = xr_new<gamespy_gp::login_manager>(m_pGameSpyFull);
-        m_profile_store = xr_new<gamespy_profile::profile_store>(m_pGameSpyFull);
-#ifdef XR_PLATFORM_WINDOWS
-        m_stats_submitter = xr_new<gamespy_profile::stats_submitter>(m_pGameSpyFull);
-        m_atlas_submit_queue = xr_new<atlas_submit_queue>(m_stats_submitter);
-#endif
     }
+
+    m_pMB_ErrDlgs[PatchDownloadSuccess]->AddCallbackStr("button_yes", MESSAGE_BOX_YES_CLICKED, CUIWndCallback::void_function(this, &CMainMenu::OnRunDownloadedPatch));
+    m_pMB_ErrDlgs[PatchDownloadSuccess]->AddCallbackStr("button_yes", MESSAGE_BOX_OK_CLICKED, CUIWndCallback::void_function(this, &CMainMenu::OnConnectToMasterServerOkClicked));
+
+    CUIMessageBoxEx* downloadMsg = m_pMB_ErrDlgs[DownloadMPMap];
+    if (downloadMsg)
+    {
+        downloadMsg->AddCallbackStr("button_copy", MESSAGE_BOX_COPY_CLICKED, CUIWndCallback::void_function(this, &CMainMenu::OnDownloadMPMap_CopyURL));
+        downloadMsg->AddCallbackStr("button_yes", MESSAGE_BOX_YES_CLICKED, CUIWndCallback::void_function(this, &CMainMenu::OnDownloadMPMap));
+    }
+
+#endif
+
+    m_account_mngr = xr_new<gamespy_gp::account_manager>(m_pGameSpyFull->GetGameSpyGP());
+    m_login_mngr = xr_new<gamespy_gp::login_manager>(m_pGameSpyFull);
+    m_profile_store = xr_new<gamespy_profile::profile_store>(m_pGameSpyFull);
+#ifdef XR_PLATFORM_WINDOWS
+    m_stats_submitter = xr_new<gamespy_profile::stats_submitter>(m_pGameSpyFull);
+    m_atlas_submit_queue = xr_new<atlas_submit_queue>(m_stats_submitter);
+#endif
 
     Device.seqFrame.Add(this, REG_PRIORITY_LOW - 1000);
 }
@@ -201,13 +194,7 @@ void CMainMenu::Activate(bool bActivate)
         return;
     if (m_Flags.test(flGameSaveScreenshot))
         return;
-    if ((m_screenshotFrame == Device.dwFrame) || (m_screenshotFrame == Device.dwFrame - 1) ||
-        (m_screenshotFrame == Device.dwFrame + 1))
-        return;
-
-    bool b_is_single = IsGameTypeSingle();
-
-    if (GEnv.isDedicatedServer && bActivate)
+    if ((m_screenshotFrame == Device.dwFrame) || (m_screenshotFrame == Device.dwFrame - 1) || (m_screenshotFrame == Device.dwFrame + 1))
         return;
 
     if (bActivate)
@@ -223,25 +210,18 @@ void CMainMenu::Activate(bool bActivate)
 
         m_Flags.set(flRestoreConsole, Console->bVisible);
 
-        if (b_is_single)
-            m_Flags.set(flRestorePause, Device.Paused());
+        m_Flags.set(flRestorePause, Device.Paused());
 
         Console->Hide();
 
-        if (b_is_single)
-        {
-            m_Flags.set(flRestorePauseStr, bShowPauseString);
-            bShowPauseString = FALSE;
-            if (!m_Flags.test(flRestorePause))
-                Device.Pause(TRUE, TRUE, FALSE, "mm_activate2");
-        }
+        m_Flags.set(flRestorePauseStr, bShowPauseString);
+        bShowPauseString = FALSE;
+        if (!m_Flags.test(flRestorePause))
+            Device.Pause(TRUE, TRUE, FALSE, "mm_activate2");
 
         if (g_pGameLevel)
         {
-            if (b_is_single)
-            {
-                Device.seqFrame.Remove(g_pGameLevel);
-            }
+            Device.seqFrame.Remove(g_pGameLevel);
             Device.seqRender.Remove(g_pGameLevel);
             CCameraManager::ResetPP();
         };
@@ -271,22 +251,16 @@ void CMainMenu::Activate(bool bActivate)
         CleanInternals();
         if (g_pGameLevel)
         {
-            if (b_is_single)
-            {
-                Device.seqFrame.Add(g_pGameLevel);
-            }
+            Device.seqFrame.Add(g_pGameLevel);
             Device.seqRender.Add(g_pGameLevel);
         };
         if (m_Flags.test(flRestoreConsole))
             Console->Show();
 
-        if (b_is_single)
-        {
-            if (!m_Flags.test(flRestorePause))
-                Device.Pause(FALSE, TRUE, FALSE, "mm_deactivate1");
+        if (!m_Flags.test(flRestorePause))
+            Device.Pause(FALSE, TRUE, FALSE, "mm_deactivate1");
 
-            bShowPauseString = m_Flags.test(flRestorePauseStr);
-        }
+        bShowPauseString = m_Flags.test(flRestorePauseStr);
 
         if (m_Flags.test(flRestoreCursor))
             GetUICursor().Show();
