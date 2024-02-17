@@ -25,8 +25,7 @@
 CUIMapWnd* g_map_wnd = NULL; // quick temporary solution -(
 CUIMapWnd* GetMapWnd() { return g_map_wnd; }
 
-CUIMapWnd::CUIMapWnd(UIHint* hint)
-    : CUIWindow("CUIMapWnd"), m_ActionPlanner(nullptr)
+CUIMapWnd::CUIMapWnd(UIHint* hint) : CUIWindow("CUIMapWnd"), m_ActionPlanner(nullptr)
 {
     m_tgtMap = NULL;
     m_GlobalMap = NULL;
@@ -35,13 +34,6 @@ CUIMapWnd::CUIMapWnd(UIHint* hint)
     m_currentZoom = 1.0f;
     m_map_location_hint = NULL;
     m_map_move_step = 10.0f;
-    /*
-    #ifdef DEBUG
-    //	m_dbg_text_hint			= NULL;
-    //	m_dbg_info				= NULL;
-    #endif // DEBUG
-    */
-
     m_UIMainMapHeader = nullptr;
     m_scroll_mode = false;
     m_nav_timing = Device.dwTimeGlobal;
@@ -55,12 +47,6 @@ CUIMapWnd::~CUIMapWnd()
     delete_data(m_ActionPlanner);
     delete_data(m_GameMaps);
     delete_data(m_map_location_hint);
-    /*
-    #ifdef DEBUG
-        delete_data( m_dbg_text_hint );
-        delete_data( m_dbg_info );
-    #endif // DEBUG
-    */
     g_map_wnd = NULL;
 }
 
@@ -159,7 +145,6 @@ bool CUIMapWnd::Init(cpcstr xml_name, cpcstr start_from, bool critical /*= true*
     m_map_location_hint->Init(uiXml, pth);
 
     // Load maps
-
     m_GlobalMap = xr_new<CUIGlobalMap>(this);
     m_GlobalMap->SetAutoDelete(true);
     m_GlobalMap->Initialize();
@@ -170,11 +155,7 @@ bool CUIMapWnd::Init(cpcstr xml_name, cpcstr start_from, bool critical /*= true*
     m_currentZoom = m_GlobalMap->GetCurrentZoom().x;
 
     // initialize local maps
-    xr_string sect_name;
-    if (IsGameTypeSingle())
-        sect_name = "level_maps_single";
-    else
-        sect_name = "level_maps_mp";
+    xr_string sect_name = "level_maps_single";
 
     if (pGameIni->section_exist(sect_name.c_str()))
     {

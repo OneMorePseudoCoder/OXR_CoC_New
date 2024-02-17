@@ -19,12 +19,7 @@ LPCSTR xrServer::get_map_download_url(LPCSTR level_name, LPCSTR level_version)
     LPCSTR ret_url = "";
     CInifile* level_ini = g_pGamePersistent->GetArchiveHeader(level_name, level_version);
     if (!level_ini)
-    {
-        if (!IsGameTypeSingle())
-            Msg("! Warning: level [%s][%s] has not header ltx", level_name, level_version);
-
         return ret_url;
-    }
 
     ret_url = level_ini->r_string_wb("header", "link").c_str();
     if (!ret_url)
@@ -61,17 +56,7 @@ xrServer::EConnect xrServer::Connect(shared_str& session_name, GameDescriptionDa
     // Options
     if (0 == game)
         return ErrConnect;
-    //	game->type				= type_id;
-    if (game->Type() != eGameIDSingle)
-    {
-        m_file_transfers = xr_new<file_transfer::server_site>();
-        initialize_screenshot_proxies();
-        LoadServerInfo();
-        xr_auth_strings_t tmp_ignore;
-        xr_auth_strings_t tmp_check;
-        fill_auth_check_params(tmp_ignore, tmp_check);
-        FS.auth_generate(tmp_ignore, tmp_check);
-    }
+
 #ifdef DEBUG
     Msg("* Created server_game %s", game->type_name());
 #endif
@@ -131,27 +116,15 @@ void xrServer::AttachNewClient(IClient* CL)
         Check_GameSpy_CDKey_Success(CL);
     }
 
-    // xrClientData * CL_D=(xrClientData*)(CL);
-    // ip_address				ClAddress;
-    // GetClientAddress		(CL->ID, ClAddress);
     CL->m_guid[0] = 0;
 }
 
 void xrServer::RequestClientDigest(IClient* CL)
 {
-    if (IsGameTypeSingle() || (CL == GetServerClient()))
-    {
-        Check_BuildVersion_Success(CL);
-        return;
-    }
-    xrClientData* tmp_client = smart_cast<xrClientData*>(CL);
-    VERIFY(tmp_client);
-    PerformSecretKeysSync(tmp_client);
-
-    NET_Packet P;
-    P.w_begin(M_SV_DIGEST);
-    SendTo(CL->ID, P);
+    Check_BuildVersion_Success(CL);
+    return;
 }
+
 #define NET_BANNED_STR "Player banned by server!"
 void xrServer::ProcessClientDigest(xrClientData* xrCL, NET_Packet* P)
 {
@@ -163,8 +136,7 @@ void xrServer::ProcessClientDigest(xrClientData* xrCL, NET_Packet* P)
     if (server_game->IsPlayerBanned(xrCL->m_cdkey_digest.c_str(), admin_name))
     {
         R_ASSERT2(tmp_client != GetServerClient(), "can't disconnect server client");
-        Msg("--- Client [%s] tried to connect - rejecting connection (he is banned by %s) ...",
-            tmp_client->m_cAddress.to_string().c_str(), admin_name.size() ? admin_name.c_str() : "Server");
+        Msg("--- Client [%s] tried to connect - rejecting connection (he is banned by %s) ...", tmp_client->m_cAddress.to_string().c_str(), admin_name.size() ? admin_name.c_str() : "Server");
         pstr message_to_user;
         if (admin_name.size())
         {

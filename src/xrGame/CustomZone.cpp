@@ -414,9 +414,6 @@ bool CCustomZone::net_Spawn(CSE_Abstract* DC)
     else
         m_ttl = u32(-1);
 
-    if (!IsGameTypeSingle())
-        m_zone_flags.set(eSpawnBlowoutArtefacts, false);
-
     m_TimeToDisable = Z->m_disabled_time * 1000;
     m_TimeToEnable = Z->m_enabled_time * 1000;
     m_TimeShift = Z->m_start_time_shift * 1000;
@@ -677,12 +674,6 @@ void CCustomZone::shedule_Update(u32 dt)
     };
 
     UpdateOnOffState();
-
-    if (!IsGameTypeSingle() && Local())
-    {
-        if (Device.dwTimeGlobal > m_ttl)
-            DestroyObject();
-    }
 }
 
 void CCustomZone::CheckForAwaking()
@@ -693,9 +684,6 @@ void CCustomZone::CheckForAwaking()
 
 void CCustomZone::feel_touch_new(IGameObject* O)
 {
-    //	if(smart_cast<CActor*>(O) && O == Level().CurrentEntity())
-    //					m_pLocalActor	= smart_cast<CActor*>(O);
-
     CGameObject* pGameObject = smart_cast<CGameObject*>(O);
     CEntityAlive* pEntityAlive = smart_cast<CEntityAlive*>(pGameObject);
     CArtefact* pArtefact = smart_cast<CArtefact*>(pGameObject);
@@ -1426,8 +1414,7 @@ void CCustomZone::SpawnArtefact() const
 
     Fvector pos;
     Center(pos);
-    Level().spawn_item(m_ArtefactSpawn[i].section.c_str(), pos,
-        GEnv.isDedicatedServer ? u32(-1) : ai_location().level_vertex_id(), ID());
+    Level().spawn_item(m_ArtefactSpawn[i].section.c_str(), pos, ai_location().level_vertex_id(), ID());
 }
 
 void CCustomZone::StartWind()
@@ -1462,29 +1449,25 @@ void CCustomZone::UpdateWind()
 
     if (m_dwBlowoutWindTimePeak > (u32)m_iStateTime)
     {
-        g_pGamePersistent->Environment().wind_strength_factor = m_fBlowoutWindPowerMax +
-            (m_fStoreWindPower - m_fBlowoutWindPowerMax) * float(m_dwBlowoutWindTimePeak - (u32)m_iStateTime) /
-                float(m_dwBlowoutWindTimePeak - m_dwBlowoutWindTimeStart);
+        g_pGamePersistent->Environment().wind_strength_factor = m_fBlowoutWindPowerMax + (m_fStoreWindPower - m_fBlowoutWindPowerMax) * float(m_dwBlowoutWindTimePeak - (u32)m_iStateTime) / float(m_dwBlowoutWindTimePeak - m_dwBlowoutWindTimeStart);
         clamp(g_pGamePersistent->Environment().wind_strength_factor, 0.f, 1.f);
     }
     else
     {
-        g_pGamePersistent->Environment().wind_strength_factor = m_fBlowoutWindPowerMax +
-            (m_fStoreWindPower - m_fBlowoutWindPowerMax) * float((u32)m_iStateTime - m_dwBlowoutWindTimePeak) /
-                float(m_dwBlowoutWindTimeEnd - m_dwBlowoutWindTimePeak);
+        g_pGamePersistent->Environment().wind_strength_factor = m_fBlowoutWindPowerMax + (m_fStoreWindPower - m_fBlowoutWindPowerMax) * float((u32)m_iStateTime - m_dwBlowoutWindTimePeak) / float(m_dwBlowoutWindTimeEnd - m_dwBlowoutWindTimePeak);
         clamp(g_pGamePersistent->Environment().wind_strength_factor, 0.f, 1.f);
     }
 }
 
 u32 CCustomZone::ef_anomaly_type() const { return (m_ef_anomaly_type); }
+
 u32 CCustomZone::ef_weapon_type() const
 {
     VERIFY(m_ef_weapon_type != u32(-1));
     return (m_ef_weapon_type);
 }
 
-void CCustomZone::CreateHit(u16 id_to, u16 id_from, const Fvector& hit_dir, float hit_power, s16 bone_id,
-    const Fvector& pos_in_bone, float hit_impulse, ALife::EHitType hit_type)
+void CCustomZone::CreateHit(u16 id_to, u16 id_from, const Fvector& hit_dir, float hit_power, s16 bone_id, const Fvector& pos_in_bone, float hit_impulse, ALife::EHitType hit_type)
 {
     if (OnServer())
     {
@@ -1656,18 +1639,7 @@ void CCustomZone::CalcDistanceTo(const Fvector& P, float& dist, float& radius)
         radius = sr;
         return;
     }
-    /*
-        //2nd quick test
-        Fvector				SC;
-        float				dist2;
-        XF.transform_tiny	(SC,CFORM()->getSphere().P);
-        dist2				= P.distance_to(SC);
-        if(dist2>sr)
-        {
-            radius		= sr;
-            return;
-        }
-    */
+
     // full test
     const Fmatrix& XF = XFORM();
     xr_vector<CCF_Shape::shape_def>& Shapes = Sh->Shapes();

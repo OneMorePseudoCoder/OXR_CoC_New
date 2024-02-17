@@ -512,12 +512,6 @@ public:
         if (!g_pGameLevel)
             return;
 
-        if (!IsGameTypeSingle())
-        {
-            Log("Spawn command is available only in singleplayer mode.");
-            return;
-        }
-
         if (!pSettings->section_exist(args))
         {
             Msg("! Section [%s] doesn't exist...", args);
@@ -543,12 +537,6 @@ public:
     {
         if (!g_pGameLevel)
             return;
-
-        if (!IsGameTypeSingle())
-        {
-            Log("Spawn command is available only in singleplayer mode.");
-            return;
-        }
 
         if (!pSettings->section_exist(args))
         {
@@ -626,11 +614,7 @@ public:
             return;
         }
 #endif
-        if (!IsGameTypeSingle())
-        {
-            Msg("for single-mode only");
-            return;
-        }
+
         if (!g_actor || !Actor()->g_Alive())
         {
             Msg("cannot make saved game because actor is dead :(");

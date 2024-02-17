@@ -29,10 +29,7 @@ void CUIZoneMap::Init(bool motionIconAttached)
 
     m_clock_wnd = UIHelper::CreateStatic(uiXml, "minimap:clock_wnd", &m_background, false);
 
-    if (IsGameTypeSingle())
-    {
-        m_pointerDistanceText = UIHelper::CreateStatic(uiXml, "minimap:background:dist_text", &m_background, false);
-    }
+    m_pointerDistanceText = UIHelper::CreateStatic(uiXml, "minimap:background:dist_text", &m_background, false);
 
     m_activeMap = xr_new<CUIMiniMap>();
     m_clipFrame.AttachChild(m_activeMap);
@@ -89,19 +86,16 @@ void CUIZoneMap::Init(bool motionIconAttached)
         m_clock_wnd->SetWndPos(temp);
     }
 
-    if (IsGameTypeSingle())
-    {
-        CUIXmlInit::InitStatic(uiXml, "minimap:static_counter", 0, &m_Counter);
-        m_background.AttachChild(&m_Counter);
-        CUIXmlInit::InitStatic(uiXml, "minimap:static_counter:text_static", 0, &m_Counter_text);
-        m_Counter.AttachChild(&m_Counter_text);
+    CUIXmlInit::InitStatic(uiXml, "minimap:static_counter", 0, &m_Counter);
+    m_background.AttachChild(&m_Counter);
+    CUIXmlInit::InitStatic(uiXml, "minimap:static_counter:text_static", 0, &m_Counter_text);
+    m_Counter.AttachChild(&m_Counter_text);
 
-        if (motionIconAttached)
-        {
-            temp = m_Counter.GetWndPos();
-            temp.mul(m_background.GetWndSize());
-            m_Counter.SetWndPos(temp);
-        }
+    if (motionIconAttached)
+    {
+        temp = m_Counter.GetWndPos();
+        temp.mul(m_background.GetWndSize());
+        m_Counter.SetWndPos(temp);
     }
 }
 
@@ -120,7 +114,7 @@ void CUIZoneMap::Update()
     if (!pActor)
         return;
 
-    if (!(Device.dwFrame % 20) && IsGameTypeSingle())
+    if (!(Device.dwFrame % 20))
     {
         string16 text_str;
         xr_strcpy(text_str, sizeof(text_str), "");

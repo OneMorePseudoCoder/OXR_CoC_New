@@ -48,11 +48,8 @@ void CRenderDevice::Initialize()
         ExtractAndSetWindowIcon(m_sdlWnd, icon);
     }
 
-    if (!GEnv.isDedicatedServer)
-    {
-        seqAppStart.Add(&m_editor);
-        seqAppEnd.Add(&m_editor);
-    }
+    seqAppStart.Add(&m_editor);
+    seqAppEnd.Add(&m_editor);
 }
 
 void CRenderDevice::DumpStatistics(IGameFont& font, IPerformanceAlert* alert)

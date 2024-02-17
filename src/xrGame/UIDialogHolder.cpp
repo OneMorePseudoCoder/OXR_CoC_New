@@ -225,21 +225,17 @@ void CDialogHolder::OnFrame()
 {
     m_b_in_update = true;
 
-    if (!GEnv.isDedicatedServer && GetUICursor().IsVisible() && pInput->IsCurrentInputTypeController())
+    if (GetUICursor().IsVisible() && pInput->IsCurrentInputTypeController())
         GetUICursor().UpdateAutohideTiming();
 
     CUIDialogWnd* wnd = TopInputReceiver();
     if (wnd && wnd->IsEnabled())
-    {
         wnd->Update();
-    }
-    // else
-    {
-        xr_vector<dlgItem>::iterator it = m_dialogsToRender.begin();
-        for (; it != m_dialogsToRender.end(); ++it)
-            if ((*it).enabled && (*it).wnd->IsEnabled())
-                (*it).wnd->Update();
-    }
+
+    xr_vector<dlgItem>::iterator it = m_dialogsToRender.begin();
+    for (; it != m_dialogsToRender.end(); ++it)
+        if ((*it).enabled && (*it).wnd->IsEnabled())
+            (*it).wnd->Update();
 
     m_b_in_update = false;
     if (!m_dialogsToRender_new.empty())
@@ -273,8 +269,7 @@ bool CDialogHolder::IR_UIOnKeyboardPress(int dik)
     if (dik == MOUSE_1 || dik == MOUSE_2 || dik == MOUSE_3)
     {
         Fvector2 cp = GetUICursor().GetCursorPosition();
-        EUIMessages action =
-            (dik == MOUSE_1) ? WINDOW_LBUTTON_DOWN : (dik == MOUSE_2) ? WINDOW_RBUTTON_DOWN : WINDOW_CBUTTON_DOWN;
+        EUIMessages action = (dik == MOUSE_1) ? WINDOW_LBUTTON_DOWN : (dik == MOUSE_2) ? WINDOW_RBUTTON_DOWN : WINDOW_CBUTTON_DOWN;
         if (TIR->OnMouseAction(cp.x, cp.y, action))
             return true;
     }
@@ -289,11 +284,9 @@ bool CDialogHolder::IR_UIOnKeyboardPress(int dik)
         {
             IInputReceiver* IR = smart_cast<IInputReceiver*>(smart_cast<CGameObject*>(O));
             if (IR)
-            //				IR->IR_OnKeyboardPress(get_binded_action(dik));
             {
                 EGameActions action = GetBindedAction(dik);
-                if (action != kQUICK_USE_1 && action != kQUICK_USE_2 && action != kQUICK_USE_3 &&
-                    action != kQUICK_USE_4)
+                if (action != kQUICK_USE_1 && action != kQUICK_USE_2 && action != kQUICK_USE_3 && action != kQUICK_USE_4)
                     IR->IR_OnKeyboardPress(action);
             }
             return (false);
@@ -314,8 +307,7 @@ bool CDialogHolder::IR_UIOnKeyboardRelease(int dik)
     if (dik == MOUSE_1 || dik == MOUSE_2 || dik == MOUSE_3)
     {
         Fvector2 cp = GetUICursor().GetCursorPosition();
-        EUIMessages action =
-            (dik == MOUSE_1) ? WINDOW_LBUTTON_UP : (dik == MOUSE_2) ? WINDOW_RBUTTON_UP : WINDOW_CBUTTON_UP;
+        EUIMessages action = (dik == MOUSE_1) ? WINDOW_LBUTTON_UP : (dik == MOUSE_2) ? WINDOW_RBUTTON_UP : WINDOW_CBUTTON_UP;
         if (TIR->OnMouseAction(cp.x, cp.y, action))
             return true;
     }

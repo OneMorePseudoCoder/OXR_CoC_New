@@ -41,7 +41,7 @@ extern void restore_actor();
 bool g_bDisableAllInput = false;
 extern float g_fTimeFactor;
 
-#define CURRENT_ENTITY() (game ? ((GameID() == eGameIDSingle) ? CurrentEntity() : CurrentControlEntity()) : NULL)
+#define CURRENT_ENTITY() (game ? CurrentEntity() : NULL)
 
 void CLevel::IR_OnMouseWheel(int x, int y)
 {
@@ -137,7 +137,7 @@ void CLevel::IR_OnKeyboardPress(int key)
         if (Device.editor_mode())
             return;
 
-        if (!g_block_pause && (IsGameTypeSingle() || IsDemoPlay()))
+        if (!g_block_pause)
         {
 #ifdef MASTER_GOLD
             pcstr reason = "li_pause_key";
@@ -214,12 +214,12 @@ void CLevel::IR_OnKeyboardPress(int key)
     if (game && game->OnKeyboardPress(GetBindedAction(key)))
         return;
 
-    if (_curr == kQUICK_SAVE && IsGameTypeSingle())
+    if (_curr == kQUICK_SAVE)
     {
         Console->Execute("save");
         return;
     }
-    if (_curr == kQUICK_LOAD && IsGameTypeSingle())
+    if (_curr == kQUICK_LOAD)
     {
 #ifdef DEBUG
         FS.get_path("$game_config$")->m_Flags.set(FS_Path::flNeedRescan, TRUE);
@@ -241,8 +241,6 @@ void CLevel::IR_OnKeyboardPress(int key)
     {
     case SDL_SCANCODE_F7:
     {
-        if (GameID() != eGameIDSingle)
-            return;
         FS.get_path("$game_config$")->m_Flags.set(FS_Path::flNeedRescan, TRUE);
         FS.get_path("$game_scripts$")->m_Flags.set(FS_Path::flNeedRescan, TRUE);
         FS.rescan_pathes();
@@ -253,11 +251,6 @@ void CLevel::IR_OnKeyboardPress(int key)
     }
     case SDL_SCANCODE_KP_5:
     {
-        if (GameID() != eGameIDSingle)
-        {
-            Msg("For this game type Demo Record is disabled.");
-            ///				return;
-        };
         if (!pInput->iGetAsyncKeyState(SDL_SCANCODE_LSHIFT))
         {
             Console->Hide();
@@ -304,11 +297,10 @@ void CLevel::IR_OnKeyboardPress(int key)
         return;
     }
     case SDL_SCANCODE_BACKSPACE:
-        if (GameID() == eGameIDSingle)
-            GEnv.DRender->NextSceneMode();
-        // HW.Caps.SceneMode			= (HW.Caps.SceneMode+1)%3;
+	{
+		GEnv.DRender->NextSceneMode();
         return;
-
+	}
     case SDL_SCANCODE_F4:
     {
         if (pInput->iGetAsyncKeyState(SDL_SCANCODE_LALT))
@@ -394,9 +386,6 @@ void CLevel::IR_OnKeyboardPress(int key)
 
     case MOUSE_1:
     {
-        if (GameID() != eGameIDSingle)
-            break;
-
         if (pInput->iGetAsyncKeyState(SDL_SCANCODE_LALT))
         {
             if (smart_cast<CActor*>(CurrentEntity()))

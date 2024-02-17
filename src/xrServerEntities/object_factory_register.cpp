@@ -374,7 +374,6 @@ void CObjectFactory::register_classes()
     // objects
     ADD(CProjector, CSE_ALifeObjectProjector, CLSID_OBJECT_PROJECTOR, "projector");
     ADD(CWeaponStatMgun, CSE_ALifeStationaryMgun, CLSID_OBJECT_W_STATMGUN, "wpn_stat_mgun");
-    //	ADD(CTrigger				,CSE_Trigger					,CLSID_OBJECT_TRIGGER			,"trigger");
 
     // entity
     ADD(CHangingLamp, CSE_ALifeObjectHangingLamp, CLSID_OBJECT_HLAMP, "hanging_lamp");
@@ -389,15 +388,10 @@ void CObjectFactory::register_classes()
     ADD(smart_cover::object, CSE_SmartCover, TEXT2CLSID("SMRTCOVR"), "smart_cover");
 
 #ifndef NO_XR_GAME
-    // hack, for dedicated server only
-    // because we do not have scripts
-    // and script functionality is not
-    // needed here
-    if (!GEnv.isDedicatedServer)
-        return;
+	if (true)
+		return;
 
     ADD(CElectricBall, CSE_ALifeItemArtefact, TEXT2CLSID("SCRPTART"), "artefact_s");
-    //	ADD(CtaGameArtefact			,CSE_ALifeItemArtefact			,TEXT2CLSID("AF_CTA")			,"ctaartefact_s");
     ADD(CTorch, CSE_ALifeItemTorch, TEXT2CLSID("TORCH_S"), "device_torch_s");
     ADD(CHangingLamp, CSE_ALifeObjectHangingLamp, TEXT2CLSID("SO_HLAMP"), "hlamp_s");
     ADD(CStalkerOutfit, CSE_ALifeItemCustomOutfit, TEXT2CLSID("E_STLK"), "equ_stalker_s");

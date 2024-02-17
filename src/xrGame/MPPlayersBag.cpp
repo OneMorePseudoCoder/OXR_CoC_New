@@ -47,21 +47,7 @@ void CMPPlayersBag::OnEvent(NET_Packet& P, u16 type)
     }
 }
 
-extern int g_iWeaponRemove;
 bool CMPPlayersBag::NeedToDestroyObject() const
 {
-    if (GameID() == eGameIDSingle)
-        return false;
-    if (Remote())
-        return false;
-    if (H_Parent())
-        return false;
-    if (g_iWeaponRemove == -1)
-        return false;
-    if (g_iWeaponRemove == 0)
-        return true;
-    if (TimePassedAfterIndependant() > BAG_REMOVE_TIME)
-        return true;
-
     return false;
 }

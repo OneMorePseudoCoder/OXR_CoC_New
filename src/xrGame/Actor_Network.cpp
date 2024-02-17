@@ -619,16 +619,9 @@ bool CActor::net_Spawn(CSE_Abstract* DC)
     else
         cam_Set(eacFirstEye);
 
-    cam_Active()->Set(-E->o_torso.yaw, E->o_torso.pitch, 0); // E->o_Angle.z);
+    cam_Active()->Set(-E->o_torso.yaw, E->o_torso.pitch, 0);
 
-    // *** movement state - respawn
-    // mstate_wishful			= 0;
-    // mstate_real				= 0;
-    // mstate_old				= 0;
     m_bJumpKeyPressed = FALSE;
-    //
-    //	m_bJumpKeyPressed = ((mstate_wishful&mcJump)!=0);
-    //
     NET_SavedAccel.set(0, 0, 0);
     NET_WasInterpolating = TRUE;
 
@@ -636,52 +629,23 @@ bool CActor::net_Spawn(CSE_Abstract* DC)
 
     Engine.Sheduler.Register(this, TRUE);
 
-    if (!IsGameTypeSingle())
-    {
-        setEnabled(TRUE);
-    }
-
     m_hit_slowmo = 0.f;
 
     OnChangeVisual();
     //----------------------------------
     m_bAllowDeathRemove = false;
 
-    //	m_bHasUpdate = false;
     m_bInInterpolation = false;
     m_bInterpolate = false;
 
-    //	if (GameID() != eGameIDSingle)
-    {
-        processing_activate();
-    }
+    processing_activate();
 
 #ifdef DEBUG
     LastPosS.clear();
     LastPosH.clear();
     LastPosL.clear();
 #endif
-    //*
 
-    //	if (OnServer())// && E->s_flags.is(M_SPAWN_OBJECT_LOCAL))
-    /*
-        if (OnClient())
-        {
-            if (!pStatGraph)
-            {
-                static g_Y = 0;
-                pStatGraph = xr_new<CStatGraph>();
-                pStatGraph->SetRect(0, g_Y, Device.dwWidth, 100, 0xff000000, 0xff000000);
-                g_Y += 110;
-                if (g_Y > 700) g_Y = 100;
-                pStatGraph->SetGrid(0, 0.0f, 10, 1.0f, 0xff808080, 0xffffffff);
-                pStatGraph->SetMinMax(0, 10, 300);
-                pStatGraph->SetStyle(CStatGraph::stBar);
-                pStatGraph->AppendSubGraph(CStatGraph::stCurve);
-                pStatGraph->AppendSubGraph(CStatGraph::stCurve);
-            }
-        }
-    */
     SetDefaultVisualOutfit(cNameVisual());
 
     smart_cast<IKinematics*>(Visual())->CalculateBones();
@@ -698,8 +662,6 @@ bool CActor::net_Spawn(CSE_Abstract* DC)
         mstate_real &= ~mcAnyMove;
         IKinematicsAnimated* K = smart_cast<IKinematicsAnimated*>(Visual());
         K->PlayCycle("death_init");
-
-        //
         m_HeavyBreathSnd.stop();
     }
 
@@ -708,23 +670,18 @@ bool CActor::net_Spawn(CSE_Abstract* DC)
     callback.bind(this, &CActor::on_requested_spawn);
     m_holder_id = E->m_holderID;
     if (E->m_holderID != ALife::_OBJECT_ID(-1))
-        if (!GEnv.isDedicatedServer)
-            Level().client_spawn_manager().add(E->m_holderID, ID(), callback);
-    // F
-    //-------------------------------------------------------------
+        Level().client_spawn_manager().add(E->m_holderID, ID(), callback);
+
     m_iLastHitterID = u16(-1);
     m_iLastHittingWeaponID = u16(-1);
     m_s16LastHittedElement = -1;
     m_bWasHitted = false;
     m_dwILastUpdateTime = 0;
 
-    if (IsGameTypeSingle())
-    {
-        Level().MapManager().AddMapLocation("actor_location", ID());
-        Level().MapManager().AddMapLocation("actor_location_p", ID());
+	Level().MapManager().AddMapLocation("actor_location", ID());
+	Level().MapManager().AddMapLocation("actor_location_p", ID());
 
-        m_statistic_manager = xr_new<CActorStatisticMgr>();
-    }
+	m_statistic_manager = xr_new<CActorStatisticMgr>();
 
     spatial.type |= STYPE_REACTTOSOUND;
     psHUD_Flags.set(HUD_WEAPON_RT, TRUE);
@@ -742,13 +699,11 @@ void CActor::net_Destroy()
     inherited::net_Destroy();
 
     if (m_holder_id != ALife::_OBJECT_ID(-1))
-        if (!GEnv.isDedicatedServer)
-            Level().client_spawn_manager().remove(m_holder_id, ID());
+        Level().client_spawn_manager().remove(m_holder_id, ID());
 
     delete_data(m_statistic_manager);
 
-    if (!GEnv.isDedicatedServer)
-        Level().MapManager().OnObjectDestroyNotify(ID());
+    Level().MapManager().OnObjectDestroyNotify(ID());
 
 #pragma todo("Dima to MadMax : do not comment inventory owner net_Destroy!!!")
     CInventoryOwner::net_Destroy();
@@ -757,7 +712,7 @@ void CActor::net_Destroy()
     if (m_pPhysicsShell)
     {
         m_pPhysicsShell->Deactivate();
-        xr_delete/*<CPhysicsShell>*/(m_pPhysicsShell);
+        xr_delete(m_pPhysicsShell);
     };
     m_pPhysics_support->in_NetDestroy();
 
@@ -811,8 +766,7 @@ void CActor::net_Relcase(IGameObject* O)
     }
     inherited::net_Relcase(O);
 
-    if (!GEnv.isDedicatedServer)
-        memory().remove_links(O);
+    memory().remove_links(O);
 
     m_pPhysics_support->in_NetRelcase(O);
 

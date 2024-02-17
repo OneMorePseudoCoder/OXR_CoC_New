@@ -268,8 +268,7 @@ void CEntityAlive::Hit(SHit* pHDS)
     if (HDS.hit_type == ALife::eHitTypeWound_2)
         HDS.hit_type = ALife::eHitTypeWound;
     //-------------------------------------------------------------------
-    CDamageManager::HitScale(
-        HDS.boneID, conditions().hit_bone_scale(), conditions().wound_bone_scale(), pHDS->aim_bullet);
+    CDamageManager::HitScale(HDS.boneID, conditions().hit_bone_scale(), conditions().wound_bone_scale(), pHDS->aim_bullet);
 
     //изменить состояние, перед тем как родительский класс обработает хит
     CWound* pWound = conditions().ConditionHit(&HDS);
@@ -294,7 +293,7 @@ void CEntityAlive::Hit(SHit* pHDS)
     //-------------------------------------------
     inherited::Hit(&HDS);
 
-    if (g_Alive() && IsGameTypeSingle())
+    if (g_Alive())
     {
         CEntityAlive* EA = smart_cast<CEntityAlive*>(HDS.who);
         if (EA && EA->g_Alive() && EA->ID() != ID())
@@ -307,8 +306,7 @@ void CEntityAlive::Hit(SHit* pHDS)
 
 void CEntityAlive::Die(IGameObject* who)
 {
-    if (IsGameTypeSingle())
-        RELATION_REGISTRY().Action(smart_cast<CEntityAlive*>(who), this, RELATION_REGISTRY::KILL);
+    RELATION_REGISTRY().Action(smart_cast<CEntityAlive*>(who), this, RELATION_REGISTRY::KILL);
     inherited::Die(who);
 
     const CGameObject* who_object = smart_cast<const CGameObject*>(who);

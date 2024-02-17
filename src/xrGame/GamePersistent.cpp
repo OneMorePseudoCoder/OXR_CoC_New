@@ -105,10 +105,7 @@ void CGamePersistent::OnAppStart()
 
     GEnv.UI = xr_new<UICore>();
     m_pMainMenu = xr_new<CMainMenu>();
-    if (GEnv.isDedicatedServer)
-        m_pLoadingScreen = xr_new<NullLoadingScreen>();
-    else
-        m_pLoadingScreen = xr_new<UILoadingScreen>();
+    m_pLoadingScreen = xr_new<UILoadingScreen>();
 
     inherited::OnAppStart();
 
@@ -192,10 +189,7 @@ void CGamePersistent::UpdateGameType()
 
     m_game_params.m_e_game_type = ParseStringToGameType(m_game_params.m_game_type);
 
-    if (m_game_params.m_e_game_type == eGameIDSingle)
-        g_current_keygroup = _sp;
-    else
-        g_current_keygroup = _mp;
+    g_current_keygroup = _sp;
 }
 
 void CGamePersistent::OnGameEnd()
@@ -208,7 +202,7 @@ void CGamePersistent::OnGameEnd()
 
 void CGamePersistent::WeathersUpdate()
 {
-    if (g_pGameLevel && !GEnv.isDedicatedServer)
+    if (g_pGameLevel)
     {
         CActor* actor = smart_cast<CActor*>(Level().CurrentViewEntity());
         BOOL bIndoor = TRUE;
@@ -389,7 +383,7 @@ void CGamePersistent::start_logo_intro()
     if (Device.dwPrecacheFrame == 0)
     {
         m_intro_event = nullptr;
-        if (!GEnv.isDedicatedServer && notLoadingLevel)
+        if (notLoadingLevel)
         {
             VERIFY(NULL == m_intro);
             m_intro = xr_new<CUISequencer>();
@@ -411,8 +405,7 @@ void CGamePersistent::game_loaded()
     if (Device.dwPrecacheFrame <= 2)
     {
         m_intro_event = nullptr;
-        if (g_pGameLevel && g_pGameLevel->bReady && g_keypress_on_start &&
-            load_screen_renderer.NeedsUserInput() && m_game_params.m_e_game_type == eGameIDSingle)
+        if (g_pGameLevel && g_pGameLevel->bReady && g_keypress_on_start && load_screen_renderer.NeedsUserInput())
         {
             VERIFY(NULL == m_intro);
             m_intro = xr_new<CUISequencer>();
@@ -482,21 +475,21 @@ void CGamePersistent::OnFrame()
 #ifdef DEBUG
     ++m_frame_counter;
 #endif
-    if (!GEnv.isDedicatedServer)
+
+    if (!m_intro_event.empty())
+        m_intro_event();
+    else if (!m_intro)
     {
-        if (!m_intro_event.empty())
-            m_intro_event();
-        else if (!m_intro)
-        {
-            if (Device.dwPrecacheFrame == 0)
-                load_screen_renderer.Stop();
-        }
+        if (Device.dwPrecacheFrame == 0)
+            load_screen_renderer.Stop();
     }
+
     if (!m_pMainMenu->IsActive())
         m_pMainMenu->DestroyInternal(false);
 
     if (!g_pGameLevel)
         return;
+
     if (!g_pGameLevel->bReady)
         return;
 
@@ -513,7 +506,7 @@ void CGamePersistent::OnFrame()
             }
         }
 #ifndef MASTER_GOLD
-        if (Level().CurrentViewEntity() && IsGameTypeSingle())
+        if (Level().CurrentViewEntity())
         {
             if (!g_actor || (g_actor->ID() != Level().CurrentViewEntity()->ID()))
             {
@@ -576,7 +569,7 @@ void CGamePersistent::OnFrame()
             }
         }
 #else // MASTER_GOLD
-        if (g_actor && IsGameTypeSingle())
+        if (g_actor)
         {
             CCameraBase* C = NULL;
             if (!Actor()->Holder())
@@ -703,13 +696,7 @@ void CGamePersistent::OnAppActivate()
     if (psDeviceFlags.test(rsAlwaysActive))
         return;
 
-    bool bIsMP = (g_pGameLevel && Level().game && GameID() != eGameIDSingle);
-    bIsMP &= !Device.Paused();
-
-    if (!bIsMP)
-        Device.Pause(FALSE, !bRestorePause, TRUE, "CGP::OnAppActivate");
-    else
-        Device.Pause(FALSE, TRUE, TRUE, "CGP::OnAppActivate MP");
+    Device.Pause(FALSE, !bRestorePause, TRUE, "CGP::OnAppActivate");
 
     bEntryFlag = TRUE;
 }
@@ -719,26 +706,18 @@ void CGamePersistent::OnAppDeactivate()
     if (!bEntryFlag || psDeviceFlags.test(rsAlwaysActive))
         return;
 
-    bool bIsMP = (g_pGameLevel && Level().game && GameID() != eGameIDSingle);
-
     bRestorePause = FALSE;
 
-    if (!bIsMP)
-    {
-        bRestorePause = Device.Paused();
-        Device.Pause(TRUE, TRUE, TRUE, "CGP::OnAppDeactivate");
-    }
-    else
-    {
-        Device.Pause(TRUE, FALSE, TRUE, "CGP::OnAppDeactivate MP");
-    }
+    bRestorePause = Device.Paused();
+    Device.Pause(TRUE, TRUE, TRUE, "CGP::OnAppDeactivate");
+
     bEntryFlag = FALSE;
 }
 
 bool CGamePersistent::OnRenderPPUI_query()
 {
-    return MainMenu()->OnRenderPPUI_query();
     // enable PP or not
+    return MainMenu()->OnRenderPPUI_query();
 }
 
 void CGamePersistent::OnRenderPPUI_main()
@@ -748,8 +727,8 @@ void CGamePersistent::OnRenderPPUI_main()
 }
 
 void CGamePersistent::OnRenderPPUI_PP() { MainMenu()->OnRenderPPUI_PP(); }
+bool CGamePersistent::CanBePaused() { return true; }
 
-bool CGamePersistent::CanBePaused() { return IsGameTypeSingle() || (g_pGameLevel && Level().IsDemoPlay()); }
 void CGamePersistent::SetPickableEffectorDOF(bool bSet)
 {
     m_bPickableDOF = bSet;

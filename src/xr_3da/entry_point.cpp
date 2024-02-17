@@ -21,9 +21,6 @@ XR_EXPORT u32 AmdPowerXpressRequestHighPerformance = 0x00000001; // PowerXpress 
 
 int entry_point(pcstr commandLine)
 {
-    if (strstr(commandLine, "-dedicated"))
-        GEnv.isDedicatedServer = true;
-
     CApplication app{ commandLine };
 
     return app.Run();

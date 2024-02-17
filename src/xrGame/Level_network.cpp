@@ -29,8 +29,6 @@ extern bool g_b_ClearGameCaptions;
 
 void CLevel::remove_objects()
 {
-    if (!IsGameTypeSingle())
-        Msg("CLevel::remove_objects - Start");
     BOOL b_stored = psDeviceFlags.test(rsDisableObjectsAsCrows);
 
     int loop = 5;
@@ -75,14 +73,12 @@ void CLevel::remove_objects()
     ph_commander().clear();
     ph_commander_scripts().clear();
 
-    if (!GEnv.isDedicatedServer)
-        space_restriction_manager().clear();
+    space_restriction_manager().clear();
 
     psDeviceFlags.set(rsDisableObjectsAsCrows, b_stored);
     g_b_ClearGameCaptions = true;
 
-    if (!GEnv.isDedicatedServer)
-        GEnv.ScriptEngine->collect_all_garbage();
+    GEnv.ScriptEngine->collect_all_garbage();
 
     stalker_animation_data_storage().clear();
 
@@ -92,24 +88,16 @@ void CLevel::remove_objects()
     GEnv.Render->clear_static_wallmarks();
 
 #ifdef DEBUG
-    if (!GEnv.isDedicatedServer)
-        if (!client_spawn_manager().registry().empty())
-            client_spawn_manager().dump();
+    if (!client_spawn_manager().registry().empty())
+        client_spawn_manager().dump();
 #endif // DEBUG
-    if (!GEnv.isDedicatedServer)
-    {
+
 #ifdef DEBUG
-        VERIFY(client_spawn_manager().registry().empty());
+    VERIFY(client_spawn_manager().registry().empty());
 #endif
-        client_spawn_manager().clear();
-    }
+    client_spawn_manager().clear();
 
     g_pGamePersistent->destroy_particles(false);
-
-    //.	xr_delete									(m_seniority_hierarchy_holder);
-    //.	m_seniority_hierarchy_holder				= new CSeniorityHierarchyHolder();
-    if (!IsGameTypeSingle())
-        Msg("CLevel::remove_objects - End");
 }
 
 #ifdef DEBUG
@@ -164,8 +152,7 @@ void CLevel::net_Stop()
         xr_delete(Server);
     }
 
-    if (!GEnv.isDedicatedServer)
-        GEnv.ScriptEngine->collect_all_garbage();
+    GEnv.ScriptEngine->collect_all_garbage();
 
 #ifdef DEBUG
     show_animation_stats();
@@ -174,7 +161,7 @@ void CLevel::net_Stop()
 
 void CLevel::ClientSend()
 {
-    if (GameID() == eGameIDSingle || OnClient())
+    if (OnClient())
     {
         if (!net_HasBandwidth())
             return;
@@ -182,30 +169,27 @@ void CLevel::ClientSend()
 
     NET_Packet P;
     u32 start = 0;
-    //----------- for E3 -----------------------------
-    //	if ()
+
+    if (CurrentControlEntity())
     {
-        //		if (!(Game().local_player) || Game().local_player->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD)) return;
-        if (CurrentControlEntity())
+        IGameObject* pObj = CurrentControlEntity();
+        if (!pObj->getDestroy() && pObj->net_Relevant())
         {
-            IGameObject* pObj = CurrentControlEntity();
-            if (!pObj->getDestroy() && pObj->net_Relevant())
+			P.w_begin(M_CL_UPDATE);
+
+            P.w_u16(u16(pObj->ID()));
+            P.w_u32(0); // reserved place for client's ping
+
+            pObj->net_Export(P);
+
+            if (P.B.count > 9)
             {
-                P.w_begin(M_CL_UPDATE);
-
-                P.w_u16(u16(pObj->ID()));
-                P.w_u32(0); // reserved place for client's ping
-
-                pObj->net_Export(P);
-
-                if (P.B.count > 9)
-                {
-                    if (!OnServer())
-                        Send(P, net_flags(FALSE));
-                }
+                if (!OnServer())
+                    Send(P, net_flags(FALSE));
             }
         }
-    };
+    }
+
     if (m_file_transfer)
     {
         m_file_transfer->update_transfer();
@@ -308,13 +292,6 @@ void CLevel::Send(NET_Packet& P, u32 dwFlags, u32 dwTimeout)
     }
     else
         IPureClient::Send(P, dwFlags, dwTimeout);
-
-    if (g_pGameLevel && Level().game && GameID() != eGameIDSingle && !g_SV_Disable_Auth_Check)
-    {
-        // anti-cheat
-        phTimefactor = 1.f;
-        psDeviceFlags.set(rsConstantFPS, FALSE);
-    }
 }
 
 void CLevel::net_Update()
@@ -559,14 +536,7 @@ void CLevel::ClearAllObjects()
         IGameObject* pObj = Level().Objects.o_get_by_iterator(i);
         if (pObj->H_Parent() != NULL)
         {
-            if (IsGameTypeSingle())
-            {
-                FATAL("pObj->H_Parent()==NULL");
-            }
-            else
-            {
-                Msg("! ERROR: object's parent is not NULL");
-            }
+            FATAL("pObj->H_Parent()==NULL");
         }
 
         //-----------------------------------------------------------

@@ -421,7 +421,7 @@ void game_cl_mp::TranslateGameMessage(u32 msg, NET_Packet& P)
         string1024 mess;
         P.r_stringZ(mess);
         Msg(mess);
-        if (MainMenu() && !GEnv.isDedicatedServer)
+        if (MainMenu())
         {
             MainMenu()->OnSessionTerminate(mess);
         }
@@ -483,9 +483,6 @@ void game_cl_mp::TranslateGameMessage(u32 msg, NET_Packet& P)
 
 void game_cl_mp::CommonMessageOut(pcstr msg)
 {
-    if (GEnv.isDedicatedServer)
-        return;
-
     if (CurrentGameUI())
         CurrentGameUI()->m_pMessagesWnd->AddLogMessage(msg);
 }
@@ -542,17 +539,12 @@ void game_cl_mp::OnChatMessage(NET_Packet* P)
     P->r_stringZ(ChatMsg);
     P->r_s16(team);
 
-    ///#ifdef DEBUG
     switch (team)
     {
     case 0: Msg("%s: %s : %s", *StringTable().translate("mp_chat"), PlayerName.c_str(), ChatMsg.c_str()); break;
     case 1: Msg("- %s: %s : %s", *StringTable().translate("mp_chat"), PlayerName.c_str(), ChatMsg.c_str()); break;
     case 2: Msg("@ %s: %s : %s", *StringTable().translate("mp_chat"), PlayerName.c_str(), ChatMsg.c_str()); break;
     }
-
-    //#endif
-    if (GEnv.isDedicatedServer)
-        return;
 
     if (team < 0 || 2 < team)
     {
@@ -572,9 +564,6 @@ void game_cl_mp::shedule_Update(u32 dt)
     inherited::shedule_Update(dt);
     //-----------------------------------------
 
-    if (GEnv.isDedicatedServer)
-        return;
-
     if (m_reward_generator)
         m_reward_generator->update();
     if (m_reward_manager)
@@ -584,10 +573,6 @@ void game_cl_mp::shedule_Update(u32 dt)
     {
     case GAME_PHASE_PENDING:
     {
-        // CUIChatWnd* pChatWnd = CurrentGameUI()->m_pMessagesWnd->GetChatWnd();
-        // if (pChatWnd && pChatWnd->IsShown())
-        //	StartStopMenu(pChatWnd, false);
-
         if (m_bJustRestarted)
         {
             if (Level().CurrentViewEntity())
@@ -1448,16 +1433,13 @@ void game_cl_mp::OnRadminMessage(u16 type, NET_Packet* P)
     {
         string4096 buff;
         P->r_stringZ(buff);
-        if (!GEnv.isDedicatedServer)
-        {
-            if (!m_pAdminMenuWindow)
-                m_pAdminMenuWindow = xr_new<CUIMpAdminMenu>();
+        if (!m_pAdminMenuWindow)
+            m_pAdminMenuWindow = xr_new<CUIMpAdminMenu>();
 
-            if (0 == xr_stricmp(buff, "Access permitted."))
-                m_pAdminMenuWindow->ShowDialog(true);
-            else
-                m_pAdminMenuWindow->ShowMessageBox(CUIMessageBox::MESSAGEBOX_OK, buff);
-        }
+        if (0 == xr_stricmp(buff, "Access permitted."))
+            m_pAdminMenuWindow->ShowDialog(true);
+        else
+            m_pAdminMenuWindow->ShowMessageBox(CUIMessageBox::MESSAGEBOX_OK, buff);
 
         Msg("# srv: %s", buff);
     }
@@ -1733,7 +1715,7 @@ void game_cl_mp::fr_callback_binder::receiving_serverinfo_callback(
     case file_transfer::receiving_complete:
     {
         Msg("* serverinfo: download complete successfully !");
-        R_ASSERT2(m_owner->m_game_ui_custom || GEnv.isDedicatedServer, "game ui not initialized");
+        R_ASSERT2(m_owner->m_game_ui_custom, "game ui not initialized");
         if (m_owner->m_game_ui_custom)
             m_owner->extract_server_info(m_writer.pointer(), m_writer.size());
         m_active = false;

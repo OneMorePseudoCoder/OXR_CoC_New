@@ -68,21 +68,16 @@ bool CTeamBaseZone::net_Spawn(CSE_Abstract* DC)
         setEnabled(TRUE);
     }
 
-    if (GameID() != eGameIDSingle && !GEnv.isDedicatedServer)
-    {
-        char BaseMapLocation[1024];
-        xr_sprintf(BaseMapLocation, "mp_team_base_%d_location", m_Team);
-        (Level().MapManager().AddMapLocation(BaseMapLocation, ID()))->EnablePointer();
-    };
+    char BaseMapLocation[1024];
+    xr_sprintf(BaseMapLocation, "mp_team_base_%d_location", m_Team);
+    (Level().MapManager().AddMapLocation(BaseMapLocation, ID()))->EnablePointer();
 
     return (bOk);
 }
 
 void CTeamBaseZone::net_Destroy()
 {
-    if (!GEnv.isDedicatedServer)
-        Level().MapManager().OnObjectDestroyNotify(ID());
-
+    Level().MapManager().OnObjectDestroyNotify(ID());
     inherited::net_Destroy();
 };
 
@@ -137,9 +132,10 @@ void CTeamBaseZone::OnRender()
 {
     if (!bDebug)
         return;
+
     if (!(dbg_net_Draw_Flags.is_any(dbg_draw_teamzone)))
         return;
-    //	RCache.OnFrameEnd();
+
     Fvector l_half;
     l_half.set(.5f, .5f, .5f);
     Fmatrix l_ball, l_box;

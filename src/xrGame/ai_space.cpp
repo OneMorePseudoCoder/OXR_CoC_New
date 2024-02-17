@@ -38,18 +38,15 @@ void CAI_Space::init()
 {
     R_ASSERT(!m_inited);
 
-    if (!GEnv.isDedicatedServer)
-    {
-        AISpaceBase::Initialize();
+    AISpaceBase::Initialize();
 
-        m_ef_storage = xr_make_unique<CEF_Storage>();
-        m_cover_manager = xr_make_unique<CCoverManager>();
-        m_moving_objects = xr_make_unique<::moving_objects>();
+    m_ef_storage = xr_make_unique<CEF_Storage>();
+    m_cover_manager = xr_make_unique<CCoverManager>();
+    m_moving_objects = xr_make_unique<::moving_objects>();
 
-        VERIFY(!GEnv.ScriptEngine);
-        GEnv.ScriptEngine = xr_new<CScriptEngine>();
-        RestartScriptEngine();
-    }
+    VERIFY(!GEnv.ScriptEngine);
+    GEnv.ScriptEngine = xr_new<CScriptEngine>();
+    RestartScriptEngine();
 
     m_inited = true;
 }
@@ -172,15 +169,12 @@ void CAI_Space::load(LPCSTR level_name)
     m_doors_manager.reset(xr_new<::doors::manager>(level_graph().header().box()));
 
 #ifdef DEBUG
-    Msg("* Loading ai space is successfully completed (%.3fs, %7.3f Mb)", timer.GetElapsed_sec(),
-        float(Memory.mem_usage() - mem_usage) / 1048576.0);
+    Msg("* Loading ai space is successfully completed (%.3fs, %7.3f Mb)", timer.GetElapsed_sec(), float(Memory.mem_usage() - mem_usage) / 1048576.0);
 #endif
 }
 
 void CAI_Space::unload(bool reload)
 {
-    if (GEnv.isDedicatedServer)
-        return;
     GEnv.ScriptEngine->unload();
     m_doors_manager.reset(nullptr);
     AISpaceBase::Unload(reload);

@@ -23,18 +23,7 @@ u32 g_sv_base_dwRPointFreezeTime = 0;
 int g_sv_base_iVotingEnabled = 0x00ff;
 //-----------------------------------------------------------------
 
-extern const xr_token round_end_result_str[] = {{"Finish", int(eRoundEnd_Finish)}, {"Game restarted", int(eRoundEnd_GameRestarted)},
-    {"Game restarted fast", int(eRoundEnd_GameRestartedFast)}, {"Time limit", int(eRoundEnd_TimeLimit)},
-    {"Frag limit", int(eRoundEnd_FragLimit)}, {"Artefact limit", int(eRoundEnd_ArtrefactLimit)}, {"Unknown", int(eRoundEnd_Force)},
-    {0, 0}};
-
-// Main
-/*game_PlayerState*	game_sv_GameState::get_it					(u32 it)
-{
-    xrClientData*	C	= (xrClientData*)m_server->client_Get			(it);
-    if (0==C)			return 0;
-    else				return C->ps;
-}*/
+extern const xr_token round_end_result_str[] = {{"Finish", int(eRoundEnd_Finish)}, {"Game restarted", int(eRoundEnd_GameRestarted)}, {"Game restarted fast", int(eRoundEnd_GameRestartedFast)}, {"Time limit", int(eRoundEnd_TimeLimit)}, {"Frag limit", int(eRoundEnd_FragLimit)}, {"Artefact limit", int(eRoundEnd_ArtrefactLimit)}, {"Unknown", int(eRoundEnd_Force)}, {0, 0}};
 
 game_PlayerState* game_sv_GameState::get_id(ClientID id)
 {
@@ -44,23 +33,6 @@ game_PlayerState* game_sv_GameState::get_id(ClientID id)
     else
         return C->ps;
 }
-
-/*ClientID				game_sv_GameState::get_it_2_id				(u32 it)
-{
-    xrClientData*	C	= (xrClientData*)m_server->client_Get		(it);
-    if (0==C){
-        ClientID clientID;clientID.set(0);
-        return clientID;
-    }
-    else				return C->ID;
-}
-
-LPCSTR				game_sv_GameState::get_name_it				(u32 it)
-{
-    xrClientData*	C	= (xrClientData*)m_server->client_Get		(it);
-    if (0==C)			return 0;
-    else				return *C->name;
-}*/
 
 LPCSTR game_sv_GameState::get_name_id(ClientID id)
 {
@@ -287,9 +259,6 @@ void game_sv_GameState::net_Export_State(NET_Packet& P, ClientID to)
     P.w_u8(u8(net_sv_control_hit));
     P.w_u8(u8(g_bCollectStatisticData));
 
-    // Players
-    //	u32	p_count			= get_players_count() - ((GEnv.isDedicatedServer)? 1 : 0);
-
     xrClientData* tmp_client = static_cast<xrClientData*>(m_server->GetClientByID(to));
     game_PlayerState* tmp_ps = tmp_client->ps;
 
@@ -412,45 +381,34 @@ void game_sv_GameState::Create(shared_str& options)
         FS.r_close(F);
     }
 
-    if (!GEnv.isDedicatedServer)
+    // loading scripts
+    auto& scriptEngine = *GEnv.ScriptEngine;
+    scriptEngine.remove_script_process(ScriptProcessor::Game);
+    string_path S;
+    FS.update_path(S, "$game_config$", "script.ltx");
+    CInifile* l_tpIniFile = xr_new<CInifile>(S);
+    R_ASSERT(l_tpIniFile);
+
+    if (l_tpIniFile->section_exist(type_name()))
     {
-        // loading scripts
-        auto& scriptEngine = *GEnv.ScriptEngine;
-        scriptEngine.remove_script_process(ScriptProcessor::Game);
-        string_path S;
-        FS.update_path(S, "$game_config$", "script.ltx");
-        CInifile* l_tpIniFile = xr_new<CInifile>(S);
-        R_ASSERT(l_tpIniFile);
-
-        if (l_tpIniFile->section_exist(type_name()))
-        {
-            shared_str scripts;
-            if (l_tpIniFile->r_string(type_name(), "script"))
-                scripts = l_tpIniFile->r_string(type_name(), "script");
-            else
-                scripts = "";
-            scriptEngine.add_script_process(ScriptProcessor::Game, scriptEngine.CreateScriptProcess("game", scripts));
-        }
-        xr_delete(l_tpIniFile);
+        shared_str scripts;
+        if (l_tpIniFile->r_string(type_name(), "script"))
+            scripts = l_tpIniFile->r_string(type_name(), "script");
+        else
+            scripts = "";
+        scriptEngine.add_script_process(ScriptProcessor::Game, scriptEngine.CreateScriptProcess("game", scripts));
     }
+    xr_delete(l_tpIniFile);
 
-    //---------------------------------------------------------------------
     ConsoleCommands_Create();
-    //---------------------------------------------------------------------
-    //	CCC_LoadCFG_custom*	pTmp = new CCC_LoadCFG_custom("sv_");
-    //	pTmp->Execute				(Console->ConfigFile);
-    //	xr_delete					(pTmp);
-    //---------------------------------------------------------------------
+
     LPCSTR svcfg_ltx_name = "-svcfg ";
     if (strstr(Core.Params, svcfg_ltx_name))
     {
         string_path svcfg_name = "";
         int sz = xr_strlen(svcfg_ltx_name);
         sscanf(strstr(Core.Params, svcfg_ltx_name) + sz, "%[^ ] ", svcfg_name);
-        //		if (FS.exist(svcfg_name))
-        {
-            Console->ExecuteScript(svcfg_name);
-        }
+        Console->ExecuteScript(svcfg_name);
     };
     //---------------------------------------------------------------------
     ReadOptions(options);
@@ -460,8 +418,6 @@ void game_sv_GameState::ReadOptions(shared_str& options)
 {
     g_sv_base_dwRPointFreezeTime = get_option_i(*options, "rpfrz", g_sv_base_dwRPointFreezeTime / 1000) * 1000;
 
-    //.	xr_strcpy(MAPROT_LIST, MAPROT_LIST_NAME);
-    //.	if (!FS.exist(MAPROT_LIST))
     FS.update_path(MAPROT_LIST, "$app_data_root$", MAPROT_LIST_NAME);
     if (FS.exist(MAPROT_LIST))
         Console->ExecuteScript(MAPROT_LIST);
@@ -588,7 +544,7 @@ void game_sv_GameState::GenerateGameMessage(NET_Packet& P) { P.w_begin(M_GAMEMES
 void game_sv_GameState::u_EventGen(NET_Packet& P, u16 type, u16 dest)
 {
     P.w_begin(M_EVENT);
-    P.w_u32(Level().timeServer()); // Device.TimerAsync());
+    P.w_u32(Level().timeServer());
     P.w_u16(type);
     P.w_u16(dest);
 }
@@ -606,22 +562,15 @@ void game_sv_GameState::Update()
             C->ps->ping = u16(C->stats.getPing());
         }
     };
+
     ping_filler tmp_functor;
     m_server->ForEachClientDo(tmp_functor);
 
-    if (!IsGameTypeSingle() && (Phase() == GAME_PHASE_INPROGRESS))
+    if (Level().game)
     {
-        m_item_respawner.update(Level().timeServer());
-    }
-
-    if (!GEnv.isDedicatedServer)
-    {
-        if (Level().game)
-        {
-            CScriptProcess* script_process = GEnv.ScriptEngine->script_process(ScriptProcessor::Game);
-            if (script_process)
-                script_process->update();
-        }
+        CScriptProcess* script_process = GEnv.ScriptEngine->script_process(ScriptProcessor::Game);
+        if (script_process)
+            script_process->update();
     }
 }
 
@@ -644,8 +593,7 @@ game_sv_GameState::game_sv_GameState()
 
 game_sv_GameState::~game_sv_GameState()
 {
-    if (!GEnv.isDedicatedServer)
-        GEnv.ScriptEngine->remove_script_process(ScriptProcessor::Game);
+    GEnv.ScriptEngine->remove_script_process(ScriptProcessor::Game);
     xr_delete(m_event_queue);
 
     SaveMapList();
@@ -709,16 +657,8 @@ void game_sv_GameState::OnEvent(NET_Packet& tNetPacket, u16 type, u32 time, Clie
         u16 id_src = tNetPacket.r_u16();
         CSE_Abstract* e_src = get_entity_from_eid(id_src);
 
-        if (!e_src) // && !IsGameTypeSingle() added by andy because of Phantom does not have server entity
-        {
-            if (IsGameTypeSingle())
-                break;
-
-            game_PlayerState* ps = get_eid(id_src);
-            if (!ps)
-                break;
-            id_src = ps->GameID;
-        }
+        if (!e_src)
+            break;
 
         OnHit(id_src, id_dest, tNetPacket);
         m_server->SendBroadcast(BroadcastCID, tNetPacket, net_flags(TRUE, TRUE));
@@ -751,13 +691,10 @@ void game_sv_GameState::OnEvent(NET_Packet& tNetPacket, u16 type, u32 time, Clie
         CL->ps->m_online_time = Level().timeServer();
         CL->ps->DeathTime = Device.dwTimeGlobal;
 
-        if (psNET_direct_connect) // IsGameTypeSingle())
+        if (psNET_direct_connect)
             break;
 
         if (Level().IsDemoPlay())
-            break;
-
-        if (GEnv.isDedicatedServer && (CL == m_server->GetServerClient()))
             break;
 
         CheckNewPlayer(CL);
@@ -823,27 +760,8 @@ void game_sv_GameState::OnSwitchPhase(u32 old_phase, u32 new_phase)
 
 void game_sv_GameState::AddDelayedEvent(NET_Packet& tNetPacket, u16 type, u32 time, ClientID sender)
 {
-    //	OnEvent(tNetPacket,type,time,sender);
-    if (IsGameTypeSingle())
-    {
-        m_event_queue->Create(tNetPacket, type, time, sender);
-        return;
-    }
-    switch (type)
-    {
-    case GAME_EVENT_PLAYER_STARTED:
-    case GAME_EVENT_PLAYER_READY:
-    case GAME_EVENT_VOTE_START:
-    case GAME_EVENT_VOTE_YES:
-    case GAME_EVENT_VOTE_NO:
-    case GAME_EVENT_PLAYER_AUTH:
-    case GAME_EVENT_CREATE_PLAYER_STATE: { m_event_queue->Create(tNetPacket, type, time, sender);
-    }
-    break;
-    default: { m_event_queue->CreateSafe(tNetPacket, type, time, sender);
-    }
-    break;
-    }
+    m_event_queue->Create(tNetPacket, type, time, sender);
+    return;
 }
 
 void game_sv_GameState::ProcessDelayedEvent()

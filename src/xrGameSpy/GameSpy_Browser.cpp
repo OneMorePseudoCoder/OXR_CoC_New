@@ -263,7 +263,6 @@ void CGameSpy_Browser::ReadServerInfo(ServerInfo* pServerInfo, void* gsServer)
     pServerInfo->m_ServerNumTeams = (s16)GetInt(pServer, NUMTEAMS_KEY, 0);
     pServerInfo->m_Port = (s16)GetInt(pServer, HOSTPORT_KEY, 0);
     pServerInfo->m_HPort = (s16)SBServerGetPublicQueryPort(pServer);
-    pServerInfo->m_bDedicated = GetBool(pServer, DEDICATED_KEY);
     pServerInfo->m_GameType = (u8)GetInt(pServer, GAMETYPE_NAME_KEY, 0);
     if (pServerInfo->m_GameType == 0)
     {

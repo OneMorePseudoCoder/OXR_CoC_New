@@ -103,11 +103,7 @@ void InitSettings()
 
 void InitConsole()
 {
-    if (GEnv.isDedicatedServer)
-        Console = xr_new<CTextConsole>();
-    else
-        Console = xr_new<CConsole>();
-
+    Console = xr_new<CConsole>();
     Console->Initialize();
     xr_strcpy(Console->ConfigFile, "user.ltx");
     if (strstr(Core.Params, "-ltx "))
@@ -162,8 +158,7 @@ CApplication::CApplication(pcstr commandLine)
 
 #ifdef XR_PLATFORM_WINDOWS
     AccessibilityShortcuts shortcuts;
-    if (!GEnv.isDedicatedServer)
-        shortcuts.Disable();
+    shortcuts.Disable();
 #endif
 
 #ifdef USE_DISCORD_INTEGRATION

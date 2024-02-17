@@ -7,7 +7,6 @@
 
 void CBackend::OnFrameEnd()
 {
-    if (!GEnv.isDedicatedServer)
     {
 #if !defined(USE_DX9) && !defined(USE_OGL)
         HW.get_context(CHW::IMM_CTX_ID)->ClearState();
@@ -25,7 +24,6 @@ void CBackend::OnFrameEnd()
 
 void CBackend::OnFrameBegin()
 {
-    if (!GEnv.isDedicatedServer)
     {
         PGO(Msg("PGO:*****frame[%d]*****", Device.dwFrame));
 

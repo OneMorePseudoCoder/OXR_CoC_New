@@ -39,8 +39,7 @@ void CActor::AddEncyclopediaArticle(const CInfoPortion* info_portion) const
     auto B = article_vector.begin();
     auto E = last_end;
 
-    for (ARTICLE_ID_VECTOR::const_iterator it = info_portion->ArticlesDisable().begin();
-        it != info_portion->ArticlesDisable().end(); it++)
+    for (ARTICLE_ID_VECTOR::const_iterator it = info_portion->ArticlesDisable().begin(); it != info_portion->ArticlesDisable().end(); it++)
     {
         FindArticleByIDPred pred(*it);
         last_end = std::remove_if(B, last_end, pred);
@@ -48,8 +47,7 @@ void CActor::AddEncyclopediaArticle(const CInfoPortion* info_portion) const
     article_vector.erase(last_end, E);
 
 
-    for (ARTICLE_ID_VECTOR::const_iterator it = info_portion->Articles().begin();
-        it != info_portion->Articles().end(); it++)
+    for (ARTICLE_ID_VECTOR::const_iterator it = info_portion->Articles().begin(); it != info_portion->Articles().end(); it++)
     {
         FindArticleByIDPred pred(*it);
         if (std::find_if(article_vector.begin(), article_vector.end(), pred) != article_vector.end()) continue;
@@ -236,7 +234,6 @@ void CActor::RunTalkDialog(CInventoryOwner* talk_partner, bool disable_break)
         if (CurrentGameUI()->TopInputReceiver())
             CurrentGameUI()->TopInputReceiver()->HideDialog();
 
-        //		smart_cast<CUIGameSP*>(CurrentGameUI())->StartTalk(disable_break);
         smart_cast<CUIGameSP*>(CurrentGameUI())->StartTalk(talk_partner->bDisableBreakDialog);
     }
 }
@@ -256,9 +253,6 @@ void CActor::StartTalk(CInventoryOwner* talk_partner)
 
 void CActor::NewPdaContact(CInventoryOwner* pInvOwner)
 {
-    if (!IsGameTypeSingle())
-        return;
-
     auto entityAlive = smart_cast<CEntityAlive*>(pInvOwner);
     const bool isAlive = !!entityAlive->g_Alive();
     const bool isMonster = entityAlive->cast_base_monster(); // no sound for monsters

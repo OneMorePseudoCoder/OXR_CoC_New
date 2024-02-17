@@ -13,8 +13,7 @@
 ENGINE_API IGame_Level* g_pGameLevel = NULL;
 extern bool g_bLoaded;
 
-IGame_Level::IGame_Level()
-    : ObjectSpace(&g_pGamePersistent->SpatialSpace)
+IGame_Level::IGame_Level() : ObjectSpace(&g_pGamePersistent->SpatialSpace)
 {
     m_pCameras = xr_new<CCameraManager>(true);
     g_pGameLevel = this;
@@ -121,24 +120,18 @@ bool IGame_Level::Load(u32 dwNum)
 
     // Render-level Load
     GEnv.Render->level_Load(LL_Stream);
-    // tscreate.FrameEnd ();
-    // Msg ("* S-CREATE: %f ms, %d times",tscreate.result,tscreate.count);
 
     // Objects
     g_pGamePersistent->Environment().mods_load();
     R_ASSERT(Load_GameSpecific_Before());
     Objects.Load();
-    //. ANDY R_ASSERT (Load_GameSpecific_After ());
 
     // Done
     FS.r_close(LL_Stream);
     bReady = true;
 
-    if (!GEnv.isDedicatedServer)
-    {
-        IR_Capture();
-        Device.seqRender.Add(this);
-    }
+    IR_Capture();
+    Device.seqRender.Add(this);
 
     Device.seqFrame.Add(this);
     return true;
@@ -147,14 +140,6 @@ bool IGame_Level::Load(u32 dwNum)
 int psNET_DedicatedSleep = 5;
 void IGame_Level::OnRender()
 {
-    if (GEnv.isDedicatedServer)
-    {
-        Sleep(psNET_DedicatedSleep);
-        return;
-    }
-
-    // if (_abs(Device.fTimeDelta)<EPS_S) return;
-
 #ifdef _GPA_ENABLED
     TAL_ID rtID = TAL_MakeID(1, Core.dwFrame, 0);
     TAL_CreateID(rtID);
@@ -170,18 +155,11 @@ void IGame_Level::OnRender()
 #ifdef _GPA_ENABLED
     TAL_RetireID(rtID);
 #endif // _GPA_ENABLED
-
-    // Font
-    // pApp->pFontSystem->SetSizeI(0.023f);
-    // pApp->pFontSystem->OnRender();
 }
 
 void IGame_Level::OnFrame()
 {
     SoundEvent_Dispatch();
-
-    // Log ("- level:on-frame: ",u32(Device.dwFrame));
-    // if (_abs(Device.fTimeDelta)<EPS_S) return;
 
     // Update all objects
     VERIFY(bReady);
@@ -216,9 +194,7 @@ void CServerInfo::AddItem(pcstr name_, pcstr value_, u32 color_)
 void CServerInfo::AddItem(shared_str& name_, pcstr value_, u32 color_)
 {
     SItem_ServerInfo it;
-    // shared_str s_name = CStringTable().translate( name_ );
 
-    // xr_strcpy( it.name, s_name.c_str() );
     xr_strcpy(it.name, name_.c_str());
     xr_strcat(it.name, " = ");
     xr_strcat(it.name, value_);
@@ -328,10 +304,7 @@ void IGame_Level::SoundEvent_Dispatch()
         VERIFY(D.dest && D.source);
         if (D.source->feedback)
         {
-            D.dest->feel_sound_new(D.source->g_object, D.source->g_type, D.source->g_userdata,
-
-                D.source->feedback->is_2D() ? Device.vCameraPosition : D.source->feedback->get_params()->position,
-                D.power);
+            D.dest->feel_sound_new(D.source->g_object, D.source->g_type, D.source->g_userdata, D.source->feedback->is_2D() ? Device.vCameraPosition : D.source->feedback->get_params()->position, D.power);
         }
         snd_Events.pop_back();
     }

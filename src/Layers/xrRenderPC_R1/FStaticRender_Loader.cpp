@@ -49,37 +49,34 @@ void CRender::level_Load(IReader* fs)
     rmFar(RCache);
     rmNormal(RCache);
 
-    if (!GEnv.isDedicatedServer)
+    // VB,IB,SWI
+    g_pGamePersistent->LoadTitle("st_loading_geometry");
     {
-        // VB,IB,SWI
-        g_pGamePersistent->LoadTitle("st_loading_geometry");
-        {
-            CStreamReader* geom = FS.rs_open("$level$", "level.geom");
-            R_ASSERT2(geom, "level.geom");
-            LoadBuffers(geom, false);
-            LoadSWIs(geom);
-            FS.r_close(geom);
-        }
-
-        //...and alternate/fast geometry
-        if (ps_r1_force_geomx)
-        {
-            CStreamReader* geom = FS.rs_open("$level$", "level.geomx");
-            R_ASSERT2(geom, "level.geomX");
-            LoadBuffers(geom, true);
-            FS.r_close(geom);
-        }
-
-        // Visuals
-        g_pGamePersistent->LoadTitle("st_loading_spatial_db");
-        chunk = fs->open_chunk(fsL_VISUALS);
-        LoadVisuals(chunk);
-        chunk->close();
-
-        // Details
-        g_pGamePersistent->LoadTitle("st_loading_details");
-        Details->Load();
+        CStreamReader* geom = FS.rs_open("$level$", "level.geom");
+        R_ASSERT2(geom, "level.geom");
+        LoadBuffers(geom, false);
+        LoadSWIs(geom);
+        FS.r_close(geom);
     }
+
+    //...and alternate/fast geometry
+    if (ps_r1_force_geomx)
+    {
+        CStreamReader* geom = FS.rs_open("$level$", "level.geomx");
+        R_ASSERT2(geom, "level.geomX");
+        LoadBuffers(geom, true);
+        FS.r_close(geom);
+    }
+
+    // Visuals
+    g_pGamePersistent->LoadTitle("st_loading_spatial_db");
+    chunk = fs->open_chunk(fsL_VISUALS);
+    LoadVisuals(chunk);
+    chunk->close();
+
+    // Details
+    g_pGamePersistent->LoadTitle("st_loading_details");
+    Details->Load();
 
     // Sectors
     g_pGamePersistent->LoadTitle("st_loading_sectors_portals");

@@ -74,36 +74,22 @@ bool CWeaponMagazinedWGrenade::net_Spawn(CSE_Abstract* DC)
 
     m_DefaultCartridge2.Load(m_ammoTypes2[m_ammoType2].c_str(), m_ammoType2);
 
-    if (!IsGameTypeSingle())
+    xr_vector<CCartridge>* pM = NULL;
+    bool b_if_grenade_mode = (m_bGrenadeMode && iAmmoElapsed && !getRocketCount());
+    if (b_if_grenade_mode)
+        pM = &m_magazine;
+
+    bool b_if_simple_mode = (!m_bGrenadeMode && m_magazine2.size() && !getRocketCount());
+    if (b_if_simple_mode)
+        pM = &m_magazine2;
+
+    if (b_if_grenade_mode || b_if_simple_mode)
     {
-        if (!m_bGrenadeMode && IsGrenadeLauncherAttached() && !getRocketCount() && iAmmoElapsed2)
-        {
-            m_magazine2.push_back(m_DefaultCartridge2);
+        shared_str fake_grenade_name = pSettings->r_string(pM->back().m_ammoSect, "fake_grenade_name");
 
-            shared_str grenade_name = m_DefaultCartridge2.m_ammoSect;
-            shared_str fake_grenade_name = pSettings->r_string(grenade_name, "fake_grenade_name");
-
-            CRocketLauncher::SpawnRocket(*fake_grenade_name, this);
-        }
+        CRocketLauncher::SpawnRocket(*fake_grenade_name, this);
     }
-    else
-    {
-        xr_vector<CCartridge>* pM = NULL;
-        bool b_if_grenade_mode = (m_bGrenadeMode && iAmmoElapsed && !getRocketCount());
-        if (b_if_grenade_mode)
-            pM = &m_magazine;
 
-        bool b_if_simple_mode = (!m_bGrenadeMode && m_magazine2.size() && !getRocketCount());
-        if (b_if_simple_mode)
-            pM = &m_magazine2;
-
-        if (b_if_grenade_mode || b_if_simple_mode)
-        {
-            shared_str fake_grenade_name = pSettings->r_string(pM->back().m_ammoSect, "fake_grenade_name");
-
-            CRocketLauncher::SpawnRocket(*fake_grenade_name, this);
-        }
-    }
     return l_res;
 }
 
@@ -303,8 +289,8 @@ void CWeaponMagazinedWGrenade::LaunchGrenade()
             }
             E->g_fireParams(this, p1, d);
         }
-        if (IsGameTypeSingle())
-            p1.set(get_LastFP2());
+
+        p1.set(get_LastFP2());
 
         Fmatrix launch_matrix;
         launch_matrix.identity();
@@ -313,7 +299,7 @@ void CWeaponMagazinedWGrenade::LaunchGrenade()
 
         launch_matrix.c.set(p1);
 
-        if (IsGameTypeSingle() && IsZoomed() && smart_cast<CActor*>(H_Parent()))
+        if (IsZoomed() && smart_cast<CActor*>(H_Parent()))
         {
             H_Parent()->setEnabled(FALSE);
             setEnabled(FALSE);
@@ -329,19 +315,8 @@ void CWeaponMagazinedWGrenade::LaunchGrenade()
                 Fvector Transference;
                 Transference.mul(d, RQ.range);
                 Fvector res[2];
-#ifdef DEBUG
-//.				DBG_OpenCashedDraw();
-//.				DBG_DrawLine(p1,Fvector().add(p1,d),color_xrgb(255,0,0));
-#endif
-                u8 canfire0 = TransferenceAndThrowVelToThrowDir(
-                    Transference, CRocketLauncher::m_fLaunchSpeed, EffectiveGravity(), res);
-#ifdef DEBUG
-//.				if(canfire0>0)DBG_DrawLine(p1,Fvector().add(p1,res[0]),color_xrgb(0,255,0));
-//.				if(canfire0>1)DBG_DrawLine(p1,Fvector().add(p1,res[1]),color_xrgb(0,0,255));
-//.				DBG_ClosedCashedDraw(30000);
-#endif
 
-                if (canfire0 != 0)
+                if (TransferenceAndThrowVelToThrowDir(Transference, CRocketLauncher::m_fLaunchSpeed, EffectiveGravity(), res) != 0)
                 {
                     d = res[0];
                 };

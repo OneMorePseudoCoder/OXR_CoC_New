@@ -30,8 +30,7 @@ void CHelmet::Load(LPCSTR section)
     m_HitTypeProtection[ALife::eHitTypeChemicalBurn] = pSettings->r_float(section, "chemical_burn_protection");
     m_HitTypeProtection[ALife::eHitTypeExplosion] = pSettings->r_float(section, "explosion_protection");
     m_HitTypeProtection[ALife::eHitTypeFireWound] = 0.0f; // pSettings->r_float(section,"fire_wound_protection");
-    m_HitTypeProtection[ALife::eHitTypePhysicStrike] = pSettings->read_if_exists<float>(
-        section, "physic_strike_protection", m_HitTypeProtection[ALife::eHitTypeStrike]);
+    m_HitTypeProtection[ALife::eHitTypePhysicStrike] = pSettings->read_if_exists<float>(section, "physic_strike_protection", m_HitTypeProtection[ALife::eHitTypeStrike]);
     m_HitTypeProtection[ALife::eHitTypeLightBurn] = m_HitTypeProtection[ALife::eHitTypeBurn];
     m_boneProtection->m_fHitFracActor = pSettings->r_float(section, "hit_fraction_actor");
 
@@ -57,9 +56,7 @@ void CHelmet::Load(LPCSTR section)
 
 void CHelmet::ReloadBonesProtection()
 {
-    IGameObject* parent = H_Parent();
-    if (IsGameTypeSingle())
-        parent = smart_cast<IGameObject*>(Level().CurrentViewEntity());
+    IGameObject* parent = smart_cast<IGameObject*>(Level().CurrentViewEntity());
 
     if (parent && parent->Visual() && m_BonesProtectionSect.size())
         m_boneProtection->reload(m_BonesProtectionSect, smart_cast<IKinematics*>(parent->Visual()));
@@ -67,8 +64,7 @@ void CHelmet::ReloadBonesProtection()
 
 bool CHelmet::net_Spawn(CSE_Abstract* DC)
 {
-    if (IsGameTypeSingle())
-        ReloadBonesProtection();
+    ReloadBonesProtection();
 
     BOOL res = inherited::net_Spawn(DC);
     return (res);
@@ -91,7 +87,6 @@ void CHelmet::net_Import(NET_Packet& P)
 void CHelmet::OnH_A_Chield()
 {
     inherited::OnH_A_Chield();
-    //	ReloadBonesProtection();
 }
 
 void CHelmet::OnMoveToSlot(const SInvItemPlace& previous_place)
@@ -143,28 +138,20 @@ float CHelmet::GetHitTypeProtection(ALife::EHitType hit_type, s16 element)
 }
 
 float CHelmet::GetBoneArmor(s16 element) { return m_boneProtection->getBoneArmor(element); }
+
 bool CHelmet::install_upgrade_impl(LPCSTR section, bool test)
 {
     bool result = inherited::install_upgrade_impl(section, test);
 
-    result |= process_if_exists(
-        section, "burn_protection", &CInifile::r_float, m_HitTypeProtection[ALife::eHitTypeBurn], test);
-    result |= process_if_exists(
-        section, "shock_protection", &CInifile::r_float, m_HitTypeProtection[ALife::eHitTypeShock], test);
-    result |= process_if_exists(
-        section, "strike_protection", &CInifile::r_float, m_HitTypeProtection[ALife::eHitTypeStrike], test);
-    result |= process_if_exists(
-        section, "wound_protection", &CInifile::r_float, m_HitTypeProtection[ALife::eHitTypeWound], test);
-    result |= process_if_exists(
-        section, "radiation_protection", &CInifile::r_float, m_HitTypeProtection[ALife::eHitTypeRadiation], test);
-    result |= process_if_exists(
-        section, "telepatic_protection", &CInifile::r_float, m_HitTypeProtection[ALife::eHitTypeTelepatic], test);
-    result |= process_if_exists(section, "chemical_burn_protection", &CInifile::r_float,
-                                m_HitTypeProtection[ALife::eHitTypeChemicalBurn], test);
-    result |= process_if_exists(
-        section, "explosion_protection", &CInifile::r_float, m_HitTypeProtection[ALife::eHitTypeExplosion], test);
-    result |= process_if_exists(
-        section, "fire_wound_protection", &CInifile::r_float, m_HitTypeProtection[ALife::eHitTypeFireWound], test);
+    result |= process_if_exists(section, "burn_protection", &CInifile::r_float, m_HitTypeProtection[ALife::eHitTypeBurn], test);
+    result |= process_if_exists(section, "shock_protection", &CInifile::r_float, m_HitTypeProtection[ALife::eHitTypeShock], test);
+    result |= process_if_exists(section, "strike_protection", &CInifile::r_float, m_HitTypeProtection[ALife::eHitTypeStrike], test);
+    result |= process_if_exists(section, "wound_protection", &CInifile::r_float, m_HitTypeProtection[ALife::eHitTypeWound], test);
+    result |= process_if_exists(section, "radiation_protection", &CInifile::r_float, m_HitTypeProtection[ALife::eHitTypeRadiation], test);
+    result |= process_if_exists(section, "telepatic_protection", &CInifile::r_float, m_HitTypeProtection[ALife::eHitTypeTelepatic], test);
+    result |= process_if_exists(section, "chemical_burn_protection", &CInifile::r_float, m_HitTypeProtection[ALife::eHitTypeChemicalBurn], test);
+    result |= process_if_exists(section, "explosion_protection", &CInifile::r_float, m_HitTypeProtection[ALife::eHitTypeExplosion], test);
+    result |= process_if_exists(section, "fire_wound_protection", &CInifile::r_float, m_HitTypeProtection[ALife::eHitTypeFireWound], test);
 
     LPCSTR str{};
     bool result2 = process_if_exists_set(section, "nightvision_sect", &CInifile::r_string, str, test);
@@ -183,8 +170,7 @@ bool CHelmet::install_upgrade_impl(LPCSTR section, bool test)
     result |= process_if_exists(section, "power_loss", &CInifile::r_float, m_fPowerLoss, test);
     clamp(m_fPowerLoss, 0.0f, 1.0f);
 
-    result |= process_if_exists(
-        section, "nearest_enemies_show_dist", &CInifile::r_float, m_fShowNearestEnemiesDistance, test);
+    result |= process_if_exists(section, "nearest_enemies_show_dist", &CInifile::r_float, m_fShowNearestEnemiesDistance, test);
 
     result2 = process_if_exists_set(section, "bones_koeff_protection", &CInifile::r_string, str, test);
     if (result2 && !test)
@@ -201,9 +187,7 @@ bool CHelmet::install_upgrade_impl(LPCSTR section, bool test)
 
 void CHelmet::AddBonesProtection(LPCSTR bones_section)
 {
-    IGameObject* parent = H_Parent();
-    if (IsGameTypeSingle())
-        parent = smart_cast<IGameObject*>(Level().CurrentViewEntity());
+    IGameObject* parent = smart_cast<IGameObject*>(Level().CurrentViewEntity());
 
     if (parent && parent->Visual() && m_BonesProtectionSect.size())
         m_boneProtection->add(bones_section, smart_cast<IKinematics*>(parent->Visual()));
@@ -219,10 +203,10 @@ float CHelmet::HitThroughArmor(float hit_power, s16 element, float ap, bool& add
             return NewHitPower;
 
         float BoneArmor = ba * GetCondition();
-        if (/*!fis_zero(ba, EPS) && */ (ap > BoneArmor))
+        if (ap > BoneArmor)
         {
             //пуля пробила бронь
-            if (!IsGameTypeSingle())
+            if (0)
             {
                 float hit_fraction = (ap - BoneArmor) / ap;
                 if (hit_fraction < m_boneProtection->m_fHitFracActor)

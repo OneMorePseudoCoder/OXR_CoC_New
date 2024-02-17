@@ -115,9 +115,6 @@ void game_cl_CaptureTheArtefact::shedule_Update(u32 dt)
 {
     inherited::shedule_Update(dt);
 
-    if (GEnv.isDedicatedServer)
-        return;
-
     if ((Level().IsDemoPlayStarted() || Level().IsDemoPlayFinished()) && m_game_ui)
     {
         game_PlayerState* lookat_player = Game().lookat_player();
@@ -660,26 +657,20 @@ void game_cl_CaptureTheArtefact::net_import_update(NET_Packet& P)
 bool game_cl_CaptureTheArtefact::InWarmUp() const { return m_inWarmup; }
 CUIGameCustom* game_cl_CaptureTheArtefact::createGameUI()
 {
-    if (GEnv.isDedicatedServer)
-        return NULL;
-
     m_game_ui = smart_cast<CUIGameCTA*>(NEW_INSTANCE(CLSID_GAME_UI_CAPTURETHEARTEFACT));
     VERIFY2(m_game_ui, "failed to create Capture The Artefact game UI");
     m_game_ui->Load();
-    // m_game_ui->Init		(0);
-    // m_game_ui->Init		(1);
-    // m_game_ui->Init		(2);
     LoadMessagesMenu(::detail::mp::capture_the_artefact::MESSAGE_MENUS);
     return m_game_ui;
 }
 
 const shared_str& game_cl_CaptureTheArtefact::GetLocalPlayerTeamSection() const
 {
-    VERIFY2(TeamList.size() > local_player->team,
-        make_string("local_player has not valid team number: %d", local_player->team).c_str());
+    VERIFY2(TeamList.size() > local_player->team, make_string("local_player has not valid team number: %d", local_player->team).c_str());
     cl_TeamStruct const* pTeamSect = &(TeamList[local_player->team]);
     return pTeamSect->caSection;
 }
+
 ETeam game_cl_CaptureTheArtefact::GetLocalPlayerTeam() const
 {
     VERIFY(local_player);
@@ -723,9 +714,6 @@ void game_cl_CaptureTheArtefact::OnGameMenuRespond_ChangeTeam(NET_Packet& P)
     m_bTeamSelected = TRUE;
     VERIFY(local_player);
     Msg("* player [%s][%d] changed team to %d", local_player->getName(), local_player->GameID, local_player->team);
-    /*shared_str const & teamSection = GetLocalPlayerTeamSection();
-    m_game_ui->UpdateBuyMenu(teamSection, BASECOST_SECTION);
-    m_game_ui->UpdateSkinMenu(teamSection);*/
     OnTeamChanged();
     if (m_reward_generator)
         m_reward_generator->OnPlayerChangeTeam(local_player->team);
@@ -739,8 +727,6 @@ void game_cl_CaptureTheArtefact::UpdateMapLocations()
 {
     using namespace ::detail::mp::capture_the_artefact;
 
-    if (GEnv.isDedicatedServer)
-        return;
     // updating firends indicator
     if (!local_player)
         return;
@@ -829,26 +815,10 @@ void game_cl_CaptureTheArtefact::OnSpawn(IGameObject* pObj)
 
     inherited::OnSpawn(pObj);
 
-    if (GEnv.isDedicatedServer)
-        return;
-
     CArtefact* pArtefact = smart_cast<CArtefact*>(pObj);
     if (pArtefact)
     {
         Level().MapManager().AddMapLocation(ARTEFACT_NEUTRAL, pObj->ID())->EnablePointer();
-        /*if (OnServer()) // huck :( - server logic must be ONLY ON SERVER !!!
-        {
-            if (GetGreenArtefactID() == pArtefact->ID())
-            {
-                pArtefact->MoveTo(GetGreenArtefactRPoint());
-            } else if (GetBlueArtefactID() == pArtefact->ID())
-            {
-                pArtefact->MoveTo(GetBlueArtefactRPoint());
-            } else
-            {
-                VERIFY2(false, "unknown artefact in game");
-            }
-        }*/
         return;
     }
     CActor* pActor = smart_cast<CActor*>(pObj);
@@ -1654,7 +1624,6 @@ void game_cl_CaptureTheArtefact::OnConnected()
     inherited::OnConnected();
     if (m_game_ui)
     {
-        VERIFY(!GEnv.isDedicatedServer);
         m_game_ui = smart_cast<CUIGameCTA*>(CurrentGameUI());
         m_game_ui->SetClGame(this);
     }

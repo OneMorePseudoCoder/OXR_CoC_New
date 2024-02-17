@@ -28,9 +28,6 @@ ref_light precache_light = 0;
 
 bool CRenderDevice::RenderBegin()
 {
-    if (GEnv.isDedicatedServer)
-        return true;
-
     switch (GEnv.Render->GetDeviceState())
     {
     case DeviceState::Normal: break;
@@ -84,9 +81,6 @@ void CheckPrivilegySlowdown()
 
 void CRenderDevice::RenderEnd(void)
 {
-    if (GEnv.isDedicatedServer)
-        return;
-
     if (dwPrecacheFrame)
     {
         GEnv.Sound->set_master_volume(0.f);
@@ -134,9 +128,7 @@ void CRenderDevice::RenderEnd(void)
 
 void CRenderDevice::PreCache(u32 amount, bool wait_user_input)
 {
-    if (GEnv.isDedicatedServer)
-        amount = 0;
-    else if (GEnv.Render->GetForceGPU_REF())
+    if (GEnv.Render->GetForceGPU_REF())
         amount = 0;
 
     dwPrecacheFrame = dwPrecacheTotal = amount;
@@ -233,9 +225,6 @@ void CRenderDevice::BeforeRender()
 
 void CRenderDevice::DoRender()
 {
-    if (GEnv.isDedicatedServer)
-        return;
-
     CStatTimer renderTotalReal;
     renderTotalReal.FrameStart();
     renderTotalReal.Begin();
@@ -281,10 +270,7 @@ void CRenderDevice::ProcessFrame()
 
     u32 updateDelta = 1000 / ps_fps_limit;
 
-    if (GEnv.isDedicatedServer)
-        updateDelta = 1000 / g_svDedicateServerUpdateReate;
-
-    else if (Paused() || g_pGameLevel == nullptr)
+    if (Paused() || g_pGameLevel == nullptr)
         updateDelta = 1000 / ps_fps_limit_in_menu;
 
     if (frameTime < updateDelta)
@@ -393,7 +379,7 @@ void CRenderDevice::Run()
     UpdateWindowProps();
     SDL_ShowWindow(m_sdlWnd);
     SDL_RaiseWindow(m_sdlWnd);
-    if (GEnv.isDedicatedServer || strstr(Core.Params, "-center_screen"))
+    if (strstr(Core.Params, "-center_screen"))
         SDL_SetWindowPosition(m_sdlWnd, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
 }
 
@@ -464,7 +450,7 @@ ENGINE_API bool bShowPauseString = true;
 void CRenderDevice::Pause(bool bOn, bool bTimer, bool bSound, [[maybe_unused]] pcstr reason)
 {
     static int snd_emitters_ = -1;
-    if (g_bBenchmark || GEnv.isDedicatedServer)
+    if (g_bBenchmark)
         return;
 
     if (bOn)
@@ -516,7 +502,7 @@ bool CRenderDevice::Paused() { return g_pauseMngr().Paused(); }
 
 void CRenderDevice::OnWindowActivate(bool activated)
 {
-    if (!GEnv.isDedicatedServer && activated)
+    if (activated)
         pInput->GrabInput(true);
     else
         pInput->GrabInput(false);

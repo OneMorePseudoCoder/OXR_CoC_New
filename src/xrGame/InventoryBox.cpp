@@ -78,6 +78,7 @@ void CInventoryBox::OnEvent(NET_Packet& P, u16 type)
 
 void CInventoryBox::UpdateCL() { inherited::UpdateCL(); }
 void CInventoryBox::net_Destroy() { inherited::net_Destroy(); }
+
 #include "xrServerEntities/xrServer_Objects_ALife.h"
 bool CInventoryBox::net_Spawn(CSE_Abstract* DC)
 {
@@ -87,7 +88,7 @@ bool CInventoryBox::net_Spawn(CSE_Abstract* DC)
     set_tip_text("inventory_box_use");
 
     CSE_ALifeInventoryBox* pSE_box = smart_cast<CSE_ALifeInventoryBox*>(DC);
-    if (/*IsGameTypeSingle() &&*/ pSE_box)
+    if (pSE_box)
     {
         m_can_take = pSE_box->m_can_take;
         m_closed = pSE_box->m_closed;
@@ -98,6 +99,7 @@ bool CInventoryBox::net_Spawn(CSE_Abstract* DC)
 }
 
 void CInventoryBox::net_Relcase(IGameObject* O) { inherited::net_Relcase(O); }
+
 #include "inventory_item.h"
 void CInventoryBox::AddAvailableItems(TIItemContainer& items_container) const
 {

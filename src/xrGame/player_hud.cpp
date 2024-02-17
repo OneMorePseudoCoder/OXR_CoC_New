@@ -26,10 +26,7 @@ constexpr float TENDTO_SPEED_AIM  = 8.f;    // (Для прицеливания)
 
 float CalcMotionSpeed(const shared_str& anim_name)
 {
-    if (!IsGameTypeSingle() && (anim_name == "anm_show" || anim_name == "anm_hide"))
-        return 2.0f;
-    else
-        return 1.0f;
+    return 1.0f;
 }
 
 const player_hud_motion* player_hud_motion_container::find_motion(const shared_str& name) const
@@ -44,8 +41,7 @@ void player_hud_motion_container::load(IKinematicsAnimated* model, const shared_
 
     for (const auto& [name, anm] : _sect.Data)
     {
-        if (0 == strncmp(name.c_str(), "anm_",  sizeof("anm_")  - 1) ||
-            0 == strncmp(name.c_str(), "anim_", sizeof("anim_") - 1))
+        if (0 == strncmp(name.c_str(), "anm_",  sizeof("anm_")  - 1) || 0 == strncmp(name.c_str(), "anim_", sizeof("anim_") - 1))
         {
             player_hud_motion pm;
 
@@ -467,10 +463,8 @@ u32 attachable_hud_item::anim_play(const shared_str& anm_name_b, BOOL bMixIn, co
 
     R_ASSERT2(m_parent_hud_item, "parent hud item is NULL");
     CPhysicItem& parent_object = m_parent_hud_item->object();
-    // R_ASSERT2		(parent_object, "object has no parent actor");
-    // IGameObject*		parent_object = static_cast_checked<IGameObject*>(&m_parent_hud_item->object());
 
-    if (IsGameTypeSingle() && parent_object.H_Parent() == Level().CurrentControlEntity())
+    if (parent_object.H_Parent() == Level().CurrentControlEntity())
     {
         CActor* current_actor = static_cast_checked<CActor*>(Level().CurrentControlEntity());
         VERIFY(current_actor);

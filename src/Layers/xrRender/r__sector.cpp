@@ -126,11 +126,6 @@ void CPortal::setup(const level_portal_data_t& data, const xr_vector<CSector*>& 
     N.div(float(_cnt));
     P.build(poly[0], N);
     FPU::m24r();
-
-    /*
-    if (_abs(1-P.n.magnitude())<EPS)
-    xrDebug::Fatal      (DEBUG_INFO,"Degenerated portal found at {%3.2f,%3.2f,%3.2f}.",VPUSH(poly[0]));
-    */
 }
 
 void CSector::setup(const level_sector_data_t& data, const xr_vector<CPortal*> &portals)
@@ -144,11 +139,6 @@ void CSector::setup(const level_sector_data_t& data, const xr_vector<CPortal*> &
         m_portals[idx] = portals[ID];
     }
 
-    if (GEnv.isDedicatedServer)
-        m_root = nullptr;
-    else
-    {
-        // Assign visual
-        m_root = static_cast<dxRender_Visual*>(RImplementation.getVisual(data.root_id));
-    }
+    // Assign visual
+    m_root = static_cast<dxRender_Visual*>(RImplementation.getVisual(data.root_id));
 }

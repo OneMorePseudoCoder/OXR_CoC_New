@@ -165,7 +165,6 @@ protected:
     // Statistic
     IServerStatistic stats;
     CTimer* device_timer;
-    bool m_bDedicated;
 
     IClient* ID_to_client(ClientID ID, bool ScanAll = false);
 

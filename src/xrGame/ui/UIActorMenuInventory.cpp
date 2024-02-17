@@ -134,9 +134,6 @@ void CUIActorMenu::SendEvent_Item_Eat(PIItem pItem, u16 recipient)
 void CUIActorMenu::SendEvent_Item_Drop(PIItem pItem, u16 recipient)
 {
     R_ASSERT(pItem->parent_id() == recipient);
-    if (!IsGameTypeSingle())
-        pItem->DenyTrade();
-    // pItem->SetDropManual			(TRUE);
     NET_Packet P;
     pItem->object().u_EventGen(P, GE_OWNERSHIP_REJECT, pItem->parent_id());
     P.w_u16(pItem->object().ID());
@@ -996,9 +993,6 @@ void CUIActorMenu::PropertiesBoxForWeapon(CUICellItem* cell_item, PIItem item, b
             m_UIPropertiesBox->AddItem("st_detach_gl", NULL, INVENTORY_DETACH_GRENADE_LAUNCHER_ADDON);
             b_show = true;
         }
-        else
-        {
-        }
     }
     if (pWeapon->ScopeAttachable())
     {
@@ -1006,9 +1000,6 @@ void CUIActorMenu::PropertiesBoxForWeapon(CUICellItem* cell_item, PIItem item, b
         {
             m_UIPropertiesBox->AddItem("st_detach_scope", NULL, INVENTORY_DETACH_SCOPE_ADDON);
             b_show = true;
-        }
-        else
-        {
         }
     }
     if (pWeapon->SilencerAttachable())
@@ -1018,11 +1009,8 @@ void CUIActorMenu::PropertiesBoxForWeapon(CUICellItem* cell_item, PIItem item, b
             m_UIPropertiesBox->AddItem("st_detach_silencer", NULL, INVENTORY_DETACH_SILENCER_ADDON);
             b_show = true;
         }
-        else
-        {
-        }
     }
-    if (smart_cast<CWeaponMagazined*>(pWeapon) && IsGameTypeSingle())
+    if (smart_cast<CWeaponMagazined*>(pWeapon))
     {
         bool b = (pWeapon->GetAmmoElapsed() != 0);
         if (!b)
@@ -1048,7 +1036,6 @@ void CUIActorMenu::PropertiesBoxForWeapon(CUICellItem* cell_item, PIItem item, b
 void CUIActorMenu::PropertiesBoxForAddon(PIItem item, bool& b_show)
 {
     //присоединение аддонов к активному слоту (2 или 3)
-
     CScope* pScope = smart_cast<CScope*>(item);
     CSilencer* pSilencer = smart_cast<CSilencer*>(item);
     CGrenadeLauncher* pGrenadeLauncher = smart_cast<CGrenadeLauncher*>(item);

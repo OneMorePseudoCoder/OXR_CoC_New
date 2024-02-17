@@ -139,9 +139,6 @@ void game_cl_GameState::net_import_state(NET_Packet& P)
             //-----------------------------------------------
             IP->net_Import(P);
             //-----------------------------------------------
-            if (OldFlags != IP->flags__)
-                if (Type() != eGameIDSingle)
-                    OnPlayerFlagsChanged(IP);
             if (OldVote != IP->m_bCurrentVoteAgreed)
                 OnPlayerVoted(IP);
             //***********************************************
@@ -156,9 +153,6 @@ void game_cl_GameState::net_import_state(NET_Packet& P)
             }
 
             IP = createPlayerState(&P);
-
-            if (Type() != eGameIDSingle)
-                OnPlayerFlagsChanged(IP);
 
             players.emplace(ID, IP);
             valid_players.push_back(ID);
@@ -191,9 +185,6 @@ void game_cl_GameState::net_import_update(NET_Packet& P)
         //-----------------------------------------------
         IP->net_Import(P);
         //-----------------------------------------------
-        if (OldFlags != IP->flags__)
-            if (Type() != eGameIDSingle)
-                OnPlayerFlagsChanged(IP);
         if (OldVote != IP->m_bCurrentVoteAgreed)
             OnPlayerVoted(IP);
         //***********************************************
@@ -210,6 +201,7 @@ void game_cl_GameState::net_import_update(NET_Packet& P)
 }
 
 void game_cl_GameState::net_signal(NET_Packet& P) {}
+
 void game_cl_GameState::TranslateGameMessage(u32 msg, NET_Packet& P)
 {
     string512 Text;
@@ -233,11 +225,6 @@ void game_cl_GameState::TranslateGameMessage(u32 msg, NET_Packet& P)
         }
         VERIFY2(PS, "failed to create player state");
 
-        if (Type() != eGameIDSingle)
-        {
-            players.emplace(newClientId, PS);
-            OnNewPlayerConnected(newClientId);
-        }
         xr_sprintf(Text, "%s%s %s%s", Color_Teams[0], PS->getName(), Color_Main, *StringTable().translate("mp_connected"));
         if (CurrentGameUI())
             CurrentGameUI()->CommonMessageOut(Text);
@@ -335,16 +322,6 @@ void game_cl_GameState::shedule_Update(u32 dt)
         if (CurrentGameUI())
             m_game_ui_custom = CurrentGameUI();
     }
-    //---------------------------------------
-    switch (Phase())
-    {
-    case GAME_PHASE_INPROGRESS:
-    {
-        if (!IsGameTypeSingle())
-            m_WeaponUsageStatistic->Update();
-    }
-    break;
-    };
 };
 
 void game_cl_GameState::sv_GameEventGen(NET_Packet& P)

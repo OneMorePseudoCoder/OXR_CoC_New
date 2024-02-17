@@ -792,15 +792,10 @@ public:
 ENGINE_API float g_fov = 67.5f;
 ENGINE_API float psHUD_FOV = 0.45f;
 
-// extern int psSkeletonUpdate;
 extern int rsDVB_Size;
 extern int rsDIB_Size;
-
 extern int psNET_DedicatedSleep;
-
 extern Flags32 psEnvFlags;
-// extern float r__dtex_range;
-
 extern int g_ErrorLineCount;
 
 ENGINE_API int ps_r__Supersample = 1;
@@ -838,8 +833,6 @@ void CCC_Register()
 
     CMD3(CCC_Mask, "rs_clear_bb", &psDeviceFlags, rsClearBB);
 
-    // CMD4(CCC_Float, "r__dtex_range", &r__dtex_range, 5, 175 );
-    // CMD3(CCC_Mask, "rs_constant_fps", &psDeviceFlags, rsConstantFPS );
 #endif // DEBUG
 
 #ifndef MASTER_GOLD
@@ -860,7 +853,6 @@ void CCC_Register()
     CMD4(CCC_Integer, "rs_fps_limit_in_menu", &ps_fps_limit_in_menu, 30, 501);
     CMD3(CCC_Mask, "rs_always_active", &psDeviceFlags, rsAlwaysActive);
     CMD3(CCC_Mask, "rs_v_sync", &psDeviceFlags, rsVSync);
-    // CMD3(CCC_Mask, "rs_disable_objects_as_crows",&psDeviceFlags, rsDisableObjectsAsCrows );
     CMD1(CCC_Fullscreen, "rs_fullscreen");
     CMD1(CCC_Refresh60hz, "rs_refresh_60hz");
     CMD3(CCC_Mask, "rs_stats", &psDeviceFlags, rsStatistic);
@@ -871,14 +863,11 @@ void CCC_Register()
     CMD3(CCC_Mask, "rs_cam_pos", &psDeviceFlags, rsCameraPos);
 #ifdef DEBUG
     CMD3(CCC_Mask, "rs_occ_draw", &psDeviceFlags, rsOcclusionDraw);
-// CMD4(CCC_Integer, "rs_skeleton_update", &psSkeletonUpdate, 2, 128 );
 #endif // DEBUG
 
     CMD2(CCC_Gamma, "rs_c_gamma", &ps_gamma);
     CMD2(CCC_Gamma, "rs_c_brightness", &ps_brightness);
     CMD2(CCC_Gamma, "rs_c_contrast", &ps_contrast);
-    // CMD4(CCC_Integer, "rs_vb_size", &rsDVB_Size, 32, 4096);
-    // CMD4(CCC_Integer, "rs_ib_size", &rsDIB_Size, 32, 4096);
 
     // Texture manager
     CMD4(CCC_Integer, "texture_lod", &psTextureLOD, 0, 4);
@@ -943,10 +932,8 @@ void CCC_Register()
 
     CMD1(CCC_renderer, "renderer");
 
-    if (!GEnv.isDedicatedServer)
-        CMD1(CCC_soundDevice, "snd_device");
+    CMD1(CCC_soundDevice, "snd_device");
 
-    // psSoundRolloff = pSettings->r_float ("sound","rolloff"); clamp(psSoundRolloff, EPS_S, 2.f);
     psSoundOcclusionScale = pSettings->r_float("sound", "occlusion_scale");
     clamp(psSoundOcclusionScale, 0.1f, .5f);
 

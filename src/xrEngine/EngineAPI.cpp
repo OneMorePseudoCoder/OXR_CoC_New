@@ -172,21 +172,10 @@ void CEngineAPI::CreateRendererList()
         return true;
     };
 
-    if (GEnv.isDedicatedServer)
+    for (pcstr library : RENDER_LIBRARIES)
     {
-#if defined(XR_PLATFORM_WINDOWS)
-        R_ASSERT2(loadLibrary(r1_library), "Dedicated server needs xrRender_R1 to work");
-#else
-        R_ASSERT2(loadLibrary(gl_library), "Dedicated server needs xrRender_GL to work");
-#endif
-    }
-    else
-    {
-        for (pcstr library : RENDER_LIBRARIES)
-        {
-            if (loadLibrary(library) && library != r1_library)
-                r2_available = true;
-        }
+        if (loadLibrary(library) && library != r1_library)
+            r2_available = true;
     }
 
     int modeIndex{};
