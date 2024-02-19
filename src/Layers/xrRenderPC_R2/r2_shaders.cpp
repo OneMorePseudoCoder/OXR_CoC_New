@@ -5,8 +5,7 @@
 #include "xrCore/FileCRC32.h"
 
 template <typename T>
-static HRESULT create_shader(LPCSTR const pTarget, DWORD const* buffer, u32 const buffer_size, LPCSTR const file_name,
-    T*& result, bool const disasm)
+static HRESULT create_shader(LPCSTR const pTarget, DWORD const* buffer, u32 const buffer_size, LPCSTR const file_name, T*& result, bool const disasm)
 {
     HRESULT _hr = ShaderTypeTraits<T>::CreateHWShader(buffer, buffer_size, result->sh);
     if (FAILED(_hr))
@@ -46,8 +45,7 @@ static HRESULT create_shader(LPCSTR const pTarget, DWORD const* buffer, u32 cons
     return _hr;
 }
 
-inline HRESULT create_shader(LPCSTR const pTarget, DWORD const* buffer, u32 const buffer_size, LPCSTR const file_name,
-    void*& result, bool const disasm)
+inline HRESULT create_shader(LPCSTR const pTarget, DWORD const* buffer, u32 const buffer_size, LPCSTR const file_name, void*& result, bool const disasm)
 {
     if (pTarget[0] == 'p')
         return create_shader(pTarget, buffer, buffer_size, file_name, (SPS*&)result, disasm);
@@ -59,8 +57,7 @@ inline HRESULT create_shader(LPCSTR const pTarget, DWORD const* buffer, u32 cons
     return E_FAIL;
 }
 
-HRESULT CRender::shader_compile(
-    pcstr name, IReader* fs, pcstr pFunctionName, pcstr pTarget, u32 Flags, void*& result)
+HRESULT CRender::shader_compile(pcstr name, IReader* fs, pcstr pFunctionName, pcstr pTarget, u32 Flags, void*& result)
 {
     SHADER_MACRO defines[128];
     int def_it = 0;
@@ -495,8 +492,7 @@ HRESULT CRender::shader_compile(
 #ifdef DEBUG
                     Log("* Loading shader:", file_name);
 #endif
-                    _result =
-                        create_shader(pTarget, (DWORD*)file->pointer(), file->elapsed(), filename, result, o.disasm);
+                    _result = create_shader(pTarget, (DWORD*)file->pointer(), file->elapsed(), filename, result, o.disasm);
                 }
             }
         }

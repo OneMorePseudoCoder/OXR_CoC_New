@@ -30,6 +30,7 @@ CCameraBase::CCameraBase(IGameObject* p, u32 flags)
 }
 
 CCameraBase::~CCameraBase() {}
+
 void CCameraBase::Load(pcstr section)
 {
     rot_speed = pSettings->r_fvector3(section, "rot_speed");
@@ -47,35 +48,22 @@ void CCameraBase::Load(pcstr section)
 }
 
 IC float AClamp(Fvector2& l, float v) { return (2 * v - l[0] - l[1]) / (l[1] - l[0]); }
+
 float CCameraBase::CheckLimYaw()
 {
-    if (bClampYaw)
-    {
-        return AClamp(lim_yaw, yaw);
-    }
-    else
-        return 0;
+     return bClampYaw ? AClamp(lim_yaw, yaw) : 0;
 }
 
 float CCameraBase::CheckLimPitch()
 {
-    if (bClampYaw)
-    {
-        return AClamp(lim_pitch, pitch);
-    }
-    else
-        return 0;
+     return bClampYaw ? AClamp(lim_pitch, pitch) : 0;
 }
 
 float CCameraBase::CheckLimRoll()
 {
-    if (bClampYaw)
-    {
-        return AClamp(lim_roll, roll);
-    }
-    else
-        return 0;
+     return bClampYaw ? AClamp(lim_roll, roll) : 0;
 }
+
 SCamEffectorInfo::SCamEffectorInfo()
 {
     p.set(0, 0, 0);

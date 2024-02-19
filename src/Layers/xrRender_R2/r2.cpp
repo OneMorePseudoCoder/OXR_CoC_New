@@ -85,8 +85,7 @@ static class cl_pos_decompress_params : public R_constant_setup
 #else
 #   error No graphics API selected or enabled!
 #endif
-        cmd_list.set_c(
-            C, HorzTan, VertTan, (2.0f * HorzTan) / (float)Device.dwWidth, (2.0f * VertTan) / (float)Device.dwHeight);
+        cmd_list.set_c(C, HorzTan, VertTan, (2.0f * HorzTan) / (float)Device.dwWidth, (2.0f * VertTan) / (float)Device.dwHeight);
     }
 } binder_pos_decompress_params;
 
@@ -94,8 +93,7 @@ static class cl_pos_decompress_params2 : public R_constant_setup
 {
     void setup(CBackend& cmd_list, R_constant* C) override
     {
-        cmd_list.set_c(C, (float)Device.dwWidth, (float)Device.dwHeight, 1.0f / (float)Device.dwWidth,
-            1.0f / (float)Device.dwHeight);
+        cmd_list.set_c(C, (float)Device.dwWidth, (float)Device.dwHeight, 1.0f / (float)Device.dwWidth, 1.0f / (float)Device.dwHeight);
     }
 } binder_pos_decompress_params2;
 
@@ -622,7 +620,6 @@ void CRender::create()
     //	TODO: OGL: Implement FluidManager.
 #if defined(USE_DX11)
     FluidManager.Initialize(70, 70, 70);
-    //	FluidManager.Initialize( 100, 100, 100 );
     FluidManager.SetScreenSize(Device.dwWidth, Device.dwHeight);
 #endif
 }
@@ -675,9 +672,7 @@ void CRender::reset_begin()
     }
 
     //AVO: let's reload details while changed details options on vid_restart
-    if (b_loaded && (dm_current_size != dm_size ||
-        !fsimilar(ps_r__Detail_density, ps_current_detail_density) ||
-        !fsimilar(ps_r__Detail_height, ps_current_detail_height)))
+    if (b_loaded && (dm_current_size != dm_size || !fsimilar(ps_r__Detail_density, ps_current_detail_density) || !fsimilar(ps_r__Detail_height, ps_current_detail_height)))
     {
         Details->Unload();
         xr_delete(Details);
@@ -697,9 +692,7 @@ void CRender::reset_end()
     Target = xr_new<CRenderTarget>();
 
     //AVO: let's reload details while changed details options on vid_restart
-    if (b_loaded && (dm_current_size != dm_size ||
-        !fsimilar(ps_r__Detail_density, ps_current_detail_density) ||
-        !fsimilar(ps_r__Detail_height, ps_current_detail_height)))
+    if (b_loaded && (dm_current_size != dm_size || !fsimilar(ps_r__Detail_density, ps_current_detail_density) || !fsimilar(ps_r__Detail_height, ps_current_detail_height)))
     {
         Details = xr_new<CDetailManager>();
         Details->Load();
@@ -733,8 +726,7 @@ void CRender::OnFrame()
     if (ps_r2_ls_flags.test(R2FLAG_EXP_MT_CALC))
     {
         // MT-details (@front)
-        Device.seqParallel.insert(
-            Device.seqParallel.begin(), fastdelegate::FastDelegate0<>(Details, &CDetailManager::MT_CALC));
+        Device.seqParallel.insert(Device.seqParallel.begin(), fastdelegate::FastDelegate0<>(Details, &CDetailManager::MT_CALC));
     }
 
     if (Details)
@@ -749,8 +741,7 @@ IRender::RenderContext CRender::GetCurrentContext() const
 
 void CRender::MakeContextCurrent(RenderContext context)
 {
-    R_ASSERT3(HW.MakeContextCurrent(context) == 0,
-        "Failed to switch OpenGL context", SDL_GetError());
+    R_ASSERT3(HW.MakeContextCurrent(context) == 0, "Failed to switch OpenGL context", SDL_GetError());
 }
 #endif
 
@@ -803,13 +794,17 @@ IRenderVisual* CRender::model_CreateParticles(LPCSTR name)
     R_ASSERT3(SG, "Particle effect or group doesn't exist", name);
     return Models->CreatePG(SG);
 }
+
 void CRender::models_Prefetch() { Models->Prefetch(); }
+
 void CRender::models_Clear(bool b_complete) { Models->ClearPool(b_complete); }
+
 ref_shader CRender::getShader(int id)
 {
     VERIFY(id < int(Shaders.size()));
     return Shaders[id];
 }
+
 IRenderVisual* CRender::getVisual(int id)
 {
     VERIFY(id < int(Visuals.size()));
@@ -929,10 +924,7 @@ void CRender::rmNormal(CBackend& cmd_list)
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
-CRender::CRender()
-    : Sectors_xrc("render")
-{
-}
+CRender::CRender() : Sectors_xrc("render") {}
 
 CRender::~CRender() {}
 

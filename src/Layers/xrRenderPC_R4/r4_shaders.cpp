@@ -10,8 +10,7 @@ void CRender::addShaderOption(const char* name, const char* value)
 }
 
 template <typename T>
-static HRESULT create_shader(DWORD const* buffer, size_t const buffer_size, LPCSTR const file_name,
-    T*& result, bool const dx9compatibility)
+static HRESULT create_shader(DWORD const* buffer, size_t const buffer_size, LPCSTR const file_name, T*& result, bool const dx9compatibility)
 {
     HRESULT _hr = ShaderTypeTraits<T>::CreateHWShader(buffer, buffer_size, result->sh);
     if (!SUCCEEDED(_hr))
@@ -47,8 +46,7 @@ static HRESULT create_shader(DWORD const* buffer, size_t const buffer_size, LPCS
     return _hr;
 }
 
-static HRESULT create_shader(LPCSTR const pTarget, DWORD const* buffer, size_t const buffer_size, LPCSTR const file_name,
-    void*& result, bool const disasm, bool dx9compatibility)
+static HRESULT create_shader(LPCSTR const pTarget, DWORD const* buffer, size_t const buffer_size, LPCSTR const file_name, void*& result, bool const disasm, bool dx9compatibility)
 {
     HRESULT _result = E_FAIL;
     pcstr extension = ".hlsl";
@@ -120,8 +118,7 @@ static HRESULT create_shader(LPCSTR const pTarget, DWORD const* buffer, size_t c
 class includer : public ID3DInclude
 {
 public:
-    HRESULT __stdcall Open(
-        D3D10_INCLUDE_TYPE IncludeType, LPCSTR pFileName, LPCVOID pParentData, LPCVOID* ppData, UINT* pBytes)
+    HRESULT __stdcall Open(D3D10_INCLUDE_TYPE IncludeType, LPCSTR pFileName, LPCVOID pParentData, LPCVOID* ppData, UINT* pBytes)
     {
         string_path pname;
         strconcat(pname, RImplementation.getShaderPath(), pFileName);
@@ -212,8 +209,7 @@ public:
     D3D_SHADER_MACRO* data() { return m_options; }
 };
 
-HRESULT CRender::shader_compile(pcstr name, IReader* fs, pcstr pFunctionName,
-    pcstr pTarget, u32 Flags, void*& result)
+HRESULT CRender::shader_compile(pcstr name, IReader* fs, pcstr pFunctionName, pcstr pTarget, u32 Flags, void*& result)
 {
     shader_options_holder options;
     shader_name_holder sh_name;
@@ -516,7 +512,7 @@ HRESULT CRender::shader_compile(pcstr name, IReader* fs, pcstr pFunctionName,
 
     pcstr renderer;
     if (HW.FeatureLevel >= D3D_FEATURE_LEVEL_11_0)
-        renderer = "r4" DELIMITER;
+        renderer = o.new_shader_support ? "r5" DELIMITER : "r4" DELIMITER;
     else if (HW.FeatureLevel >= D3D_FEATURE_LEVEL_10_0)
         renderer = "r3" DELIMITER;
     else
@@ -560,9 +556,7 @@ HRESULT CRender::shader_compile(pcstr name, IReader* fs, pcstr pFunctionName,
 #ifdef DEBUG
                     Log("* Loading shader:", file_name);
 #endif
-                    _result =
-                        create_shader(pTarget, (DWORD*)file->pointer(), file->elapsed(),
-                            filename, result, o.disasm, dx9compatibility);
+                    _result = create_shader(pTarget, (DWORD*)file->pointer(), file->elapsed(), filename, result, o.disasm, dx9compatibility);
                 }
             }
         }
@@ -584,8 +578,7 @@ HRESULT CRender::shader_compile(pcstr name, IReader* fs, pcstr pFunctionName,
             {
                 pErrorBuf = nullptr;
                 Flags |= D3DCOMPILE_ENABLE_BACKWARDS_COMPATIBILITY;
-                _result = HW.D3DCompile(fs->pointer(), fs->length(), "", options.data(),
-                    &Includer, pFunctionName, pTarget, Flags, 0, &pShaderBuf, &pErrorBuf);
+                _result = HW.D3DCompile(fs->pointer(), fs->length(), "", options.data(), &Includer, pFunctionName, pTarget, Flags, 0, &pShaderBuf, &pErrorBuf);
             }
         }
 

@@ -37,9 +37,8 @@ public:
         fLifeTime -= Device.fTimeDelta;
         return Valid();
     };
-    ;
 
-    virtual void ProcessIfInvalid(SCamEffectorInfo& info){};
+    virtual void ProcessIfInvalid(SCamEffectorInfo& info) {};
     virtual bool AllowProcessingIfInvalid() { return false; }
     virtual bool AbsolutePositioning() { return false; }
 };
