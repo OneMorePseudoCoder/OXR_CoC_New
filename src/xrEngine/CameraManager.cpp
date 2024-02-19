@@ -145,7 +145,6 @@ void CCameraManager::RemovePPEffector(EEffectorPPType type)
             if ((*it)->FreeOnRemove())
             {
                 OnEffectorReleased(*it);
-                // xr_delete (*it);
             }
             m_EffectorsPP.erase(it);
             return;
@@ -162,8 +161,7 @@ void CCameraManager::OnEffectorReleased(SBaseEffector* e)
 
 void CCameraManager::UpdateFromCamera(const CCameraBase* C)
 {
-    Update(C->vPosition, C->vDirection, C->vNormal, C->f_fov, C->f_aspect,
-        g_pGamePersistent->Environment().CurrentEnv.far_plane, C->m_Flags.flags);
+    Update(C->vPosition, C->vDirection, C->vNormal, C->f_fov, C->f_aspect, g_pGamePersistent->Environment().CurrentEnv.far_plane, C->m_Flags.flags);
 }
 
 void CCameraManager::Update(const Fvector& P, const Fvector& D, const Fvector& N, float fFOV_Dest, float fASPECT_Dest,

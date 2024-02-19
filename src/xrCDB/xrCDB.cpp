@@ -28,7 +28,9 @@ MODEL::MODEL() :
     verts = 0;
     verts_count = 0;
     status = S_INIT;
+    version = 0;
 }
+
 MODEL::~MODEL()
 {
     syncronize(); // maybe model still in building
@@ -69,7 +71,6 @@ void MODEL::build_thread(void* params)
     P.M->build_internal(P.V, P.Vcnt, P.T, P.Tcnt, P.BC, P.BCP);
     P.M->status = S_READY;
     P.M->pcs->Leave();
-    // Msg						("* xrCDB: cform build completed, memory usage: %d K",P.M->memory()/1024);
 }
 
 void MODEL::build(Fvector* V, int Vcnt, TRI* T, int Tcnt, build_callback* bc, void* bcp)
@@ -197,7 +198,7 @@ bool MODEL::serialize(pcstr fileName, serialize_callback callback /*= nullptr*/)
     return true;
 }
 
-bool MODEL::deserialize(pcstr fileName, bool checkCrc32 /*= true*/, deserialize_callback callback /*= nullptr*/)
+bool MODEL::deserialize(pcstr fileName, bool checkCrc32, deserialize_callback callback)
 {
     IReader* rstream = FS.r_open(fileName);
     if (!rstream)

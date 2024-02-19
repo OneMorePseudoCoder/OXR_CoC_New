@@ -34,7 +34,6 @@ static const float MAX_NOISE_FREQ = 0.03f;
 // real WEATHER->WFX transition time
 #define WFX_TRANS_TIME 5.f
 
-
 //////////////////////////////////////////////////////////////////////////
 // environment
 CEnvironment::CEnvironment() : m_ambients_config(0)
@@ -75,9 +74,6 @@ CEnvironment::CEnvironment() : m_ambients_config(0)
     PerlinNoise1D = xr_new<CPerlinNoise1D>(Random.randI(0, 0xFFFF));
     PerlinNoise1D->SetOctaves(2);
     PerlinNoise1D->SetAmplitude(0.66666f);
-
-    // tsky0 = Device.Resources->_CreateTexture("$user$sky0");
-    // tsky1 = Device.Resources->_CreateTexture("$user$sky1");
 
     string_path filePath;
     const auto load_config = [&filePath](pcstr path) -> CInifile*
@@ -186,11 +182,8 @@ float CEnvironment::NormalizeTime(float tm)
 
 void CEnvironment::SetWeather(shared_str name, bool forced)
 {
-    //. static bool bAlready = false;
-    //. if(bAlready) return;
     if (name.size())
     {
-        //. bAlready = true;
         auto it = WeatherCycles.find(name);
         if (it == WeatherCycles.end())
         {
@@ -229,6 +222,7 @@ bool CEnvironment::SetWeatherFX(shared_str name)
 {
     if (bWFX)
         return false;
+
     if (name.size())
     {
         auto it = WeatherFXs.find(name);
@@ -245,8 +239,7 @@ bool CEnvironment::SetWeatherFX(shared_str name)
         float current_weight;
         if (Current[0]->exec_time > Current[1]->exec_time)
         {
-            float x = fGameTime > Current[0]->exec_time ? fGameTime - Current[0]->exec_time :
-                                                          (DAY_LENGTH - Current[0]->exec_time) + fGameTime;
+            float x = fGameTime > Current[0]->exec_time ? fGameTime - Current[0]->exec_time : (DAY_LENGTH - Current[0]->exec_time) + fGameTime;
             current_length = (DAY_LENGTH - Current[0]->exec_time) + Current[1]->exec_time;
             current_weight = x / current_length;
         }
@@ -263,8 +256,7 @@ bool CEnvironment::SetWeatherFX(shared_str name)
         CEnvDescriptor* CE = CurrentWeather->at(CurrentWeather->size() - 2);
         CEnvDescriptor* CT = CurrentWeather->at(CurrentWeather->size() - 1);
         C0->copy(*Current[0]);
-        C0->exec_time =
-            NormalizeTime(fGameTime - ((rewind_tm / (Current[1]->exec_time - fGameTime)) * current_length - rewind_tm));
+        C0->exec_time = NormalizeTime(fGameTime - ((rewind_tm / (Current[1]->exec_time - fGameTime)) * current_length - rewind_tm));
         C1->copy(*Current[1]);
         C1->exec_time = NormalizeTime(start_tm);
         for (auto t_it = CurrentWeather->begin() + 2; t_it != CurrentWeather->end() - 1; ++t_it)
@@ -283,8 +275,6 @@ bool CEnvironment::SetWeatherFX(shared_str name)
         Current[1] = C1;
 #ifdef WEATHER_LOGGING
         Msg("Starting WFX: '%s' - %3.2f sec", *name, wfx_time);
-// for (auto l_it=CurrentWeather->begin(); l_it!=CurrentWeather->end(); l_it++)
-// Msg (". Env: '%s' Tm: %3.2f",*(*l_it)->m_identifier.c_str(),(*l_it)->exec_time);
 #endif
     }
     else
@@ -316,23 +306,16 @@ void CEnvironment::StopWFX()
     Current[0] = WFX_end_desc[0];
     Current[1] = WFX_end_desc[1];
 #ifdef WEATHER_LOGGING
-    Msg("WFX - end. Weather: '%s' Desc: '%s'/'%s' GameTime: %3.2f", CurrentWeatherName.c_str(),
-        Current[0]->m_identifier.c_str(), Current[1]->m_identifier.c_str(), fGameTime);
+    Msg("WFX - end. Weather: '%s' Desc: '%s'/'%s' GameTime: %3.2f", CurrentWeatherName.c_str(), Current[0]->m_identifier.c_str(), Current[1]->m_identifier.c_str(), fGameTime);
 #endif
 }
 
 IC bool lb_env_pred(const CEnvDescriptor* x, float val) { return x->exec_time < val; }
+
 void CEnvironment::SelectEnv(EnvVec* envs, CEnvDescriptor*& e, float gt)
 {
     auto env = std::lower_bound(envs->begin(), envs->end(), gt, lb_env_pred);
-    if (env == envs->end())
-    {
-        e = envs->front();
-    }
-    else
-    {
-        e = *env;
-    }
+    e = env == envs->end() ? envs->front() : *env;
 }
 
 void CEnvironment::SelectEnvs(EnvVec* envs, CEnvDescriptor*& e0, CEnvDescriptor*& e1, float gt)
@@ -346,10 +329,7 @@ void CEnvironment::SelectEnvs(EnvVec* envs, CEnvDescriptor*& e0, CEnvDescriptor*
     else
     {
         e1 = *env;
-        if (env == envs->begin())
-            e0 = *(envs->end() - 1);
-        else
-            e0 = *(env - 1);
+        e0 = env == envs->begin() ? *(envs->end() - 1) : *(env - 1);
     }
 }
 
@@ -365,22 +345,14 @@ void CEnvironment::SelectEnvs(float gt)
     else
     {
         bool bSelect = false;
-        if (Current[0]->exec_time > Current[1]->exec_time)
-        {
-            // terminator
-            bSelect = (gt > Current[1]->exec_time) && (gt < Current[0]->exec_time);
-        }
-        else
-        {
-            bSelect = (gt > Current[1]->exec_time);
-        }
+        bSelect = Current[0]->exec_time > Current[1]->exec_time ? (gt > Current[1]->exec_time) && (gt < Current[0]->exec_time) : (gt > Current[1]->exec_time);
+
         if (bSelect)
         {
             Current[0] = Current[1];
             SelectEnv(CurrentWeather, Current[1], gt);
 #ifdef WEATHER_LOGGING
-            Msg("Weather: '%s' Desc: '%s' Time: %3.2f/%3.2f", CurrentWeatherName.c_str(),
-                Current[1]->m_identifier.c_str(), Current[1]->exec_time, fGameTime);
+            Msg("Weather: '%s' Desc: '%s' Time: %3.2f/%3.2f", CurrentWeatherName.c_str(), Current[1]->m_identifier.c_str(), Current[1]->exec_time, fGameTime);
 #endif
         }
     }
