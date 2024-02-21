@@ -105,15 +105,16 @@ const xr_token qwater_reflection_quality_token[] =
 };
 
 u32 ps_r3_msaa = 0; // = 0;
-const xr_token qmsaa_token[] = {{"st_opt_off", 0}, {"2x", 1}, {"4x", 2}, {"8x", 3},
-    {nullptr, 0}};
+const xr_token qmsaa_token[] = {{"st_opt_off", 0}, {"2x", 1}, {"4x", 2}, {"8x", 3}, {nullptr, 0}};
 
 u32 ps_r3_msaa_atest = 0; // = 0;
-const xr_token qmsaa__atest_token[] = {
-    {"st_opt_off", 0}, {"st_opt_atest_msaa_dx10_0", 1}, {"st_opt_atest_msaa_dx10_1", 2}, {nullptr, 0}};
+const xr_token qmsaa__atest_token[] = {{"st_opt_off", 0}, {"st_opt_atest_msaa_dx10_0", 1}, {"st_opt_atest_msaa_dx10_1", 2}, {nullptr, 0}};
 
 u32 ps_r3_minmax_sm = 3; // = 0;
 const xr_token qminmax_sm_token[] = {{"off", 0}, {"on", 1}, {"auto", 2}, {"autodetect", 3}, {nullptr, 0}};
+
+u32 ps_r3_rendering_space = 0; // = 0;
+const xr_token rendering__space_token[] = {{"gamma", 0}, {"linear", 1}, {nullptr, 0}};
 
 // “Off”
 // “DX10.0 style [Standard]”
@@ -1097,6 +1098,7 @@ void xrRender_initconsole()
     //CMD3(CCC_Mask, "r3_msaa_alphatest", &ps_r2_ls_flags, (u32)R3FLAG_MSAA_ALPHATEST);
     CMD3(CCC_Token, "r3_msaa_alphatest", &ps_r3_msaa_atest, qmsaa__atest_token);
     CMD3(CCC_Token, "r3_minmax_sm", &ps_r3_minmax_sm, qminmax_sm_token);
+    CMD3(CCC_Token, "r3_rendering_space", &ps_r3_rendering_space, rendering__space_token);
 
 //  Allow real-time fog config reload
 #if (RENDER == R_R3) || (RENDER == R_R4)

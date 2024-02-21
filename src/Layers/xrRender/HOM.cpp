@@ -11,8 +11,6 @@
 #include "xrEngine/GameFont.h"
 #include "xrEngine/PerformanceAlert.hpp"
 
-float psOSSR = .001f;
-
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
@@ -155,15 +153,11 @@ void CHOM::Render_DB(CFrustum& base)
     // Update projection matrices on every frame to ensure valid HOM culling
     float view_dim = occ_dim_0;
 #if defined(USE_DX9) || defined(USE_DX11)
-    Fmatrix m_viewport = {view_dim / 2.f, 0.0f, 0.0f, 0.0f, 0.0f, view_dim / 2.f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,
-        view_dim / 2.f + 0 + 0, view_dim / 2.f + 0 + 0, 0.0f, 1.0f};
-    Fmatrix m_viewport_01 = {1.f / 2.f, 0.0f, 0.0f, 0.0f, 0.0f, 1.f / 2.f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,
-        1.f / 2.f + 0 + 0, 1.f / 2.f + 0 + 0, 0.0f, 1.0f};
+    Fmatrix m_viewport = {view_dim / 2.f, 0.0f, 0.0f, 0.0f, 0.0f, view_dim / 2.f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, view_dim / 2.f + 0 + 0, view_dim / 2.f + 0 + 0, 0.0f, 1.0f};
+    Fmatrix m_viewport_01 = {1.f / 2.f, 0.0f, 0.0f, 0.0f, 0.0f, 1.f / 2.f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.f / 2.f + 0 + 0, 1.f / 2.f + 0 + 0, 0.0f, 1.0f};
 #elif defined(USE_OGL)
-    Fmatrix m_viewport = {view_dim / 2.f, 0.0f, 0.0f, 0.0f, 0.0f, -view_dim / 2.f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,
-        view_dim / 2.f + 0 + 0, view_dim / 2.f + 0 + 0, 0.0f, 1.0f};
-    Fmatrix m_viewport_01 = {1.f / 2.f, 0.0f, 0.0f, 0.0f, 0.0f, -1.f / 2.f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,
-        1.f / 2.f + 0 + 0, 1.f / 2.f + 0 + 0, 0.0f, 1.0f};
+    Fmatrix m_viewport = {view_dim / 2.f, 0.0f, 0.0f, 0.0f, 0.0f, -view_dim / 2.f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, view_dim / 2.f + 0 + 0, view_dim / 2.f + 0 + 0, 0.0f, 1.0f};
+    Fmatrix m_viewport_01 = {1.f / 2.f, 0.0f, 0.0f, 0.0f, 0.0f, -1.f / 2.f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.f / 2.f + 0 + 0, 1.f / 2.f + 0 + 0, 0.0f, 1.0f};
 #else
 #   error No graphics API selected or enabled!
 #endif
@@ -344,10 +338,14 @@ BOOL CHOM::visible(const Fbox2& B, float depth) const
 
 BOOL CHOM::visible(vis_data& vis) const
 {
-    if (Device.dwFrame < vis.hom_frame)
-        return TRUE; // not at this time :)
     if (!bEnabled)
         return TRUE; // return - everything visible
+
+    if (vis.hom_tested == Device.dwFrame)
+        return vis.hom_frame > vis.hom_tested;
+
+    if (Device.dwFrame < vis.hom_frame)
+        return TRUE; // not at this time :)
 
     ScopeStatTimer scopeStats(stats.Total, stats.TotalTimerLock);
 
@@ -357,20 +355,8 @@ BOOL CHOM::visible(vis_data& vis) const
     // 1. The object was visible, but we must to re-check it		- test		| frame-new, tested-???, hom_res = true;
     // 2. New object slides into view								- delay test| frame-old, tested-old, hom_res = ???;
     const u32 frame_current = Device.dwFrame;
-    // u32	frame_prev		= frame_current-1;
-
     const BOOL result = _visible(vis.box, m_xform_01);
-    u32 delay = 1;
-    if (result)
-    {
-        // visible	- delay next test
-        delay = ::Random.randI(5 * 2, 5 * 5);
-    }
-    else
-    {
-        // hidden	- shedule to next frame
-    }
-    vis.hom_frame = frame_current + delay;
+    vis.hom_frame = result ? frame_current + ::Random.randI(5 * 2, 5 * 5) : frame_current;
     vis.hom_tested = frame_current;
     return result;
 }

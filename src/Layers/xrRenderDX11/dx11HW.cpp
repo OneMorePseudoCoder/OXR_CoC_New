@@ -262,15 +262,9 @@ bool CHW::CreateSwapChain(HWND hwnd)
     sd.BufferDesc.Height = Device.dwHeight;
 
     //  TODO: DX11: implement dynamic format selection
-    constexpr DXGI_FORMAT formats[] =
-    {
-        //DXGI_FORMAT_R16G16B16A16_FLOAT, // Do we even need this?
-        //DXGI_FORMAT_R10G10B10A2_UNORM, // D3DX11SaveTextureToMemory fails on this format
-        DXGI_FORMAT_R8G8B8A8_UNORM,
-    };
+    sd.BufferDesc.Format = selectBackBufferFormat();
 
     // Select back-buffer format
-    sd.BufferDesc.Format = SelectFormat(D3D_FORMAT_SUPPORT_DISPLAY, formats);
     Caps.fTarget = dx11TextureUtils::ConvertTextureFormat(sd.BufferDesc.Format);
 
     // Buffering
@@ -319,16 +313,9 @@ bool CHW::CreateSwapChain2(HWND hwnd)
     // Back buffer
     desc.Width = Device.dwWidth;
     desc.Height = Device.dwHeight;
-
-    constexpr DXGI_FORMAT formats[] =
-    {
-        //DXGI_FORMAT_R16G16B16A16_FLOAT,
-        //DXGI_FORMAT_R10G10B10A2_UNORM,
-        DXGI_FORMAT_R8G8B8A8_UNORM,
-    };
+    desc.Format = selectBackBufferFormat();
 
     // Select back-buffer format
-    desc.Format = SelectFormat(D3D11_FORMAT_SUPPORT_DISPLAY, formats);
     Caps.fTarget = dx11TextureUtils::ConvertTextureFormat(desc.Format);
 
     // Buffering
@@ -377,6 +364,25 @@ bool CHW::CreateSwapChain2(HWND hwnd)
 #endif
 
     return false;
+}
+
+
+DXGI_FORMAT CHW::selectBackBufferFormat() const
+{
+    if (ps_r3_rendering_space == 1)
+    {
+        constexpr DXGI_FORMAT formats[] = {DXGI_FORMAT_R8G8B8A8_UNORM_SRGB};
+
+        // Select back-buffer format
+        return SelectFormat(D3D11_FORMAT_SUPPORT_DISPLAY, formats);
+    } 
+	else 
+	{
+        constexpr DXGI_FORMAT formats[] = {DXGI_FORMAT_R8G8B8A8_UNORM};
+
+        // Select back-buffer format
+        return SelectFormat(D3D11_FORMAT_SUPPORT_DISPLAY, formats);
+    }
 }
 
 bool CHW::ThisInstanceIsGlobal() const
@@ -429,10 +435,10 @@ void CHW::Reset()
     DXGI_MODE_DESC& desc = m_ChainDesc.BufferDesc;
     desc.Width = Device.dwWidth;
     desc.Height = Device.dwHeight;
+    desc.Format = selectBackBufferFormat();
 
     CHK_DX(m_pSwapChain->ResizeTarget(&desc));
-    CHK_DX(m_pSwapChain->ResizeBuffers(
-        cd.BufferCount, desc.Width, desc.Height, desc.Format, cd.Flags));
+    CHK_DX(m_pSwapChain->ResizeBuffers(cd.BufferCount, desc.Width, desc.Height, desc.Format, cd.Flags));
 }
 
 void CHW::SetPrimaryAttributes(u32& /*windowFlags*/)

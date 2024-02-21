@@ -88,18 +88,17 @@ void CActor::g_cl_ValidateMState(float dt, u32 mstate_wf)
         m_fJumpTime = s_fJumpTime;
         mstate_real &= ~(mcFall | mcJump);
     }
+
     if ((mstate_wf & mcJump) == 0)
         m_bJumpKeyPressed = FALSE;
 
     // Зажало-ли меня/уперся - не двигаюсь
-    if (((character_physics_support()->movement()->GetVelocityActual() < 0.2f) &&
-            (!(mstate_real & (mcFall | mcJump)))) ||
-        character_physics_support()->movement()->bSleep)
+    if (((character_physics_support()->movement()->GetVelocityActual() < 0.2f) && (!(mstate_real & (mcFall | mcJump)))) || character_physics_support()->movement()->bSleep)
     {
         mstate_real &= ~mcAnyMove;
     }
-    if (character_physics_support()->movement()->Environment() == CPHMovementControl::peOnGround ||
-        character_physics_support()->movement()->Environment() == CPHMovementControl::peAtWall)
+
+    if (character_physics_support()->movement()->Environment() == CPHMovementControl::peOnGround || character_physics_support()->movement()->Environment() == CPHMovementControl::peAtWall)
     {
         // если на земле гарантированно снимать флажок Jump
         if (((s_fJumpTime - m_fJumpTime) > s_fJumpGroundTime) && (mstate_real & mcJump))
@@ -108,6 +107,7 @@ void CActor::g_cl_ValidateMState(float dt, u32 mstate_wf)
             m_fJumpTime = s_fJumpTime;
         }
     }
+
     if (character_physics_support()->movement()->Environment() == CPHMovementControl::peAtWall)
     {
         if (!(mstate_real & mcClimb))
@@ -160,8 +160,7 @@ void CActor::g_cl_CheckControls(u32 mstate_wf, Fvector& vControlAccel, float& Ju
     mstate_old = mstate_real;
     vControlAccel.set(0, 0, 0);
 
-    if (!(mstate_real & mcFall) &&
-        (character_physics_support()->movement()->Environment() == CPHMovementControl::peInAir))
+    if (!(mstate_real & mcFall) && (character_physics_support()->movement()->Environment() == CPHMovementControl::peInAir))
     {
         m_fFallTime -= dt;
         if (m_fFallTime <= 0.f)
@@ -181,6 +180,7 @@ void CActor::g_cl_CheckControls(u32 mstate_wf, Fvector& vControlAccel, float& Ju
             mstate_wf &= ~mcJump;
         }
     }
+
     // update player accel
     if (mstate_wf & mcFwd)
         vControlAccel.z += 1;
@@ -438,19 +438,21 @@ void CActor::g_Orientate(u32 mstate_rl, float dt)
         if ((mstate_rl & mcLLookout) && (mstate_rl & mcRLookout))
             tgt_roll = 0.0f;
     }
+
     if (!fsimilar(tgt_roll, r_torso_tgt_roll, EPS))
     {
-        angle_lerp(r_torso_tgt_roll, tgt_roll, PI_MUL_2, dt);
+        r_torso_tgt_roll = angle_inertion_var(r_torso_tgt_roll, tgt_roll, 0.f, CurrentHeight * PI_MUL_2, PI_DIV_2, dt);
         r_torso_tgt_roll = angle_normalize_signed(r_torso_tgt_roll);
     }
 }
+
 bool CActor::g_LadderOrient()
 {
     Fvector leader_norm;
     character_physics_support()->movement()->GroundNormal(leader_norm);
     if (_abs(leader_norm.y) > M_SQRT1_2)
         return false;
-    // leader_norm.y=0.f;
+
     float mag = leader_norm.magnitude();
     if (mag < EPS_L)
         return false;
@@ -462,27 +464,9 @@ bool CActor::g_LadderOrient()
     M.j.set(0.f, 1.f, 0.f);
     generate_orthonormal_basis1(M.k, M.j, M.i);
     M.i.invert();
-    // M.j.invert();
 
-    // Fquaternion q1,q2,q3;
-    // q1.set(XFORM());
-    // q2.set(M);
-    // q3.slerp(q1,q2,dt);
-    // Fvector angles1,angles2,angles3;
-    // XFORM().getHPB(angles1.x,angles1.y,angles1.z);
-    // M.getHPB(angles2.x,angles2.y,angles2.z);
-    ////angle_lerp(angles3.x,angles1.x,angles2.x,dt);
-    ////angle_lerp(angles3.y,angles1.y,angles2.y,dt);
-    ////angle_lerp(angles3.z,angles1.z,angles2.z,dt);
-
-    // angles3.lerp(angles1,angles2,dt);
-    ////angle_lerp(angles3.y,angles1.y,angles2.y,dt);
-    ////angle_lerp(angles3.z,angles1.z,angles2.z,dt);
-    // angle_lerp(angles3.x,angles1.x,angles2.x,dt);
-    // XFORM().setHPB(angles3.x,angles3.y,angles3.z);
     Fvector position;
     position.set(Position());
-    // XFORM().rotation(q3);
     VERIFY2(_valid(M), "Invalide matrix in g_LadderOrient");
     XFORM().set(M);
     VERIFY2(_valid(position), "Invalide position in g_LadderOrient");
@@ -509,8 +493,7 @@ void CActor::g_cl_Orientate(u32 mstate_rl, float dt)
     unaffected_r_torso.pitch = r_torso.pitch;
     unaffected_r_torso.roll = r_torso.roll;
 
-    CWeaponMagazined* pWM = smart_cast<CWeaponMagazined*>(
-        inventory().GetActiveSlot() != NO_ACTIVE_SLOT ? inventory().ItemFromSlot(inventory().GetActiveSlot()) : NULL);
+    CWeaponMagazined* pWM = smart_cast<CWeaponMagazined*>(inventory().GetActiveSlot() != NO_ACTIVE_SLOT ? inventory().ItemFromSlot(inventory().GetActiveSlot()) : NULL);
     if (pWM && pWM->GetCurrentFireMode() == 1 && eacFirstEye != cam_active)
     {
         Fvector dangle = weapon_recoil_last_delta();
@@ -531,7 +514,6 @@ void CActor::g_cl_Orientate(u32 mstate_rl, float dt)
         if (_abs(r_model_yaw - ty) > PI_DIV_4)
         {
             r_model_yaw_dest = ty;
-            //
             mstate_real |= mcTurn;
         }
         if (_abs(r_model_yaw - r_model_yaw_dest) < EPS_L)

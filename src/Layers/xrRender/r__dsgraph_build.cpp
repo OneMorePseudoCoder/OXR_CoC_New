@@ -29,6 +29,7 @@ ICF float CalcSSA(float& distSQ, Fvector& C, dxRender_Visual* V)
     distSQ = Device.vCameraPosition.distance_to_sqr(C) + EPS;
     return R / distSQ;
 }
+
 ICF float CalcSSA(float& distSQ, Fvector& C, float R)
 {
     distSQ = Device.vCameraPosition.distance_to_sqr(C) + EPS;
@@ -220,6 +221,12 @@ void R_dsgraph_structure::insert_static(dxRender_Visual* pVisual)
         val_feedback->rfeedback_static(pVisual);
 
     counter_S++;
+
+    if (sh->flags.bLandscape && o.phase == CRender::PHASE_NORMAL)
+    {
+        mapLandscape.insert_anyway(distSQ, _MatrixItemS({ SSA, nullptr, pVisual, Fidentity, sh }));
+        return;
+    }
 
     for (u32 iPass = 0; iPass < sh->passes.size(); ++iPass)
     {

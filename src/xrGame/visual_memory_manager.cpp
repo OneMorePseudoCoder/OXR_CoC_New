@@ -295,6 +295,7 @@ float CVisualMemoryManager::object_luminocity(const CGameObject* game_object) co
 {
     if (!smart_cast<CActor const*>(game_object))
         return (1.f);
+
     float luminocity = const_cast<CGameObject*>(game_object)->ROS()->get_luminocity();
     float power = log(luminocity > .001f ? luminocity : .001f) * current_state().m_luminocity_factor;
     return (exp(power));
@@ -302,8 +303,7 @@ float CVisualMemoryManager::object_luminocity(const CGameObject* game_object) co
 
 float CVisualMemoryManager::get_object_velocity(const CGameObject* game_object, const CNotYetVisibleObject& not_yet_visible_object) const
 {
-    if ((game_object->ps_Size() < 2) ||
-        (not_yet_visible_object.m_prev_time == game_object->ps_Element(game_object->ps_Size() - 2).dwTime))
+    if ((game_object->ps_Size() < 2) || (not_yet_visible_object.m_prev_time == game_object->ps_Element(game_object->ps_Size() - 2).dwTime))
         return (0.f);
 
     GameObjectSavedPosition pos0 = game_object->ps_Element(game_object->ps_Size() - 2);
@@ -314,18 +314,28 @@ float CVisualMemoryManager::get_object_velocity(const CGameObject* game_object, 
 
 float CVisualMemoryManager::get_visible_value(const CGameObject* game_object, float distance, float object_distance, float time_delta, float object_velocity, float luminocity) const
 {
-    float always_visible_distance = current_state().m_always_visible_distance;
+	float always_visible_distance = current_state().m_always_visible_distance;
+	if (object_distance <= always_visible_distance)
+		return current_state().m_visibility_threshold;
 
-    if (distance <= always_visible_distance + EPS_L)
-        return (current_state().m_visibility_threshold);
+	if (distance <= always_visible_distance)
+		distance = always_visible_distance + EPS_L;
+
+	float fog_near = GamePersistent().Environment().CurrentEnv.fog_near;
+	float fog_far = GamePersistent().Environment().CurrentEnv.fog_far;
+	float fog_w = 1 / (fog_far - fog_near);
+	float fog_x = -fog_near * fog_w;
+	float fog = (object_distance * fog_w + fog_x) * current_state().m_fog_factor;
+	clamp(fog, 0.f, 1.f);
+	float fog_factor = 1.f - pow(fog, current_state().m_fog_pow);
 
     //Alundaio: hijack not_yet_visible_object to lua
     luabind::functor<float>	funct;
     if (GEnv.ScriptEngine->functor("visual_memory_manager.get_visible_value", funct))
-        return (funct(m_object ? m_object->lua_game_object() : 0, game_object ? game_object->lua_game_object() : 0, time_delta, current_state().m_time_quant, luminocity, current_state().m_velocity_factor, object_velocity, distance, object_distance, always_visible_distance));
+        return (funct(m_object ? m_object->lua_game_object() : 0, game_object ? game_object->lua_game_object() : 0, time_delta, current_state().m_time_quant, luminocity, current_state().m_velocity_factor, object_velocity, distance, object_distance, always_visible_distance, fog_factor));
     //-Alundaio
 
-    return (time_delta / current_state().m_time_quant * luminocity * (1.f + current_state().m_velocity_factor * object_velocity) * (distance - object_distance) / (distance - always_visible_distance));
+    return (time_delta / current_state().m_time_quant * luminocity * (1.f + current_state().m_velocity_factor * object_velocity) * (distance - object_distance) / (distance - always_visible_distance) * fog_factor);
 }
 
 CNotYetVisibleObject* CVisualMemoryManager::not_yet_visible_object(const CGameObject* game_object)

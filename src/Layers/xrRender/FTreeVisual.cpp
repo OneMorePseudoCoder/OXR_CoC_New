@@ -64,32 +64,7 @@ void FTreeVisual::Load(const char* N, IReader* data, u32 dwFlags)
         c_bias.rgb.mul(.5f);
         c_bias.hemi *= .5f;
         c_bias.sun *= .5f;
-        // Msg				("hemi[%f / %f], sun[%f / %f]",c_scale.hemi,c_bias.hemi,c_scale.sun,c_bias.sun);
     }
-
-    /*if (RImplementation.o.ffp && dcl_equal(vFormat, mu_model_decl_unpacked))
-    {
-        const size_t vertices_size = vCount * sizeof(mu_model_vert_unpacked);
-
-        const auto new_buffer = xr_new<VertexStagingBuffer>();
-        new_buffer->Create(vertices_size);
-
-        auto vert_new = static_cast<mu_model_vert_unpacked*>(new_buffer->Map());
-        const auto vert_orig = static_cast<mu_model_vert_unpacked*>(p_rm_Vertices->Map(vBase, vertices_size, true)); // read-back
-        CopyMemory(vert_new, vert_orig, vertices_size);
-
-        for (size_t i = 0; i < vCount; ++i)
-        {
-            //vert_new->P.mul(xform.j);
-            ++vert_new;
-        }
-
-        new_buffer->Unmap(true);
-        p_rm_Vertices->Unmap(false);
-        _RELEASE(p_rm_Vertices);
-        p_rm_Vertices = new_buffer;
-        vBase = 0;
-    }*/
 
     // Geom
     rm_geom.create(vFormat, *p_rm_Vertices, *p_rm_Indices);
@@ -114,7 +89,7 @@ struct FTreeVisual_setup
     Fvector4 wave;
     Fvector4 wind;
 
-    FTreeVisual_setup(): dwFrame(0), scale(0) {}
+    FTreeVisual_setup(): dwFrame(0), scale(M_MIN_SCALE) {}
 
     void calculate()
     {
@@ -123,23 +98,21 @@ struct FTreeVisual_setup
         const float tm_rot = PI_MUL_2 * Device.fTimeGlobal / ps_r__Tree_w_rot;
 
         // Calc wind-vector3, scale
-
         wind.set(_sin(tm_rot), 0, _cos(tm_rot), 0);
         wind.normalize();
 
 #if RENDER!=R_R1
         const auto& env = g_pGamePersistent->Environment().CurrentEnv;
         const float fValue = env.m_fTreeAmplitudeIntensity;
-        wind.mul(fValue); // dir1*amplitude
+        wind.mul(fValue);
 #else
-        wind.mul(ps_r__Tree_w_amp); // dir1*amplitude
+        wind.mul(ps_r__Tree_w_amp);
 #endif
 
         scale = 1.f / float(FTreeVisual_quant);
 
         // setup constants
-        wave.set(
-            ps_r__Tree_Wave.x, ps_r__Tree_Wave.y, ps_r__Tree_Wave.z, Device.fTimeGlobal * ps_r__Tree_w_speed); // wave
+        wave.set(ps_r__Tree_Wave.x, ps_r__Tree_Wave.y, ps_r__Tree_Wave.z, Device.fTimeGlobal * ps_r__Tree_w_speed); // wave
         wave.div(PI_MUL_2);
     }
 };

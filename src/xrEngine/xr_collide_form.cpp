@@ -13,8 +13,7 @@
 #ifdef DEBUG
 IC float DET(const Fmatrix& a)
 {
-    return ((a._11 * (a._22 * a._33 - a._23 * a._32) - a._12 * (a._21 * a._33 - a._23 * a._31) +
-        a._13 * (a._21 * a._32 - a._22 * a._31)));
+    return ((a._11 * (a._22 * a._33 - a._23 * a._32) - a._12 * (a._21 * a._33 - a._23 * a._31) + a._13 * (a._21 * a._32 - a._22 * a._31)));
 }
 #include "ObjectDump.h"
 #endif
@@ -70,12 +69,14 @@ IC bool RAYvsOBB(const Fmatrix& IM, const Fvector& b_hsize, const Fvector& S, co
     }
     return false;
 }
+
 IC bool RAYvsSPHERE(const Fsphere& s_sphere, const Fvector& S, const Fvector& D, float& R, bool bCull)
 {
     Fsphere::ERP_Result rp_res = s_sphere.intersect(S, D, R);
     VERIFY(R >= 0.f);
     return ((rp_res == Fsphere::rpOriginOutside) || (!bCull && (rp_res == Fsphere::rpOriginInside)));
 }
+
 IC bool RAYvsCYLINDER(const Fcylinder& c_cylinder, const Fvector& S, const Fvector& D, float& R, bool bCull)
 {
     // Actual test
@@ -141,9 +142,6 @@ void CCF_Skeleton::BuildState()
         {
             const Fobb& B = shape.box;
             B.xform_get(ME);
-
-            // VERIFY2( DET(ME)>EPS, ( make_string("0 scale bone matrix, %d \n", I->elem_id ) +
-            // dbg_object_full_dump_string( owner ) ).c_str() );
 
             I->b_hsize.set(B.m_halfsize);
             // prepare matrix World to Element
@@ -314,16 +312,14 @@ bool CCF_EventBox::Contact(IGameObject* O)
     }
     return true;
 }
+
 bool CCF_EventBox::_RayQuery(const collide::ray_defs& Q, collide::rq_results& R) { return false; }
-/*
-void CCF_EventBox::_BoxQuery(const Fbox& B, const Fmatrix& M, u32 flags)
-{ return; }
-*/
 
 //----------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------
 CCF_Shape::CCF_Shape(IGameObject* _owner) : ICollisionForm(_owner, cftShape) {}
+
 bool CCF_Shape::_RayQuery(const collide::ray_defs& Q, collide::rq_results& R)
 {
     // Convert ray into local model space
@@ -348,8 +344,7 @@ bool CCF_Shape::_RayQuery(const collide::ray_defs& Q, collide::rq_results& R)
         {
             // sphere
             Fsphere::ERP_Result rp_res = shape.data.sphere.intersect(dS, dD, range);
-            if ((rp_res == Fsphere::rpOriginOutside) ||
-                (!(Q.flags & CDB::OPT_CULL) && (rp_res == Fsphere::rpOriginInside)))
+            if ((rp_res == Fsphere::rpOriginOutside) || (!(Q.flags & CDB::OPT_CULL) && (rp_res == Fsphere::rpOriginInside)))
             {
                 bHIT = true;
                 R.append_result(owner, range, el, Q.flags & CDB::OPT_ONLYNEAREST);
@@ -385,10 +380,7 @@ bool CCF_Shape::_RayQuery(const collide::ray_defs& Q, collide::rq_results& R)
     }
     return bHIT;
 }
-/*
-void CCF_Shape::_BoxQuery(const Fbox& B, const Fmatrix& M, u32 flags)
-{ return; }
-*/
+
 void CCF_Shape::add_sphere(Fsphere& S)
 {
     shapes.push_back(shape_def());

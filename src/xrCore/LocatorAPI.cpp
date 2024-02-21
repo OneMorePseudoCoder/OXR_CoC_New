@@ -1112,8 +1112,7 @@ FileStatus CLocatorAPI::exist(string_path& fn, pcstr path, pcstr name, FSType fs
     return exist(fn, fsType);
 }
 
-FileStatus CLocatorAPI::exist(
-    string_path& fn, pcstr path, pcstr name, pcstr ext, FSType fsType /*= FSType::Virtual*/)
+FileStatus CLocatorAPI::exist(string_path& fn, pcstr path, pcstr name, pcstr ext, FSType fsType /*= FSType::Virtual*/)
 {
     string_path nm;
     strconcat(sizeof nm, nm, name, ext);
