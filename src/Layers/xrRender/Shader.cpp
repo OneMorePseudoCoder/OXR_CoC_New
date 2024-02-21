@@ -20,6 +20,7 @@ void resptrcode_shader::create(LPCSTR s_shader, LPCSTR s_textures, LPCSTR s_cons
 {
     _set(RImplementation.Resources->Create(s_shader, s_textures, s_constants, s_matrices));
 }
+
 void resptrcode_shader::create(IBlender* B, LPCSTR s_shader, LPCSTR s_textures, LPCSTR s_constants, LPCSTR s_matrices)
 {
     _set(RImplementation.Resources->Create(B, s_shader, s_textures, s_constants, s_matrices));
@@ -35,7 +36,6 @@ void resptrcode_geom::create(const VertexElement* decl, VertexBufferHandle vb, I
 {
     _set(RImplementation.Resources->CreateGeom(decl, vb, ib));
 }
-
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -86,6 +86,7 @@ ShaderElement::ShaderElement()
     flags.bEmissive = FALSE;
     flags.bDistort = FALSE;
     flags.bWmark = FALSE;
+    flags.bLandscape = FALSE;
 }
 
 BOOL ShaderElement::equal(ShaderElement& S)
@@ -99,6 +100,8 @@ BOOL ShaderElement::equal(ShaderElement& S)
     if (flags.bWmark != S.flags.bWmark)
         return FALSE;
     if (flags.bDistort != S.flags.bDistort)
+        return FALSE;
+    if (flags.bLandscape != S.flags.bLandscape) 
         return FALSE;
     if (passes.size() != S.passes.size())
         return FALSE;

@@ -10,6 +10,7 @@ void DestroySounds(xr_vector<ref_sound>& lst)
 }
 
 void DestroyPSs(xr_vector<shared_str>& lst) {}
+
 void CreateSounds(xr_vector<ref_sound>& lst, pcstr buf)
 {
     string128 tmp;

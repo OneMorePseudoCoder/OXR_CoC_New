@@ -119,6 +119,7 @@ void CGameMtlLibrary::Load()
         }
         OBJ->close();
     }
+
     const u32 mtlCount = materials.size();
     material_pairs_rt.resize(mtlCount * mtlCount, 0);
     for (const auto& mtlPair : material_pairs)

@@ -120,8 +120,6 @@ void* FileDownload(pcstr file_name, const int& file_handle, size_t& file_size)
     const auto r_bytes = _read(file_handle, buffer, file_size);
     R_ASSERT3(file_size == static_cast<size_t>(r_bytes), "Can't read from file : ", file_name);
 
-    // file_size = r_bytes;
-
     R_ASSERT3(!_close(file_handle), "can't close file : ", file_name);
 
     return (buffer);
@@ -137,6 +135,7 @@ void* FileDownload(pcstr file_name, size_t* buffer_size)
 
 typedef char MARK[9];
 IC void mk_mark(MARK& M, const char* S) { strncpy_s(M, sizeof(M), S, 8); }
+
 void FileCompress(pcstr fn, pcstr sign, void* data, size_t size)
 {
     MARK M;
@@ -240,9 +239,6 @@ void IWriter::w_compressed(void* ptr, size_t count)
     size_t dest_sz = 0;
     _compressLZ(&dest, &dest_sz, ptr, count);
 
-    // if (g_dummy_stuff)
-    // g_dummy_stuff (dest,dest_sz,dest);
-
     if (dest && dest_sz)
         w(dest, dest_sz);
     xr_free(dest);
@@ -257,6 +253,7 @@ void IWriter::w_chunk(u32 type, void* data, size_t size)
         w(data, size);
     close_chunk();
 }
+
 void IWriter::w_sdir(const Fvector& D)
 {
     Fvector C;
@@ -273,6 +270,7 @@ void IWriter::w_sdir(const Fvector& D)
     w_dir(C);
     w_float(mag);
 }
+
 // XXX: reimplement to prevent buffer overflows
 void IWriter::w_printf(const char* format, ...)
 {
@@ -313,6 +311,7 @@ IReader* IReader::open_chunk(u32 ID)
     else
         return 0;
 };
+
 void IReader::close()
 {
     IReader* self = this;
@@ -383,6 +382,7 @@ void IReader::r(void* p, size_t cnt)
 };
 
 IC bool is_term(char a) { return (a == 13) || (a == 10); };
+
 IC size_t IReader::advance_term_string()
 {
     size_t sz = 0;
@@ -400,6 +400,7 @@ IC size_t IReader::advance_term_string()
     }
     return sz;
 }
+
 void IReader::r_string(char* dest, size_t tgt_sz)
 {
     char* src = (char*)data + Pos;
@@ -412,12 +413,14 @@ void IReader::r_string(char* dest, size_t tgt_sz)
     strncpy_s(dest, tgt_sz, src, sz);
     dest[sz] = 0;
 }
+
 void IReader::r_string(xr_string& dest)
 {
     char* src = (char*)data + Pos;
     size_t sz = advance_term_string();
     dest.assign(src, sz);
 }
+
 void IReader::r_stringZ(char* dest, size_t tgt_sz)
 {
     char* src = (char*)data;
@@ -428,11 +431,13 @@ void IReader::r_stringZ(char* dest, size_t tgt_sz)
     *dest = 0;
     Pos++;
 }
+
 void IReader::r_stringZ(shared_str& dest)
 {
     dest = (char*)(data + Pos);
     Pos += (dest.size() + 1);
 }
+
 void IReader::r_stringZ(xr_string& dest)
 {
     dest = (char*)(data + Pos);
@@ -497,7 +502,9 @@ CCompressedReader::CCompressedReader(const char* name, const char* sign)
     data = (char*)FileDecompress(name, sign, (size_t*)&Size);
     Pos = 0;
 }
+
 CCompressedReader::~CCompressedReader() { xr_free(data); };
+
 CVirtualFileRW::CVirtualFileRW(pcstr cFileName)
 {
 #if defined(XR_PLATFORM_WINDOWS)

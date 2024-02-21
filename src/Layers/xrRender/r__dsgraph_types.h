@@ -64,6 +64,7 @@ using mapMatrixPasses_T = mapMatrix_T[SHADER_PASSES_MAX];
 
 // Top level
 using mapSorted_T = xr_fixed_map<float, _MatrixItemS>;
-using mapHUD_T    = xr_fixed_map<float, _MatrixItemS>;
-using mapLOD_T    = xr_fixed_map<float, _LodItem>;
+using mapHUD_T = xr_fixed_map<float, _MatrixItemS>;
+using mapLOD_T = xr_fixed_map<float, _LodItem>;
+using mapLandscape_T = xr_fixed_map<float, _MatrixItemS>;
 }
