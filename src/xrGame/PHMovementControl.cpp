@@ -1138,7 +1138,6 @@ void CPHMovementControl::ApplyHit(const Fvector& dir, const float P, ALife::EHit
         case ALife::eHitTypeBurn:; // stop
         case ALife::eHitTypeShock:; // stop
         case ALife::eHitTypeStrike:; // stop
-        case ALife::eHitTypePhysicStrike: // stop
         case ALife::eHitTypeWound:
             SetVelocity(Fvector().set(0, 0, 0));
             break; // stop							;
@@ -1149,8 +1148,9 @@ void CPHMovementControl::ApplyHit(const Fvector& dir, const float P, ALife::EHit
             break; // not stop
         case ALife::eHitTypeExplosion:; // stop
         case ALife::eHitTypeFireWound:; // stop
-        case ALife::eHitTypeWound_2:;
-            break; // stop		//knife's alternative fire
+        case ALife::eHitTypeWound_2:;   // stop		//knife's alternative fire
+        case ALife::eHitTypePhysicStrike: // stop
+            break; // stop
         default: NODEFAULT;
         }
     }
